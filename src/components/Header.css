@@ -1,0 +1,337 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  height: 82px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+
+  background: rgba(7, 7, 7, 0.88);
+
+  backdrop-filter: blur(18px);
+}
+
+/* CONTAINER */
+
+.header-container {
+  width: min(1240px, calc(100% - 48px));
+  height: 100%;
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* LOGO */
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  width: fit-content;
+}
+
+.logo span {
+  color: #f5f5f5;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  line-height: 1;
+
+  letter-spacing: 4px;
+}
+
+.logo strong {
+  color: var(--gold-light);
+
+  font-size: 9px;
+  font-weight: 600;
+
+  line-height: 1;
+
+  letter-spacing: 3px;
+}
+
+/* NAVIGATION */
+
+.main-nav {
+  display: flex;
+  align-items: center;
+
+  gap: 42px;
+}
+
+.main-nav a {
+  position: relative;
+
+  color: #a9a9a9;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  transition: color 0.25s ease;
+}
+
+.main-nav a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -9px;
+
+  width: 0;
+  height: 1px;
+
+  background: var(--gold-light);
+
+  transition: width 0.25s ease;
+}
+
+.main-nav a:hover {
+  color: #ffffff;
+}
+
+.main-nav a:hover::after {
+  width: 100%;
+}
+
+/* HEADER ACTIONS */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+}
+
+/* ICON BUTTONS */
+
+.header-icon,
+.header-cart {
+  position: relative;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #b8b8b8;
+
+  transition:
+    color 0.25s ease,
+    background 0.25s ease;
+}
+
+.header-icon:hover,
+.header-cart:hover {
+  color: var(--gold-light);
+
+  background: rgba(255, 255, 255, 0.035);
+}
+
+/* SVG ICONS */
+
+.header-icon svg,
+.header-cart svg {
+  width: 19px;
+  height: 19px;
+
+  fill: none;
+
+  stroke: currentColor;
+  stroke-width: 1.4;
+
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* CART */
+
+.header-cart svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* CART COUNT */
+
+.cart-count {
+  position: absolute;
+
+  top: 2px;
+  right: 1px;
+
+  min-width: 16px;
+  height: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: var(--gold);
+
+  color: #080808;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+/* MOBILE MENU */
+
+.menu-button {
+  width: 40px;
+  height: 40px;
+
+  display: none;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #b8b8b8;
+
+  transition: color 0.25s ease;
+}
+
+.menu-button:hover {
+  color: var(--gold-light);
+}
+
+.menu-button span {
+  width: 20px;
+  height: 1px;
+
+  background: currentColor;
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+  .main-nav {
+    gap: 25px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .site-header {
+    height: 74px;
+  }
+
+  .header-container {
+    width: calc(100% - 30px);
+  }
+
+  .logo span {
+    font-size: 16px;
+
+    letter-spacing: 3px;
+  }
+
+  .logo strong {
+    font-size: 8px;
+
+    letter-spacing: 2.5px;
+  }
+
+  /* MOBILE NAV */
+
+  .main-nav {
+    position: absolute;
+
+    top: 74px;
+    left: 0;
+    right: 0;
+
+    padding: 25px 20px;
+
+    display: none;
+
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 22px;
+
+    background: rgba(7, 7, 7, 0.98);
+
+    border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  }
+
+  .main-nav.open {
+    display: flex;
+  }
+
+  .main-nav a {
+    font-size: 14px;
+  }
+
+  /* ACTIONS */
+
+  .header-icon,
+  .header-cart,
+  .menu-button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .header-icon svg,
+  .header-cart svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* MENU */
+
+  .menu-button {
+    display: flex;
+  }
+}
+
+/* SMALL MOBILE */
+
+@media (max-width: 400px) {
+  .header-actions {
+    gap: 1px;
+  }
+
+  .header-icon,
+  .header-cart,
+  .menu-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo span {
+    font-size: 14px;
+  }
+
+  .logo strong {
+    font-size: 7px;
+  }
+}
