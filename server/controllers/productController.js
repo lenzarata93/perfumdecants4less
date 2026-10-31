@@ -1,5 +1,7 @@
-
 const Product = require("../models/Product");
+const {
+  calculateProductPrices,
+} = require("../utils/pricingEngine");
 
 const getProducts = async (req, res) => {
   try {
@@ -7,12 +9,27 @@ const getProducts = async (req, res) => {
       createdAt: -1,
     });
 
-    res.status(200).json(products);
+    const productsWithPrices = await Promise.all(
+      products.map(async (product) => {
+        const { prices } = await calculateProductPrices(product);
+
+        return {
+          ...product.toObject(),
+          pricePerMl: prices.pricePerMl,
+          price5ml: prices.price5ml,
+          price10ml: prices.price10ml,
+          price20ml: prices.price20ml,
+        };
+      })
+    );
+
+    res.status(200).json(productsWithPrices);
   } catch (error) {
     console.error("Get products error:", error);
 
     res.status(500).json({
       message: "Грешка при зареждане на продуктите.",
+      error: error.message,
     });
   }
 };
@@ -27,12 +44,23 @@ const getProductById = async (req, res) => {
       });
     }
 
-    res.status(200).json(product);
+    const { prices } = await calculateProductPrices(product);
+
+    const productWithPrices = {
+      ...product.toObject(),
+      pricePerMl: prices.pricePerMl,
+      price5ml: prices.price5ml,
+      price10ml: prices.price10ml,
+      price20ml: prices.price20ml,
+    };
+
+    res.status(200).json(productWithPrices);
   } catch (error) {
     console.error("Get product error:", error);
 
     res.status(500).json({
       message: "Грешка при зареждане на продукта.",
+      error: error.message,
     });
   }
 };
@@ -54,20 +82,6 @@ const createProduct = async (req, res) => {
 
 /*
  * Добавя нова бутилка към вече съществуващ продукт.
- *
- * Пример:
- *
- * initialMl: 100
- * purchasePrice: 130
- *
- * purchasePricePerMl:
- * 130 / 100 = 1.30 €/ml
- *
- * След добавянето:
- *
- * availableMl = стара наличност + initialMl
- *
- * Старите бутилки не се променят.
  */
 const addBottle = async (req, res) => {
   try {
@@ -76,33 +90,18 @@ const addBottle = async (req, res) => {
     const newInitialMl = Number(initialMl);
     const newPurchasePrice = Number(purchasePrice);
 
-    /*
-     * Проверка на количеството.
-     */
-    if (
-      !Number.isFinite(newInitialMl) ||
-      newInitialMl <= 0
-    ) {
+    if (!Number.isFinite(newInitialMl) || newInitialMl <= 0) {
       return res.status(400).json({
         message: "Количеството ml трябва да бъде по-голямо от 0.",
       });
     }
 
-    /*
-     * Проверка на покупната цена.
-     */
-    if (
-      !Number.isFinite(newPurchasePrice) ||
-      newPurchasePrice < 0
-    ) {
+    if (!Number.isFinite(newPurchasePrice) || newPurchasePrice < 0) {
       return res.status(400).json({
         message: "Покупната цена не е валидна.",
       });
     }
 
-    /*
-     * Намираме съществуващия продукт.
-     */
     const product = await Product.findById(req.params.id);
 
     if (!product) {
@@ -111,19 +110,9 @@ const addBottle = async (req, res) => {
       });
     }
 
-    /*
-     * Изчисляваме себестойността на 1 ml.
-     */
     const purchasePricePerMl =
       newPurchasePrice / newInitialMl;
 
-    /*
-     * Създаваме новата бутилка.
-     *
-     * Ако няма подадена дата,
-     * Mongoose ще използва текущата дата
-     * благодарение на default: Date.now.
-     */
     const newBottle = {
       initialMl: newInitialMl,
       remainingMl: newInitialMl,
@@ -143,14 +132,8 @@ const addBottle = async (req, res) => {
       newBottle.purchaseDate = parsedDate;
     }
 
-    /*
-     * Добавяме новата бутилка.
-     */
     product.bottles.push(newBottle);
 
-    /*
-     * Увеличаваме общата наличност.
-     */
     product.availableMl =
       Number(product.availableMl || 0) +
       newInitialMl;
