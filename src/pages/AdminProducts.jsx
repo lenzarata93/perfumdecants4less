@@ -1,473 +1,573 @@
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
+import Header from "../components/Header";
 import "./AdminProducts.css";
 
-const initialFormData = {
-  name: "",
-  brand: "",
-  description: "",
-  gender: "",
-  category: "",
-  image: "",
-  pricePerMl: "",
-  price5ml: "",
-  price10ml: "",
-  price20ml: "",
-  initialMl: "",
-  purchasePrice: "",
-  rating: "",
-  comments: "",
-  active: true,
-};
+const API_URL = "http://localhost:5000/api/products";
 
 function AdminProducts() {
-  const [formData, setFormData] = useState(initialFormData);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
+  const [expandedProductId, setExpandedProductId] = useState(null);
 
-    setFormData((previous) => ({
-      ...previous,
-      [name]: type === "checkbox" ? checked : value,
+  const [bottleForm, setBottleForm] = useState({
+    initialMl: "",
+    purchasePrice: "",
+    purchaseDate: new Date().toISOString().slice(0, 10),
+  });
+
+  const [addingBottleId, setAddingBottleId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(API_URL);
+
+      if (!response.ok) {
+        throw new Error("Грешка при зареждане на продуктите.");
+      }
+
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("Admin products fetch error:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+
+    setBottleForm((current) => ({
+      ...current,
+      [name]: value,
     }));
   };
 
-  const handleSubmit = async (event) => {
+  const openBottleForm = (productId) => {
+    setExpandedProductId(productId);
+    setAddingBottleId(productId);
+    setSuccessMessage("");
+    setError("");
+
+    setBottleForm({
+      initialMl: "",
+      purchasePrice: "",
+      purchaseDate: new Date().toISOString().slice(0, 10),
+    });
+  };
+
+  const closeBottleForm = () => {
+    setAddingBottleId(null);
+
+    setBottleForm({
+      initialMl: "",
+      purchasePrice: "",
+      purchaseDate: new Date().toISOString().slice(0, 10),
+    });
+  };
+
+  const handleAddBottle = async (event, productId) => {
     event.preventDefault();
 
+    const initialMl = Number(bottleForm.initialMl);
+    const purchasePrice = Number(bottleForm.purchasePrice);
+
+    if (!Number.isFinite(initialMl) || initialMl <= 0) {
+      setError("Количеството ml трябва да бъде по-голямо от 0.");
+      return;
+    }
+
+    if (!Number.isFinite(purchasePrice) || purchasePrice < 0) {
+      setError("Покупната цена не е валидна.");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:5000/api/products", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          brand: formData.brand,
-          description: formData.description,
-          gender: formData.gender,
-          category: formData.category,
-          image: formData.image,
-          pricePerMl: Number(formData.pricePerMl),
-          price5ml: Number(formData.price5ml),
-          price10ml: Number(formData.price10ml),
-          price20ml: Number(formData.price20ml),
-          availableMl: Number(formData.initialMl),
-          rating: formData.rating ? Number(formData.rating) : 0,
-          comments: formData.comments,
-          active: formData.active,
-          bottles: [
-            {
-              initialMl: Number(formData.initialMl),
-              remainingMl: Number(formData.initialMl),
-              purchasePrice: Number(formData.purchasePrice),
-              purchasePricePerMl:
-                Number(formData.purchasePrice) /
-                Number(formData.initialMl),
-            },
-          ],
-        }),
-      });
+      setError("");
+      setSuccessMessage("");
+
+      const response = await fetch(
+        `${API_URL}/${productId}/bottles`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            initialMl,
+            purchasePrice,
+            purchaseDate: bottleForm.purchaseDate,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Грешка при създаване на продукта."
+          data.message || "Грешка при добавяне на бутилката."
         );
       }
 
-      console.log("Продуктът е създаден:", data);
+      setProducts((currentProducts) =>
+        currentProducts.map((product) =>
+          product._id === productId
+            ? data.product
+            : product
+        )
+      );
 
-      // Изчистваме формата след успешно добавяне
-      setFormData(initialFormData);
+      setSuccessMessage("Бутилката е добавена успешно.");
 
-      alert("Продуктът е добавен успешно!");
+      setBottleForm({
+        initialMl: "",
+        purchasePrice: "",
+        purchaseDate: new Date().toISOString().slice(0, 10),
+      });
+
+      setAddingBottleId(null);
     } catch (error) {
-      console.error("Create product error:", error);
-
-      alert(error.message);
+      console.error("Add bottle error:", error);
+      setError(error.message);
     }
   };
 
+  const toggleProduct = (productId) => {
+    setExpandedProductId((currentId) =>
+      currentId === productId ? null : productId
+    );
+
+    setError("");
+    setSuccessMessage("");
+  };
+
+  const getBottleCostPerMl = (bottle) => {
+    const value = Number(bottle.purchasePricePerMl);
+
+    return Number.isFinite(value)
+      ? value.toFixed(3)
+      : "0.000";
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+
+        <main className="admin-products-page">
+          <div className="admin-products-container">
+            <div className="admin-loading">
+              Зареждаме продуктите...
+            </div>
+          </div>
+        </main>
+      </>
+    );
+  }
+
   return (
-    <main className="admin-products-page">
-      <div className="admin-products-container">
+    <>
+      <Header />
 
-        <div className="admin-products-heading">
-          <p>ADMIN PANEL</p>
+      <main className="admin-products-page">
+        <div className="admin-products-container">
 
-          <h1>Добави продукт</h1>
-
-          <span>
-            Добави нов парфюм и информацията за първата му бутилка.
-          </span>
-        </div>
-
-        <form
-          className="admin-product-form"
-          onSubmit={handleSubmit}
-        >
-
-          {/* 01 — Основна информация */}
-          <section className="admin-form-section">
-            <div className="admin-form-section-heading">
-              <span>01</span>
-
-              <div>
-                <h2>Основна информация</h2>
-                <p>Данни за парфюма</p>
-              </div>
-            </div>
-
-            <div className="admin-form-grid">
-
-              <div className="admin-field">
-                <label htmlFor="name">
-                  Име на парфюма
-                </label>
-
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Mancera Red Tobacco"
-                  required
-                />
-              </div>
-
-              <div className="admin-field">
-                <label htmlFor="brand">
-                  Бранд
-                </label>
-
-                <input
-                  id="brand"
-                  name="brand"
-                  type="text"
-                  value={formData.brand}
-                  onChange={handleChange}
-                  placeholder="Mancera"
-                  required
-                />
-              </div>
-
-              <div className="admin-field">
-                <label htmlFor="gender">
-                  Пол
-                </label>
-
-                <select
-                  id="gender"
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="" disabled>
-                    Избери пол
-                  </option>
-
-                  <option value="unisex">
-                    Унисекс
-                  </option>
-
-                  <option value="male">
-                    Мъжки
-                  </option>
-
-                  <option value="female">
-                    Дамски
-                  </option>
-                </select>
-              </div>
-
-              <div className="admin-field">
-                <label htmlFor="category">
-                  Категория
-                </label>
-
-                <input
-                  id="category"
-                  name="category"
-                  type="text"
-                  value={formData.category}
-                  onChange={handleChange}
-                  placeholder="Нишови"
-                />
-              </div>
-
-              <div className="admin-field admin-field-full">
-                <label htmlFor="description">
-                  Описание
-                </label>
-
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Кратко описание на аромата..."
-                  rows="4"
-                />
-              </div>
-
-              <div className="admin-field admin-field-full">
-                <label htmlFor="image">
-                  URL на снимката
-                </label>
-
-                <input
-                  id="image"
-                  name="image"
-                  type="text"
-                  value={formData.image}
-                  onChange={handleChange}
-                  placeholder="https://..."
-                />
-              </div>
-
-            </div>
-          </section>
-
-
-          {/* 02 — Продажни цени */}
-          <section className="admin-form-section">
-
-            <div className="admin-form-section-heading">
-              <span>02</span>
-
-              <div>
-                <h2>Продажни цени</h2>
-                <p>Цени за отливките</p>
-              </div>
-            </div>
-
-            <div className="admin-form-grid admin-price-grid">
-
-              <div className="admin-field">
-                <label htmlFor="pricePerMl">
-                  Цена за 1 ml (€)
-                </label>
-
-                <input
-                  id="pricePerMl"
-                  name="pricePerMl"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.pricePerMl}
-                  onChange={handleChange}
-                  placeholder="1.05"
-                  required
-                />
-              </div>
-
-              <div className="admin-field">
-                <label htmlFor="price5ml">
-                  Цена 5 ml (€)
-                </label>
-
-                <input
-                  id="price5ml"
-                  name="price5ml"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price5ml}
-                  onChange={handleChange}
-                  placeholder="5.25"
-                  required
-                />
-              </div>
-
-              <div className="admin-field">
-                <label htmlFor="price10ml">
-                  Цена 10 ml (€)
-                </label>
-
-                <input
-                  id="price10ml"
-                  name="price10ml"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price10ml}
-                  onChange={handleChange}
-                  placeholder="9.35"
-                  required
-                />
-              </div>
-
-              <div className="admin-field">
-                <label htmlFor="price20ml">
-                  Цена 20 ml (€)
-                </label>
-
-                <input
-                  id="price20ml"
-                  name="price20ml"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.price20ml}
-                  onChange={handleChange}
-                  placeholder="17.30"
-                  required
-                />
-              </div>
-
-            </div>
-          </section>
-
-
-          {/* 03 — Първа бутилка */}
-          <section className="admin-form-section">
-
-            <div className="admin-form-section-heading">
-              <span>03</span>
-
-              <div>
-                <h2>Първа бутилка</h2>
-                <p>Покупка и наличност</p>
-              </div>
-            </div>
-
-            <div className="admin-form-grid">
-
-              <div className="admin-field">
-                <label htmlFor="initialMl">
-                  Количество в бутилката (ml)
-                </label>
-
-                <input
-                  id="initialMl"
-                  name="initialMl"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.initialMl}
-                  onChange={handleChange}
-                  placeholder="120"
-                  required
-                />
-              </div>
-
-              <div className="admin-field">
-                <label htmlFor="purchasePrice">
-                  Покупна цена на бутилката (€)
-                </label>
-
-                <input
-                  id="purchasePrice"
-                  name="purchasePrice"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.purchasePrice}
-                  onChange={handleChange}
-                  placeholder="95.00"
-                  required
-                />
-              </div>
-
-            </div>
-          </section>
-
-
-          {/* 04 — Допълнителна информация */}
-          <section className="admin-form-section">
-
-            <div className="admin-form-section-heading">
-              <span>04</span>
-
-              <div>
-                <h2>Допълнителна информация</h2>
-                <p>Оценка и вътрешни бележки</p>
-              </div>
-            </div>
-
-            <div className="admin-form-grid">
-
-              <div className="admin-field">
-                <label htmlFor="rating">
-                  Оценка
-                </label>
-
-                <input
-                  id="rating"
-                  name="rating"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="5"
-                  value={formData.rating}
-                  onChange={handleChange}
-                  placeholder="4.8"
-                />
-              </div>
-
-              <div className="admin-field admin-field-full">
-                <label htmlFor="comments">
-                  Коментари
-                </label>
-
-                <textarea
-                  id="comments"
-                  name="comments"
-                  value={formData.comments}
-                  onChange={handleChange}
-                  placeholder="Вътрешни бележки за продукта..."
-                  rows="4"
-                />
-              </div>
-
-            </div>
-          </section>
-
-
-          {/* Статус */}
-          <section className="admin-form-section admin-status-section">
-
+          <header className="admin-products-header">
             <div>
-              <h2>Продуктът е активен</h2>
+              <p className="admin-eyebrow">
+                ADMIN PANEL
+              </p>
+
+              <h1>Продукти и наличности</h1>
 
               <p>
-                Активните продукти се показват в магазина.
+                Управлявай продуктите и отделните закупени
+                бутилки.
               </p>
             </div>
 
-            <label className="admin-switch">
+            <div className="admin-products-count">
+              <span>{products.length}</span>
+              <small>продукта</small>
+            </div>
+          </header>
 
-              <input
-                type="checkbox"
-                name="active"
-                checked={formData.active}
-                onChange={handleChange}
-              />
+          {error && (
+            <div className="admin-message admin-message-error">
+              {error}
+            </div>
+          )}
 
-              <span></span>
+          {successMessage && (
+            <div className="admin-message admin-message-success">
+              {successMessage}
+            </div>
+          )}
 
-            </label>
+          {products.length === 0 ? (
+            <div className="admin-empty">
+              <h2>Няма продукти</h2>
+              <p>
+                Все още няма добавени продукти в базата данни.
+              </p>
+            </div>
+          ) : (
+            <section className="admin-product-list">
 
-          </section>
+              {products.map((product) => {
+                const isExpanded =
+                  expandedProductId === product._id;
 
+                const bottles = Array.isArray(product.bottles)
+                  ? product.bottles
+                  : [];
 
-          {/* Submit */}
-          <button
-            type="submit"
-            className="admin-submit-button"
-          >
-            Добави продукта
+                return (
+                  <article
+                    key={product._id}
+                    className={`admin-product ${
+                      isExpanded ? "expanded" : ""
+                    }`}
+                  >
+                    <div className="admin-product-main">
 
-            <span>→</span>
-          </button>
+                      <div className="admin-product-image">
+                        {product.image ? (
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                          />
+                        ) : (
+                          <div className="admin-image-placeholder">
+                            PD4L
+                          </div>
+                        )}
+                      </div>
 
-        </form>
+                      <div className="admin-product-info">
+                        <span className="admin-product-brand">
+                          {product.brand}
+                        </span>
 
-      </div>
-    </main>
+                        <h2>{product.name}</h2>
+
+                        <div className="admin-product-stats">
+                          <div>
+                            <span>Наличност</span>
+                            <strong>
+                              {Number(
+                                product.availableMl || 0
+                              ).toFixed(0)}{" "}
+                              ml
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>Бутилки</span>
+                            <strong>
+                              {bottles.length}
+                            </strong>
+                          </div>
+
+                          <div>
+                            <span>Продадени</span>
+                            <strong>
+                              {product.timesPurchased || 0}
+                            </strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="admin-product-actions">
+                        <button
+                          type="button"
+                          className="admin-button secondary"
+                          onClick={() =>
+                            toggleProduct(product._id)
+                          }
+                        >
+                          {isExpanded
+                            ? "Скрий"
+                            : "Виж бутилки"}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="admin-button primary"
+                          onClick={() =>
+                            openBottleForm(product._id)
+                          }
+                        >
+                          + Добави бутилка
+                        </button>
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="admin-product-details">
+
+                        {addingBottleId === product._id && (
+                          <form
+                            className="bottle-form"
+                            onSubmit={(event) =>
+                              handleAddBottle(
+                                event,
+                                product._id
+                              )
+                            }
+                          >
+                            <div className="bottle-form-header">
+                              <div>
+                                <span>
+                                  НОВА ПАРТИДА
+                                </span>
+
+                                <h3>
+                                  Добави бутилка
+                                </h3>
+                              </div>
+
+                              <button
+                                type="button"
+                                className="form-close"
+                                onClick={
+                                  closeBottleForm
+                                }
+                              >
+                                ×
+                              </button>
+                            </div>
+
+                            <div className="bottle-form-grid">
+
+                              <label>
+                                <span>
+                                  Количество
+                                </span>
+
+                                <div className="input-with-unit">
+                                  <input
+                                    type="number"
+                                    name="initialMl"
+                                    min="1"
+                                    step="1"
+                                    placeholder="100"
+                                    value={
+                                      bottleForm.initialMl
+                                    }
+                                    onChange={
+                                      handleFormChange
+                                    }
+                                    required
+                                  />
+
+                                  <b>ml</b>
+                                </div>
+                              </label>
+
+                              <label>
+                                <span>
+                                  Покупна цена
+                                </span>
+
+                                <div className="input-with-unit">
+                                  <input
+                                    type="number"
+                                    name="purchasePrice"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="130.00"
+                                    value={
+                                      bottleForm.purchasePrice
+                                    }
+                                    onChange={
+                                      handleFormChange
+                                    }
+                                    required
+                                  />
+
+                                  <b>€</b>
+                                </div>
+                              </label>
+
+                              <label>
+                                <span>
+                                  Дата на покупка
+                                </span>
+
+                                <input
+                                  type="date"
+                                  name="purchaseDate"
+                                  value={
+                                    bottleForm.purchaseDate
+                                  }
+                                  onChange={
+                                    handleFormChange
+                                  }
+                                  required
+                                />
+                              </label>
+
+                              <div className="bottle-form-preview">
+                                <span>Себестойност / ml</span>
+
+                                <strong>
+                                  {Number(
+                                    bottleForm.initialMl
+                                  ) > 0
+                                    ? (
+                                        Number(
+                                          bottleForm.purchasePrice
+                                        ) /
+                                        Number(
+                                          bottleForm.initialMl
+                                        )
+                                      ).toFixed(3)
+                                    : "0.000"}{" "}
+                                  €/ml
+                                </strong>
+                              </div>
+                            </div>
+
+                            <div className="bottle-form-actions">
+                              <button
+                                type="button"
+                                className="admin-button secondary"
+                                onClick={
+                                  closeBottleForm
+                                }
+                              >
+                                Отказ
+                              </button>
+
+                              <button
+                                type="submit"
+                                className="admin-button primary"
+                              >
+                                Добави бутилката
+                              </button>
+                            </div>
+                          </form>
+                        )}
+
+                        <div className="bottles-section">
+                          <div className="bottles-section-header">
+                            <div>
+                              <span>
+                                ИНВЕНТАР
+                              </span>
+
+                              <h3>
+                                Закупени бутилки
+                              </h3>
+                            </div>
+
+                            <strong>
+                              Общо:{" "}
+                              {Number(
+                                product.availableMl || 0
+                              ).toFixed(0)}{" "}
+                              ml
+                            </strong>
+                          </div>
+
+                          {bottles.length === 0 ? (
+                            <div className="no-bottles">
+                              Няма въведени бутилки.
+                            </div>
+                          ) : (
+                            <div className="bottles-table">
+
+                              <div className="bottles-table-head">
+                                <span>#</span>
+                                <span>Дата</span>
+                                <span>Начално</span>
+                                <span>Оставащо</span>
+                                <span>Покупка</span>
+                                <span>€/ml</span>
+                              </div>
+
+                              {bottles.map(
+                                (bottle, index) => (
+                                  <div
+                                    className="bottle-row"
+                                    key={
+                                      bottle._id ||
+                                      index
+                                    }
+                                  >
+                                    <span className="bottle-number">
+                                      {index + 1}
+                                    </span>
+
+                                    <span>
+                                      {new Date(
+                                        bottle.purchaseDate
+                                      ).toLocaleDateString(
+                                        "bg-BG"
+                                      )}
+                                    </span>
+
+                                    <span>
+                                      {bottle.initialMl} ml
+                                    </span>
+
+                                    <span
+                                      className={
+                                        Number(
+                                          bottle.remainingMl
+                                        ) <= 0
+                                          ? "bottle-empty"
+                                          : ""
+                                      }
+                                    >
+                                      {
+                                        bottle.remainingMl
+                                      }{" "}
+                                      ml
+                                    </span>
+
+                                    <span>
+                                      €
+                                      {Number(
+                                        bottle.purchasePrice
+                                      ).toFixed(2)}
+                                    </span>
+
+                                    <span>
+                                      €
+                                      {getBottleCostPerMl(
+                                        bottle
+                                      )}
+                                    </span>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </section>
+          )}
+        </div>
+      </main>
+    </>
   );
 }
 

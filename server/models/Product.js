@@ -2,35 +2,30 @@ const mongoose = require("mongoose");
 
 const bottleSchema = new mongoose.Schema(
   {
-    // Количество, с което е закупена бутилката
     initialMl: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    // Оставащо количество от конкретната бутилка
     remainingMl: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    // Сума, платена за цялата бутилка
     purchasePrice: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    // Цена на 1 ml при покупката
     purchasePricePerMl: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    // Кога е закупена
     purchaseDate: {
       type: Date,
       default: Date.now,
@@ -41,7 +36,6 @@ const bottleSchema = new mongoose.Schema(
 
 const productSchema = new mongoose.Schema(
   {
-    // Основна информация
     name: {
       type: String,
       required: true,
@@ -72,53 +66,51 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Снимка
     image: {
       type: String,
       default: "",
       trim: true,
     },
 
-    // Продажни цени
+    // Текущите продажни цени.
+    // По-късно ще ги изчисляваме автоматично
+    // според първата неизчерпана бутилка.
     pricePerMl: {
       type: Number,
-      required: true,
+      default: 0,
       min: 0,
     },
 
     price5ml: {
       type: Number,
-      required: true,
+      default: 0,
       min: 0,
     },
 
     price10ml: {
       type: Number,
-      required: true,
+      default: 0,
       min: 0,
     },
 
     price20ml: {
       type: Number,
-      required: true,
+      default: 0,
       min: 0,
     },
 
-    // Общо количество от всички активни бутилки
     availableMl: {
       type: Number,
       default: 0,
       min: 0,
     },
 
-    // Колко пъти е купуван продуктът
     timesPurchased: {
       type: Number,
       default: 0,
       min: 0,
     },
 
-    // Оценка и коментари
     rating: {
       type: Number,
       default: 0,
@@ -132,13 +124,18 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Дали продуктът се показва в магазина
     active: {
       type: Boolean,
       default: true,
     },
 
-    // История на закупените бутилки
+    // Всички закупени бутилки/партиди.
+    //
+    // ВАЖНО:
+    // Не променяме purchasePrice и purchasePricePerMl
+    // на стара бутилка.
+    //
+    // remainingMl се променя при продажба.
     bottles: {
       type: [bottleSchema],
       default: [],
