@@ -17,7 +17,8 @@ const roundUp = (price, step = 0.05) => {
     throw new Error("Невалидна стъпка за закръгляне.");
   }
 
-  const rounded = Math.ceil((price - 0.0000001) / step) * step;
+  const rounded =
+    Math.ceil((price - 0.0000001) / step) * step;
 
   return Number(rounded.toFixed(2));
 };
@@ -27,7 +28,10 @@ const roundUp = (price, step = 0.05) => {
  *
  * Цена на ml = цена на бутилката / ml на бутилката
  */
-const calculatePricePerMl = (purchasePrice, initialMl) => {
+const calculatePricePerMl = (
+  purchasePrice,
+  initialMl
+) => {
   const price = Number(purchasePrice);
   const ml = Number(initialMl);
 
@@ -61,7 +65,8 @@ const calculateSizePrice = (
     throw new Error("Невалидна цена на ml.");
   }
 
-  const sizeSettings = settings.sizes?.[sizeNumber];
+  const sizeSettings =
+    settings.sizes?.[sizeNumber];
 
   if (!sizeSettings) {
     throw new Error(
@@ -69,13 +74,16 @@ const calculateSizePrice = (
     );
   }
 
-  const multiplier = Number(sizeSettings.multiplier);
+  const multiplier = Number(
+    sizeSettings.multiplier
+  );
+
   const consumablesCost = Number(
     sizeSettings.consumablesCost
   );
 
   const rawPrice =
-    (mlPrice * sizeNumber) * multiplier +
+    mlPrice * sizeNumber * multiplier +
     consumablesCost;
 
   return roundUp(
@@ -85,9 +93,12 @@ const calculateSizePrice = (
 };
 
 /**
- * Изчислява всички продажни цени от конкретна бутилка.
+ * Изчислява всички продажни цени
+ * от конкретна бутилка.
  */
-const calculatePricesFromBottle = async (bottle) => {
+const calculatePricesFromBottle = async (
+  bottle
+) => {
   if (!bottle) {
     throw new Error("Липсва бутилка.");
   }
@@ -97,7 +108,8 @@ const calculatePricesFromBottle = async (bottle) => {
     bottle.initialMl
   );
 
-  const settings = await PricingSettings.findOne();
+  const settings =
+    await PricingSettings.findOne();
 
   if (!settings) {
     throw new Error(
@@ -107,6 +119,12 @@ const calculatePricesFromBottle = async (bottle) => {
 
   return {
     pricePerMl,
+
+    price3ml: calculateSizePrice(
+      pricePerMl,
+      3,
+      settings
+    ),
 
     price5ml: calculateSizePrice(
       pricePerMl,
@@ -137,25 +155,30 @@ const calculatePricesFromBottle = async (bottle) => {
 const getActiveBottle = (bottles = []) => {
   return (
     bottles.find(
-      (bottle) => Number(bottle.remainingMl) > 0
+      (bottle) =>
+        Number(bottle.remainingMl) > 0
     ) || null
   );
 };
 
 /**
- * Изчислява текущите продажни цени на продукта
- * според първата неизчерпана бутилка.
+ * Изчислява текущите продажни цени
+ * на продукта според първата
+ * неизчерпана бутилка.
  */
-const calculateProductPrices = async (product) => {
-  const activeBottle = getActiveBottle(
-    product.bottles
-  );
+const calculateProductPrices = async (
+  product
+) => {
+  const activeBottle =
+    getActiveBottle(product.bottles);
 
   if (!activeBottle) {
     return {
       activeBottle: null,
+
       prices: {
         pricePerMl: 0,
+        price3ml: 0,
         price5ml: 0,
         price10ml: 0,
         price20ml: 0,

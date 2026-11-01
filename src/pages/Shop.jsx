@@ -139,6 +139,11 @@ function Shop() {
 
                   <label>
                     <input type="checkbox" />
+                    <span>3 ml</span>
+                  </label>
+
+                  <label>
+                    <input type="checkbox" />
                     <span>5 ml</span>
                   </label>
 

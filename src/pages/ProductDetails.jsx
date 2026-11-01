@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -71,14 +70,9 @@ function ProductDetails() {
           <div className="product-details-status">
             <h2>Продуктът не е намерен</h2>
 
-            <p>
-              {error || "Възникна грешка."}
-            </p>
+            <p>{error || "Възникна грешка."}</p>
 
-            <Link
-              to="/shop"
-              className="back-to-shop"
-            >
+            <Link to="/shop" className="back-to-shop">
               ← Обратно към магазина
             </Link>
           </div>
@@ -90,18 +84,15 @@ function ProductDetails() {
   }
 
   const prices = {
+    3: product.price3ml,
     5: product.price5ml,
     10: product.price10ml,
     20: product.price20ml,
   };
 
-  const selectedPrice = Number(
-    prices[selectedSize] || 0
-  );
+  const selectedPrice = Number(prices[selectedSize] || 0);
 
-  const availableMl = Number(
-    product.availableMl || 0
-  );
+  const availableMl = Number(product.availableMl || 0);
 
   /*
    * Максимален брой бройки от избрания размер.
@@ -126,11 +117,9 @@ function ProductDetails() {
       : 0;
 
   const canAddToCart =
-    maxQuantity > 0 &&
-    selectedPrice > 0;
+    maxQuantity > 0 && selectedPrice > 0;
 
-  const totalPrice =
-    selectedPrice * quantity;
+  const totalPrice = selectedPrice * quantity;
 
   const increaseQuantity = () => {
     if (quantity < maxQuantity) {
@@ -145,9 +134,7 @@ function ProductDetails() {
   };
 
   const handleSizeChange = (size) => {
-    const price = Number(
-      prices[size] || 0
-    );
+    const price = Number(prices[size] || 0);
 
     const newMaxQuantity =
       availableMl >= size && price > 0
@@ -183,11 +170,7 @@ function ProductDetails() {
       return;
     }
 
-    addToCart(
-      product,
-      selectedSize,
-      quantity
-    );
+    addToCart(product, selectedSize, quantity);
   };
 
   return (
@@ -275,15 +258,12 @@ function ProductDetails() {
                     )}
 
                     {"☆".repeat(
-                      5 -
-                      Math.round(product.rating)
+                      5 - Math.round(product.rating)
                     )}
                   </div>
 
                   <span>
-                    {Number(
-                      product.rating
-                    ).toFixed(1)}
+                    {Number(product.rating).toFixed(1)}
                   </span>
 
                 </div>
@@ -313,7 +293,7 @@ function ProductDetails() {
 
                 <div className="product-details-sizes">
 
-                  {[5, 10, 20].map(
+                  {[3, 5, 10, 20].map(
                     (size) => {
                       const price = Number(
                         prices[size] || 0
@@ -377,9 +357,7 @@ function ProductDetails() {
                   <button
                     type="button"
                     onClick={decreaseQuantity}
-                    disabled={
-                      quantity <= 1
-                    }
+                    disabled={quantity <= 1}
                   >
                     −
                   </button>
@@ -391,9 +369,7 @@ function ProductDetails() {
                   <button
                     type="button"
                     onClick={increaseQuantity}
-                    disabled={
-                      quantity >= maxQuantity
-                    }
+                    disabled={quantity >= maxQuantity}
                   >
                     +
                   </button>
@@ -523,8 +499,7 @@ function ProductDetails() {
               </span>
 
               <strong>
-                {product.category ||
-                  "Парфюм"}
+                {product.category || "Парфюм"}
               </strong>
 
             </div>

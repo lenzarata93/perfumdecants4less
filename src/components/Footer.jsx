@@ -1,4 +1,5 @@
 import "./Footer.css";
+
 function Footer() {
   return (
     <footer className="site-footer">
@@ -41,6 +42,10 @@ function Footer() {
 
             <a href="/categories">
               Категории
+            </a>
+
+            <a href="/shop?size=3">
+              3 ml
             </a>
 
             <a href="/shop?size=5">

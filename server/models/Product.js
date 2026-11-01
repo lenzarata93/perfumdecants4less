@@ -73,9 +73,16 @@ const productSchema = new mongoose.Schema(
     },
 
     // Текущите продажни цени.
-    // По-късно ще ги изчисляваме автоматично
-    // според първата неизчерпана бутилка.
+    // Изчисляват се автоматично според
+    // първата неизчерпана бутилка.
+
     pricePerMl: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    price3ml: {
       type: Number,
       default: 0,
       min: 0,
@@ -136,6 +143,7 @@ const productSchema = new mongoose.Schema(
     // на стара бутилка.
     //
     // remainingMl се променя при продажба.
+
     bottles: {
       type: [bottleSchema],
       default: [],
@@ -146,4 +154,7 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+module.exports = mongoose.model(
+  "Product",
+  productSchema
+);

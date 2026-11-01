@@ -30,10 +30,7 @@ const generateOrderNumber = async () => {
  * Връща информация за реално използваните бутилки,
  * без да променя още Product.
  */
-const calculateInventoryUsage = (
-  bottles,
-  requestedMl
-) => {
+const calculateInventoryUsage = (bottles, requestedMl) => {
   let remainingToDeduct = requestedMl;
 
   const inventoryUsage = [];
@@ -86,10 +83,7 @@ const calculateInventoryUsage = (
 /**
  * Прилага FIFO приспадането върху Product.
  */
-const deductInventory = (
-  product,
-  requestedMl
-) => {
+const deductInventory = (product, requestedMl) => {
   let remainingToDeduct = requestedMl;
 
   for (const bottle of product.bottles) {
@@ -161,7 +155,7 @@ const processOrderItem = async (item) => {
   const size = Number(item.size);
   const quantity = Number(item.quantity);
 
-  if (![5, 10, 20].includes(size)) {
+  if (![3, 5, 10, 20].includes(size)) {
     throw new Error(
       `Невалиден размер за "${product.name}".`
     );
@@ -206,6 +200,10 @@ const processOrderItem = async (item) => {
   );
 
   let unitPrice;
+
+  if (size === 3) {
+    unitPrice = prices.price3ml;
+  }
 
   if (size === 5) {
     unitPrice = prices.price5ml;
@@ -315,6 +313,15 @@ const createOrder = async (req, res) => {
     } = req.body;
 
     /*
+     * Ако потребителят е логнат,
+     * optionalAuthMiddleware е поставил
+     * неговия JWT payload в req.user.
+     *
+     * Ако е гост → userId = null.
+     */
+    const userId = req.user?.userId || null;
+
+    /*
      * -------------------------
      * ВАЛИДАЦИЯ
      * -------------------------
@@ -392,7 +399,7 @@ const createOrder = async (req, res) => {
       const size = Number(item.size);
       const quantity = Number(item.quantity);
 
-      if (![5, 10, 20].includes(size)) {
+      if (![3, 5, 10, 20].includes(size)) {
         return res.status(400).json({
           message:
             `Невалиден размер за "${product.name}".`,
@@ -519,6 +526,14 @@ const createOrder = async (req, res) => {
     const order = await Order.create({
       orderNumber,
 
+      /*
+       * Връзка с потребителя.
+       *
+       * Логнат потребител → неговият userId.
+       * Гост → null.
+       */
+      userId,
+
       customer: {
         firstName:
           customer.firstName,
@@ -622,7 +637,76 @@ const getOrders = async (req, res) => {
   }
 };
 
+/**
+ * Променя статуса на поръчка.
+ *
+ * Засега тази функция само променя статуса.
+ *
+ * Логиката за бонус точките ще бъде
+ * добавена на следващата стъпка.
+ */
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "pending",
+      "confirmed",
+      "processing",
+      "shipped",
+      "completed",
+      "cancelled",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Невалиден статус на поръчката.",
+      });
+    }
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Поръчката не е намерена.",
+      });
+    }
+
+    // Завършена или отказана поръчка не може
+    // повече да променя статуса си.
+    if (
+      order.status === "completed" ||
+      order.status === "cancelled"
+    ) {
+      return res.status(400).json({
+        message:
+          "Тази поръчка е с финален статус и повече не може да бъде променяна.",
+      });
+    }
+
+    order.status = status;
+
+    await order.save();
+
+    res.status(200).json({
+      message: "Статусът на поръчката е променен.",
+      order,
+    });
+  } catch (error) {
+    console.error(
+      "Update order status error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Грешка при промяна на статуса.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrders,
+  updateOrderStatus,
 };

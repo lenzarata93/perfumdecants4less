@@ -1,7 +1,7 @@
-
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
+import { useUser } from "../context/UserContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "./Checkout.css";
@@ -15,6 +15,10 @@ function Checkout() {
     cartIsEmpty,
     clearCart,
   } = useCart();
+
+  const {
+    token,
+  } = useUser();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -32,9 +36,11 @@ function Checkout() {
     speedy: 3.0,
   };
 
-  const deliveryPrice = deliveryPrices[formData.deliveryMethod];
+  const deliveryPrice =
+    deliveryPrices[formData.deliveryMethod];
 
-  const orderTotal = cartTotal + deliveryPrice;
+  const orderTotal =
+    cartTotal + deliveryPrice;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -75,13 +81,21 @@ function Checkout() {
         })),
       };
 
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      // Ако потребителят е логнат,
+      // изпращаме JWT токена към backend-а.
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(
         "http://localhost:5000/api/orders",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
           body: JSON.stringify(orderData),
         }
       );
@@ -90,24 +104,34 @@ function Checkout() {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Грешка при създаване на поръчката."
+          data.message ||
+            "Грешка при създаване на поръчката."
         );
       }
 
-      console.log("Created order:", data.order);
+      console.log(
+        "Created order:",
+        data.order
+      );
 
-      // Изчистваме количката само след успешно създадена поръчка.
+      // Изчистваме количката само след
+      // успешно създадена поръчка.
       clearCart();
 
       alert(
         `Поръчката ${data.order.orderNumber} е създадена успешно!`
       );
+
+      navigate("/");
     } catch (error) {
-      console.error("Checkout error:", error);
+      console.error(
+        "Checkout error:",
+        error
+      );
 
       alert(
         error.message ||
-        "Възникна грешка при създаване на поръчката."
+          "Възникна грешка при създаване на поръчката."
       );
     }
   };
@@ -119,13 +143,17 @@ function Checkout() {
 
         <main className="checkout-page">
           <div className="checkout-empty">
-            <p className="checkout-eyebrow">CHECKOUT</p>
+            <p className="checkout-eyebrow">
+              CHECKOUT
+            </p>
 
-            <h1>Количката ти е празна.</h1>
+            <h1>
+              Количката ти е празна.
+            </h1>
 
             <p>
-              Добави поне един аромат, преди да продължиш към
-              поръчката.
+              Добави поне един аромат, преди
+              да продължиш към поръчката.
             </p>
 
             <Link
@@ -154,21 +182,24 @@ function Checkout() {
               PERFUMDECANTS4LESS
             </p>
 
-            <h1>Завърши поръчката</h1>
+            <h1>
+              Завърши поръчката
+            </h1>
 
             <p>
-              Въведи данните си, за да подготвим поръчката ти.
+              Въведи данните си, за да
+              подготвим поръчката ти.
             </p>
           </div>
 
           <div className="checkout-layout">
 
+            {/* ЛИЧНИ ДАННИ */}
+
             <form
               className="checkout-form"
               onSubmit={handleSubmit}
             >
-
-              {/* ЛИЧНИ ДАННИ */}
 
               <section className="checkout-section">
 
@@ -176,10 +207,13 @@ function Checkout() {
                   <span>01</span>
 
                   <div>
-                    <h2>Лични данни</h2>
+                    <h2>
+                      Лични данни
+                    </h2>
 
                     <p>
-                      Данните, с които ще обработим поръчката.
+                      Данните, с които ще
+                      обработим поръчката.
                     </p>
                   </div>
                 </div>
@@ -266,10 +300,13 @@ function Checkout() {
                   <span>02</span>
 
                   <div>
-                    <h2>Доставка</h2>
+                    <h2>
+                      Доставка
+                    </h2>
 
                     <p>
-                      Избери куриер и въведи адреса си.
+                      Избери куриер и въведи
+                      адреса си.
                     </p>
                   </div>
                 </div>
@@ -357,10 +394,13 @@ function Checkout() {
                   <span>03</span>
 
                   <div>
-                    <h2>Плащане</h2>
+                    <h2>
+                      Плащане
+                    </h2>
 
                     <p>
-                      Засега приемаме плащане при получаване.
+                      Засега приемаме плащане
+                      при получаване.
                     </p>
                   </div>
                 </div>
@@ -377,7 +417,8 @@ function Checkout() {
                     </strong>
 
                     <p>
-                      Плащане при получаване на пратката.
+                      Плащане при получаване
+                      на пратката.
                     </p>
                   </div>
 
@@ -399,7 +440,9 @@ function Checkout() {
               <button
                 type="button"
                 className="checkout-back"
-                onClick={() => navigate("/cart")}
+                onClick={() =>
+                  navigate("/cart")
+                }
               >
                 ← Назад към количката
               </button>
@@ -454,7 +497,8 @@ function Checkout() {
                         </h3>
 
                         <p>
-                          {item.size} ml × {item.quantity}
+                          {item.size} ml ×{" "}
+                          {item.quantity}
                         </p>
 
                       </div>
@@ -490,7 +534,8 @@ function Checkout() {
 
                   <span>
                     Доставка (
-                    {formData.deliveryMethod === "econt"
+                    {formData.deliveryMethod ===
+                    "econt"
                       ? "Еконт"
                       : "Спиди"}
                     )

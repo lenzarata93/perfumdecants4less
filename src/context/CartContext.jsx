@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useContext,
@@ -58,7 +57,8 @@ function CartProvider({ children }) {
     return items
       .filter(
         (item) =>
-          item.productId?.toString() === productId?.toString()
+          item.productId?.toString() ===
+          productId?.toString()
       )
       .reduce(
         (total, item) =>
@@ -75,6 +75,7 @@ function CartProvider({ children }) {
    */
   const addToCart = (product, size, quantity = 1) => {
     const priceMap = {
+      3: product.price3ml,
       5: product.price5ml,
       10: product.price10ml,
       20: product.price20ml,
@@ -89,14 +90,15 @@ function CartProvider({ children }) {
       !product?._id ||
       !price ||
       price <= 0 ||
-      ![5, 10, 20].includes(selectedSize) ||
+      ![3, 5, 10, 20].includes(selectedSize) ||
       !Number.isInteger(selectedQuantity) ||
       selectedQuantity < 1
     ) {
       return;
     }
 
-    const requiredMl = selectedSize * selectedQuantity;
+    const requiredMl =
+      selectedSize * selectedQuantity;
 
     setCartItems((currentItems) => {
       const alreadyInCartMl = getProductCartMl(
@@ -119,10 +121,12 @@ function CartProvider({ children }) {
         return currentItems;
       }
 
-      const cartItemId = `${product._id}-${selectedSize}`;
+      const cartItemId =
+        `${product._id}-${selectedSize}`;
 
       const existingItem = currentItems.find(
-        (item) => item.cartItemId === cartItemId
+        (item) =>
+          item.cartItemId === cartItemId
       );
 
       if (existingItem) {
@@ -189,7 +193,8 @@ function CartProvider({ children }) {
 
     setCartItems((currentItems) => {
       const targetItem = currentItems.find(
-        (item) => item.cartItemId === cartItemId
+        (item) =>
+          item.cartItemId === cartItemId
       );
 
       if (!targetItem) {
@@ -201,28 +206,25 @@ function CartProvider({ children }) {
       );
 
       /*
-       * Проверяваме ml на продукта без текущия item,
-       * след което добавяме новото количество.
+       * Колко ml от същия продукт има в
+       * останалите артикули в количката.
        */
       const otherItemsMl = currentItems
         .filter(
           (item) =>
-            item.productId?.toString() !==
-              targetItem.productId?.toString() ||
-            item.cartItemId === targetItem.cartItemId
+            item.productId?.toString() ===
+            targetItem.productId?.toString()
         )
         .filter(
           (item) =>
-            item.cartItemId !== targetItem.cartItemId
+            item.cartItemId !==
+            targetItem.cartItemId
         )
         .reduce(
           (total, item) =>
-            item.productId?.toString() ===
-            targetItem.productId?.toString()
-              ? total +
-                Number(item.size) *
-                  Number(item.quantity)
-              : total,
+            total +
+            Number(item.size) *
+              Number(item.quantity),
           0
         );
 
@@ -253,7 +255,8 @@ function CartProvider({ children }) {
   const increaseQuantity = (cartItemId) => {
     setCartItems((currentItems) => {
       const targetItem = currentItems.find(
-        (item) => item.cartItemId === cartItemId
+        (item) =>
+          item.cartItemId === cartItemId
       );
 
       if (!targetItem) {
@@ -264,12 +267,14 @@ function CartProvider({ children }) {
         targetItem.availableMl || 0
       );
 
-      const productId = targetItem.productId?.toString();
+      const productId =
+        targetItem.productId?.toString();
 
       const currentProductMl = currentItems
         .filter(
           (item) =>
-            item.productId?.toString() === productId
+            item.productId?.toString() ===
+            productId
         )
         .reduce(
           (total, item) =>
@@ -279,7 +284,8 @@ function CartProvider({ children }) {
           0
         );
 
-      const additionalMl = Number(targetItem.size);
+      const additionalMl =
+        Number(targetItem.size);
 
       /*
        * Ако добавянето на още една бройка
@@ -314,7 +320,9 @@ function CartProvider({ children }) {
               }
             : item
         )
-        .filter((item) => item.quantity > 0)
+        .filter(
+          (item) => item.quantity > 0
+        )
     );
   };
 
@@ -324,7 +332,8 @@ function CartProvider({ children }) {
 
   const cartCount = useMemo(() => {
     return cartItems.reduce(
-      (total, item) => total + item.quantity,
+      (total, item) =>
+        total + item.quantity,
       0
     );
   }, [cartItems]);
@@ -333,12 +342,14 @@ function CartProvider({ children }) {
     return cartItems.reduce(
       (total, item) =>
         total +
-        Number(item.price) * item.quantity,
+        Number(item.price) *
+          item.quantity,
       0
     );
   }, [cartItems]);
 
-  const cartIsEmpty = cartItems.length === 0;
+  const cartIsEmpty =
+    cartItems.length === 0;
 
   const value = {
     cartItems,
@@ -372,4 +383,7 @@ function useCart() {
   return context;
 }
 
-export { CartProvider, useCart };
+export {
+  CartProvider,
+  useCart,
+};

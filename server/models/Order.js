@@ -51,7 +51,7 @@ const orderItemSchema = new mongoose.Schema(
     size: {
       type: Number,
       required: true,
-      enum: [5, 10, 20],
+      enum: [3, 5, 10, 20],
     },
 
     quantity: {
@@ -80,13 +80,6 @@ const orderItemSchema = new mongoose.Schema(
 
     /*
      * Бутилката, която е определила продажната цена.
-     *
-     * Например:
-     * Bottle 1 = 0.725 €/ml
-     *
-     * Дори ако част от поръчката физически
-     * е взета от Bottle 2, продажната цена
-     * остава тази на Bottle 1.
      */
     pricingBottleId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -101,11 +94,6 @@ const orderItemSchema = new mongoose.Schema(
 
     /*
      * Реално използваните количества от всяка бутилка.
-     *
-     * Пример:
-     *
-     * 80 ml × 0.725 € = 58 €
-     * 40 ml × 1.30 € = 52 €
      */
     inventoryUsage: {
       type: [inventoryUsageSchema],
@@ -130,6 +118,21 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      index: true,
+    },
+
+    /*
+     * Регистрираният клиент, направил поръчката.
+     *
+     * null = поръчка като гост.
+     *
+     * Това ни позволява да запазим възможността
+     * за guest checkout.
+     */
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
       index: true,
     },
 

@@ -16,7 +16,7 @@ function Hero() {
         <h1>
           Големи аромати.
           <br />
-          <span>Малки размери.</span>
+          <span>Точни размери.</span>
         </h1>
 
         <p className="hero-description">
@@ -82,6 +82,7 @@ function Hero() {
           <span>CHOOSE YOUR SIZE</span>
 
           <div>
+            <strong>3</strong>
             <strong>5</strong>
             <strong>10</strong>
             <strong>20</strong>

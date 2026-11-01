@@ -1,11 +1,12 @@
+
 /* ================================
    SHOP PAGE
 ================================ */
 
 .shop-page {
   min-height: 100vh;
-  background: #f8f7f4;
-  color: #171717;
+  background: #0b0b0b;
+  color: #f4f1ea;
 }
 
 /* ================================
@@ -14,13 +15,15 @@
 
 .shop-page-header {
   padding: 150px 0 90px;
+
   background:
     radial-gradient(
       circle at 75% 20%,
-      rgba(193, 155, 79, 0.12),
+      rgba(193, 155, 79, 0.14),
       transparent 35%
     ),
     #111111;
+
   color: #ffffff;
 }
 
@@ -32,7 +35,9 @@
 
 .shop-page-header .section-eyebrow {
   margin-bottom: 24px;
+
   color: #c5a15b;
+
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 3px;
@@ -40,6 +45,9 @@
 
 .shop-page-header h1 {
   margin: 0;
+
+  color: #f5f2eb;
+
   font-size: clamp(48px, 7vw, 86px);
   line-height: 0.95;
   font-weight: 400;
@@ -53,7 +61,9 @@
 .shop-page-header p:last-child {
   max-width: 560px;
   margin-top: 32px;
-  color: #b7b7b7;
+
+  color: #a9a59d;
+
   font-size: 16px;
   line-height: 1.7;
 }
@@ -64,6 +74,8 @@
 
 .shop-content {
   padding: 70px 0 120px;
+
+  background: #0b0b0b;
 }
 
 .shop-content .section-container {
@@ -80,13 +92,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 30px;
+
   margin-bottom: 50px;
   padding-bottom: 25px;
-  border-bottom: 1px solid #dedbd4;
+
+  border-bottom: 1px solid #292929;
 }
 
-/* SEARCH */
+/* ================================
+   SEARCH
+================================ */
 
 .shop-search {
   position: relative;
@@ -96,77 +113,142 @@
 .shop-search input {
   width: 100%;
   height: 52px;
+
   padding: 0 55px 0 20px;
-  border: 1px solid #d8d5ce;
+
+  border: 1px solid #303030;
   border-radius: 0;
+
   outline: none;
-  background: #ffffff;
-  color: #171717;
+
+  background: #151515;
+  color: #f3f0e8;
+
   font-family: inherit;
   font-size: 14px;
-  transition: border-color 0.25s ease;
+
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .shop-search input::placeholder {
-  color: #99958e;
+  color: #77736c;
+}
+
+.shop-search input:hover {
+  border-color: #454545;
 }
 
 .shop-search input:focus {
   border-color: #b99752;
+
+  background: #181818;
+
+  box-shadow: 0 0 0 1px rgba(185, 151, 82, 0.15);
 }
 
 .shop-search button {
   position: absolute;
+
   top: 50%;
   right: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 52px;
   height: 52px;
+
   padding: 0;
+
   border: none;
+
   background: transparent;
+
   transform: translateY(-50%);
+
   cursor: pointer;
 }
 
 .shop-search button svg {
   width: 18px;
   height: 18px;
+
   fill: none;
-  stroke: #222;
+
+  stroke: #c5a15b;
   stroke-width: 1.6;
+
   stroke-linecap: round;
+
+  transition:
+    stroke 0.2s ease,
+    transform 0.2s ease;
 }
 
-/* SORT */
+.shop-search button:hover svg {
+  stroke: #e0c27b;
+  transform: scale(1.08);
+}
+
+/* ================================
+   SORT
+================================ */
 
 .shop-sort {
   display: flex;
   align-items: center;
+
   gap: 15px;
 }
 
 .shop-sort label {
   color: #77736c;
+
   font-size: 12px;
   letter-spacing: 1px;
+
   text-transform: uppercase;
 }
 
 .shop-sort select {
   min-width: 190px;
   height: 46px;
+
   padding: 0 40px 0 15px;
-  border: 1px solid #d8d5ce;
+
+  border: 1px solid #303030;
   border-radius: 0;
+
   outline: none;
-  background: #ffffff;
-  color: #222;
+
+  background: #151515;
+  color: #ded9cf;
+
   font-family: inherit;
   font-size: 13px;
+
   cursor: pointer;
+
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease;
+}
+
+.shop-sort select:hover {
+  border-color: #454545;
+}
+
+.shop-sort select:focus {
+  border-color: #b99752;
+}
+
+.shop-sort select option {
+  background: #151515;
+  color: #ded9cf;
 }
 
 /* ================================
@@ -175,7 +257,9 @@
 
 .shop-layout {
   display: grid;
+
   grid-template-columns: 220px 1fr;
+
   gap: 55px;
 }
 
@@ -184,14 +268,16 @@
 ================================ */
 
 .shop-filters {
-  border-right: 1px solid #dedbd4;
   padding-right: 35px;
+
+  border-right: 1px solid #292929;
 }
 
 .filter-group {
   padding-bottom: 30px;
   margin-bottom: 30px;
-  border-bottom: 1px solid #dedbd4;
+
+  border-bottom: 1px solid #292929;
 }
 
 .filter-group:last-child {
@@ -200,20 +286,31 @@
 
 .filter-group h3 {
   margin: 0 0 20px;
+
+  color: #eeeae1;
+
   font-size: 12px;
   font-weight: 600;
+
   letter-spacing: 2px;
+
   text-transform: uppercase;
 }
 
 .filter-group label {
   display: flex;
   align-items: center;
+
   gap: 12px;
+
   margin-bottom: 14px;
-  color: #66625b;
+
+  color: #858078;
+
   font-size: 14px;
+
   cursor: pointer;
+
   transition: color 0.2s ease;
 }
 
@@ -222,24 +319,39 @@
 }
 
 .filter-group label:hover {
-  color: #b99752;
+  color: #c5a15b;
 }
 
 .filter-group input {
   appearance: none;
+
   width: 16px;
   height: 16px;
+
   margin: 0;
-  border: 1px solid #c7c3bb;
-  background: #ffffff;
+
+  border: 1px solid #4a4742;
+
+  background: #151515;
+
   cursor: pointer;
-  transition: all 0.2s ease;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.filter-group input:hover {
+  border-color: #b99752;
 }
 
 .filter-group input:checked {
   border-color: #b99752;
+
   background: #b99752;
-  box-shadow: inset 0 0 0 3px #ffffff;
+
+  box-shadow: inset 0 0 0 3px #151515;
 }
 
 /* ================================
@@ -254,15 +366,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   margin-bottom: 25px;
+
   color: #77736c;
+
   font-size: 12px;
   letter-spacing: 1px;
+
   text-transform: uppercase;
 }
 
 .shop-products-header span:first-child {
-  color: #171717;
+  color: #eeeae1;
+
   font-weight: 600;
 }
 
@@ -274,21 +391,45 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
   min-height: 350px;
-  border: 1px solid #dedbd4;
-  background: #ffffff;
+
+  border: 1px solid #292929;
+
+  background: #121212;
+
   text-align: center;
 }
 
 .shop-empty p {
   margin: 0;
-  color: #96928b;
+
+  color: #77736c;
+
   font-size: 14px;
+}
+
+/* ================================
+   PRODUCT GRID
+================================ */
+
+.shop-product-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 24px;
 }
 
 /* ================================
    RESPONSIVE
 ================================ */
+
+@media (max-width: 1000px) {
+  .shop-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
 @media (max-width: 900px) {
   .shop-page-header {
@@ -297,6 +438,7 @@
 
   .shop-layout {
     grid-template-columns: 180px 1fr;
+
     gap: 35px;
   }
 
@@ -306,6 +448,7 @@
 
   .shop-toolbar {
     align-items: flex-start;
+
     flex-direction: column;
   }
 
@@ -315,6 +458,7 @@
 
   .shop-sort {
     width: 100%;
+
     justify-content: space-between;
   }
 }
@@ -331,6 +475,7 @@
 
   .shop-page-header h1 {
     font-size: 48px;
+
     letter-spacing: -2px;
   }
 
@@ -348,21 +493,28 @@
 
   .shop-filters {
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
+
     gap: 15px;
+
     margin-bottom: 40px;
+
     padding-right: 0;
+
     border-right: none;
   }
 
   .filter-group {
     padding-bottom: 0;
     margin-bottom: 0;
+
     border-bottom: none;
   }
 
   .filter-group h3 {
     font-size: 10px;
+
     letter-spacing: 1.5px;
   }
 
@@ -390,20 +542,26 @@
 
   .shop-filters {
     grid-template-columns: 1fr;
+
     gap: 25px;
+
     padding: 20px 0;
-    border-top: 1px solid #dedbd4;
-    border-bottom: 1px solid #dedbd4;
+
+    border-top: 1px solid #292929;
+    border-bottom: 1px solid #292929;
   }
 
   .filter-group {
     display: grid;
+
     grid-template-columns: repeat(3, 1fr);
+
     gap: 10px;
   }
 
   .filter-group h3 {
     grid-column: 1 / -1;
+
     margin-bottom: 5px;
   }
 
@@ -413,7 +571,9 @@
 
   .shop-sort {
     align-items: flex-start;
+
     flex-direction: column;
+
     gap: 10px;
   }
 
@@ -423,5 +583,9 @@
 
   .shop-empty {
     min-height: 250px;
+  }
+
+  .shop-product-grid {
+    grid-template-columns: 1fr;
   }
 }

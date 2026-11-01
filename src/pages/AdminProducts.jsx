@@ -161,6 +161,17 @@ function AdminProducts() {
       : "0.000";
   };
 
+  const getActiveBottleIndex = (bottles) => {
+    return bottles.findIndex(
+      (bottle) => Number(bottle.remainingMl) > 0
+    );
+  };
+
+  const formatPrice = (value) => {
+    const price = Number(value);
+    return Number.isFinite(price) ? `€${price.toFixed(2)}` : "€0.00";
+  };
+
   if (loading) {
     return (
       <>
@@ -233,6 +244,10 @@ function AdminProducts() {
                 const bottles = Array.isArray(product.bottles)
                   ? product.bottles
                   : [];
+
+                const activeBottleIndex = getActiveBottleIndex(bottles);
+                const activeBottle =
+                  activeBottleIndex >= 0 ? bottles[activeBottleIndex] : null;
 
                 return (
                   <article
@@ -463,6 +478,74 @@ function AdminProducts() {
                         )}
 
                         <div className="bottles-section">
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                              gap: "12px",
+                              marginBottom: "24px",
+                            }}
+                          >
+                            {[
+                              ["3 ml", product.price3ml],
+                              ["5 ml", product.price5ml],
+                              ["10 ml", product.price10ml],
+                              ["20 ml", product.price20ml],
+                            ].map(([size, price]) => (
+                              <div
+                                key={size}
+                                style={{
+                                  padding: "14px 16px",
+                                  border: "1px solid rgba(180, 145, 70, 0.25)",
+                                  borderRadius: "12px",
+                                }}
+                              >
+                                <span style={{ display: "block", fontSize: "12px", opacity: 0.65, marginBottom: "5px" }}>
+                                  ПРОДАЖНА ЦЕНА {size}
+                                </span>
+                                <strong style={{ fontSize: "20px" }}>
+                                  {formatPrice(price)}
+                                </strong>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              gap: "16px",
+                              padding: "16px 18px",
+                              marginBottom: "20px",
+                              borderRadius: "12px",
+                              background: "rgba(180, 145, 70, 0.10)",
+                              border: "1px solid rgba(180, 145, 70, 0.22)",
+                            }}
+                          >
+                            <div>
+                              <span style={{ display: "block", fontSize: "11px", fontWeight: 700, letterSpacing: "0.08em", opacity: 0.65, marginBottom: "4px" }}>
+                                АКТИВНА ЦЕНОВА БУТИЛКА
+                              </span>
+                              <strong>
+                                {activeBottle
+                                  ? `Бутилка #${activeBottleIndex + 1}`
+                                  : "Няма налична бутилка"}
+                              </strong>
+                            </div>
+
+                            {activeBottle && (
+                              <div style={{ textAlign: "right" }}>
+                                <strong>
+                                  {Number(activeBottle.remainingMl || 0).toFixed(0)} ml
+                                </strong>
+                                <span style={{ display: "block", fontSize: "13px", opacity: 0.7, marginTop: "3px" }}>
+                                  себестойност {getBottleCostPerMl(activeBottle)} €/ml
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
                           <div className="bottles-section-header">
                             <div>
                               <span>
@@ -510,6 +593,11 @@ function AdminProducts() {
                                   >
                                     <span className="bottle-number">
                                       {index + 1}
+                                      {index === activeBottleIndex && Number(bottle.remainingMl) > 0 && (
+                                        <small style={{ display: "block", marginTop: "3px", fontSize: "9px", fontWeight: 700, letterSpacing: "0.05em" }}>
+                                          АКТИВНА
+                                        </small>
+                                      )}
                                     </span>
 
                                     <span>

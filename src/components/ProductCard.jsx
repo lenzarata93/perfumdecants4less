@@ -1,4 +1,3 @@
-
 import "./ProductCard.css";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -13,6 +12,7 @@ function ProductCard({ product }) {
   } = useCart();
 
   const prices = {
+    3: product.price3ml,
     5: product.price5ml,
     10: product.price10ml,
     20: product.price20ml,
@@ -133,7 +133,7 @@ function ProductCard({ product }) {
         )}
 
         <div className="product-sizes">
-          {[5, 10, 20].map((size) => {
+          {[3, 5, 10, 20].map((size) => {
             const price = Number(
               prices[size] || 0
             );

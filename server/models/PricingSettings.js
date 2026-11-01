@@ -3,6 +3,22 @@ const mongoose = require("mongoose");
 const pricingSettingsSchema = new mongoose.Schema(
   {
     sizes: {
+      3: {
+        multiplier: {
+          type: Number,
+          required: true,
+          min: 0,
+          default: 1.70,
+        },
+
+        consumablesCost: {
+          type: Number,
+          required: true,
+          min: 0,
+          default: 0.50,
+        },
+      },
+
       5: {
         multiplier: {
           type: Number,
