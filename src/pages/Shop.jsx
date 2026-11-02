@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "../components/Header";
 import ProductCard from "../components/ProductCard";
+import { API_URL } from "../config";
 import "./Shop.css";
 
 function Shop() {
@@ -45,7 +46,7 @@ function Shop() {
         setError("");
 
         const response = await fetch(
-          "http://localhost:5000/api/products"
+          `${API_URL}/api/products`
         );
 
         if (!response.ok) {

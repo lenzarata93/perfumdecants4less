@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { API_URL } from "../config";
 import "./ProductDetails.css";
 
 function ProductDetails() {
@@ -24,7 +25,7 @@ function ProductDetails() {
         setError("");
 
         const response = await fetch(
-          `http://localhost:5000/api/products/${id}`
+          `${API_URL}/api/products/${id}`
         );
 
         if (!response.ok) {

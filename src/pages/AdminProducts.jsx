@@ -1,9 +1,9 @@
-
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
+import { API_URL } from "../config";
 import "./AdminProducts.css";
 
-const API_URL = "http://localhost:5000/api/products";
+const PRODUCTS_API_URL = `${API_URL}/api/products`;
 
 function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -26,7 +26,7 @@ function AdminProducts() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(API_URL);
+      const response = await fetch(PRODUCTS_API_URL);
 
       if (!response.ok) {
         throw new Error("Грешка при зареждане на продуктите.");
@@ -99,7 +99,7 @@ function AdminProducts() {
       setSuccessMessage("");
 
       const response = await fetch(
-        `${API_URL}/${productId}/bottles`,
+        `${PRODUCTS_API_URL}/${productId}/bottles`,
         {
           method: "POST",
           headers: {

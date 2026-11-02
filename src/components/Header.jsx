@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useUser } from "../context/UserContext";
+import { API_URL } from "../config";
 import "./Header.css";
-
-const API_URL = "http://localhost:5000/api/products";
 
 function Header() {
   const navigate = useNavigate();
@@ -21,15 +20,16 @@ function Header() {
   const searchRef = useRef(null);
   const inputRef = useRef(null);
 
-  const cartCount = cartItems?.reduce(
-    (total, item) => total + Number(item.quantity || 0),
-    0
-  ) || 0;
+  const cartCount =
+    cartItems?.reduce(
+      (total, item) => total + Number(item.quantity || 0),
+      0
+    ) || 0;
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(`${API_URL}/api/products`);
 
         if (!response.ok) {
           throw new Error("Неуспешно зареждане на продуктите.");
@@ -328,9 +328,7 @@ function Header() {
                                     alt={product.name}
                                   />
                                 ) : (
-                                  <span>
-                                    P
-                                  </span>
+                                  <span>P</span>
                                 )}
                               </div>
 

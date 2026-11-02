@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
+import { API_URL } from "../config";
 import "./AdminOrders.css";
 
-const API_URL = "http://localhost:5000/api/orders";
+const ORDERS_API_URL = `${API_URL}/api/orders`;
 
 function AdminOrders() {
   const [orders, setOrders] = useState([]);
@@ -18,7 +19,7 @@ function AdminOrders() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(API_URL);
+      const response = await fetch(ORDERS_API_URL);
 
       if (!response.ok) {
         throw new Error("Грешка при зареждане на поръчките.");
@@ -94,7 +95,7 @@ function AdminOrders() {
       setStatusMessage("");
 
       const response = await fetch(
-        `${API_URL}/${orderId}/status`,
+        `${ORDERS_API_URL}/${orderId}/status`,
         {
           method: "PATCH",
           headers: {

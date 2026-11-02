@@ -1,12 +1,12 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Header from "../components/Header";
+import { API_URL } from "../config";
 import "./AddProduct.css";
 
-const API_URL = "http://localhost:5000/api/products";
-const PRICING_API_URL = "http://localhost:5000/api/pricing";
+const PRODUCTS_API_URL = `${API_URL}/api/products`;
+const PRICING_API_URL = `${API_URL}/api/pricing`;
 
 function roundUp(price, step = 0.05) {
   if (!Number.isFinite(price) || price < 0) {
@@ -217,7 +217,7 @@ function AddProduct() {
     try {
       setLoading(true);
 
-      const response = await fetch(API_URL, {
+      const response = await fetch(PRODUCTS_API_URL, {
         method: "POST",
 
         headers: {
