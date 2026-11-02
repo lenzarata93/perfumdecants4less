@@ -20,7 +20,7 @@ function Hero() {
         </h1>
 
         <p className="hero-description">
-          Открий дизайнерски и нишови парфюми в 5, 10 или 20 ml.
+          Открий дизайнерски и нишови парфюми в 3, 5, 10 или 20 ml.
           Избери любимия си аромат без да купуваш цяла бутилка.
         </p>
 
@@ -41,7 +41,7 @@ function Hero() {
         <div className="hero-info">
 
           <div>
-            <strong>5 / 10 / 20</strong>
+            <strong>3 / 5 / 10 / 20</strong>
             <span>ML РАЗМЕРИ</span>
           </div>
 
@@ -58,25 +58,13 @@ function Hero() {
 
       <div className="hero-product">
 
-        <div className="hero-product-glow"></div>
+        <img
+          src="/banner.png"
+          alt="Луксозни парфюми PerfumDecants4Less"
+          className="hero-perfumes-image"
+        />
 
-        <div className="hero-product-ring"></div>
-
-        <div className="hero-bottle-shadow"></div>
-
-        <div className="hero-bottle">
-
-          <div className="hero-bottle-cap"></div>
-
-          <div className="hero-bottle-neck"></div>
-
-          <div className="hero-bottle-label">
-            <small>PERFUM</small>
-            <strong>DECANTS</strong>
-            <span>4 LESS</span>
-          </div>
-
-        </div>
+        <div className="hero-image-overlay"></div>
 
         <div className="hero-floating-card">
           <span>CHOOSE YOUR SIZE</span>
@@ -92,7 +80,11 @@ function Hero() {
 
         <div className="hero-product-caption">
           <span>DISCOVER</span>
-          <strong>YOUR NEXT<br />SIGNATURE</strong>
+          <strong>
+            YOUR NEXT
+            <br />
+            SIGNATURE
+          </strong>
         </div>
 
       </div>

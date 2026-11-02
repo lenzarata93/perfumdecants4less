@@ -21,10 +21,10 @@
   position: absolute;
   z-index: -2;
 
-  width: 600px;
-  height: 600px;
+  width: 650px;
+  height: 650px;
 
-  right: -100px;
+  right: -120px;
   top: 50%;
 
   transform: translateY(-50%);
@@ -34,12 +34,12 @@
   background:
     radial-gradient(
       circle,
-      rgba(212, 175, 55, 0.12) 0%,
-      rgba(212, 175, 55, 0.045) 35%,
-      transparent 70%
+      rgba(212, 175, 55, 0.13) 0%,
+      rgba(212, 175, 55, 0.035) 40%,
+      transparent 72%
     );
 
-  filter: blur(8px);
+  filter: blur(10px);
 
   pointer-events: none;
 }
@@ -209,7 +209,7 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* PRODUCT */
+/* PRODUCT IMAGE */
 
 .hero-product {
   position: relative;
@@ -219,214 +219,60 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  overflow: visible;
 }
 
-.hero-product-glow {
-  position: absolute;
-
-  width: 430px;
-  height: 430px;
-
-  border-radius: 50%;
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(212, 175, 55, 0.16),
-      rgba(212, 175, 55, 0.035) 45%,
-      transparent 70%
-    );
-
-  filter: blur(12px);
-}
-
-/* RING */
-
-.hero-product-ring {
-  position: absolute;
-
-  width: 390px;
-  height: 390px;
-
-  border-radius: 50%;
-
-  border: 1px solid rgba(212, 175, 55, 0.18);
-
-  transform: rotate(-12deg);
-}
-
-.hero-product-ring::before {
-  content: "";
-
-  position: absolute;
-
-  inset: 35px;
-
-  border-radius: 50%;
-
-  border: 1px solid rgba(212, 175, 55, 0.08);
-}
-
-/* BOTTLE */
-
-.hero-bottle {
+.hero-perfumes-image {
   position: relative;
-  z-index: 5;
-
-  width: 190px;
-  height: 315px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid rgba(243, 214, 107, 0.75);
-
-  border-radius: 18px 18px 28px 28px;
-
-  background:
-    linear-gradient(
-      120deg,
-      rgba(255, 255, 255, 0.12),
-      rgba(212, 175, 55, 0.05) 35%,
-      rgba(0, 0, 0, 0.9) 80%
-    );
-
-  box-shadow:
-    0 45px 80px rgba(0, 0, 0, 0.75),
-    0 0 50px rgba(212, 175, 55, 0.12),
-    inset 15px 0 30px rgba(255, 255, 255, 0.025);
-
-  transform: rotate(2deg);
-}
-
-/* BOTTLE LIGHT */
-
-.hero-bottle::after {
-  content: "";
-
-  position: absolute;
-
-  left: 20px;
-  top: 20px;
-
-  width: 25px;
-  height: 230px;
-
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.04);
-
-  filter: blur(8px);
-}
-
-/* CAP */
-
-.hero-bottle-cap {
-  position: absolute;
   z-index: 3;
 
-  top: -68px;
+  width: 92%;
+  max-width: 680px;
 
-  width: 76px;
-  height: 68px;
+  height: auto;
 
-  border: 1px solid rgba(243, 214, 107, 0.8);
-  border-bottom: none;
+  display: block;
 
-  border-radius: 9px 9px 0 0;
+  object-fit: contain;
+
+  filter:
+    drop-shadow(0 35px 50px rgba(0, 0, 0, 0.65));
+
+  transform: translateX(0);
+
+  transition:
+    transform 0.5s ease,
+    filter 0.5s ease;
+}
+
+.hero-product:hover .hero-perfumes-image {
+  transform: scale(1.015);
+
+  filter:
+    drop-shadow(0 40px 65px rgba(0, 0, 0, 0.75));
+}
+
+/* IMAGE OVERLAY */
+
+.hero-image-overlay {
+  position: absolute;
+  z-index: 4;
+
+  inset: 0;
+
+  pointer-events: none;
 
   background:
     linear-gradient(
       90deg,
-      #0c0c0c,
-      #292929,
-      #0b0b0b
+      rgba(8, 8, 8, 0.65) 0%,
+      transparent 25%,
+      transparent 80%,
+      rgba(8, 8, 8, 0.15) 100%
     );
 
-  box-shadow:
-    0 -5px 20px rgba(212, 175, 55, 0.05);
-}
-
-/* NECK */
-
-.hero-bottle-neck {
-  position: absolute;
-
-  top: -8px;
-
-  width: 52px;
-  height: 30px;
-
-  border: 1px solid rgba(243, 214, 107, 0.5);
-
-  background: #111;
-
-  border-radius: 3px;
-}
-
-/* LABEL */
-
-.hero-bottle-label {
-  position: relative;
-  z-index: 5;
-
-  width: 135px;
-  min-height: 105px;
-
-  padding: 15px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid rgba(212, 175, 55, 0.55);
-
-  background: rgba(5, 5, 5, 0.78);
-
-  text-align: center;
-}
-
-.hero-bottle-label small {
-  color: #999;
-
-  font-size: 7px;
-  letter-spacing: 3px;
-}
-
-.hero-bottle-label strong {
-  margin: 7px 0;
-
-  color: #f5f5f5;
-
-  font-size: 15px;
-  letter-spacing: 2px;
-}
-
-.hero-bottle-label span {
-  color: var(--gold-light);
-
-  font-size: 8px;
-  letter-spacing: 4px;
-}
-
-/* BOTTLE SHADOW */
-
-.hero-bottle-shadow {
-  position: absolute;
-  z-index: 1;
-
-  bottom: 85px;
-
-  width: 240px;
-  height: 35px;
-
-  border-radius: 50%;
-
-  background: rgba(0, 0, 0, 0.8);
-
-  filter: blur(20px);
+  mix-blend-mode: multiply;
 }
 
 /* FLOATING CARD */
@@ -435,20 +281,21 @@
   position: absolute;
   z-index: 8;
 
-  right: 0;
-  bottom: 100px;
+  right: 10px;
+  bottom: 105px;
 
   width: 150px;
 
   padding: 18px;
 
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  border: 1px solid rgba(212, 175, 55, 0.3);
 
-  background: rgba(10, 10, 10, 0.75);
+  background: rgba(10, 10, 10, 0.78);
 
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
 
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.55);
 }
 
 .hero-floating-card > span {
@@ -487,10 +334,10 @@
 
 .hero-product-caption {
   position: absolute;
-  z-index: 7;
+  z-index: 8;
 
   left: 5px;
-  bottom: 95px;
+  bottom: 100px;
 
   display: flex;
   flex-direction: column;
@@ -538,8 +385,25 @@
     min-height: 560px;
   }
 
+  .hero-perfumes-image {
+    width: 92%;
+    max-width: 720px;
+
+    transform: none;
+  }
+
+  .hero-product:hover .hero-perfumes-image {
+    transform: scale(1.01);
+  }
+
   .hero-floating-card {
     right: 8%;
+    bottom: 75px;
+  }
+
+  .hero-product-caption {
+    left: 8%;
+    bottom: 70px;
   }
 }
 
@@ -549,7 +413,7 @@
   .hero {
     width: calc(100% - 30px);
 
-    padding: 65px 0 80px;
+    padding: 65px 0 60px;
   }
 
   .hero h1 {
@@ -582,39 +446,28 @@
   }
 
   .hero-product {
-    min-height: 470px;
+    min-height: 390px;
+
+    margin-top: 10px;
   }
 
-  .hero-product-ring {
-    width: 320px;
-    height: 320px;
+  .hero-perfumes-image {
+    width: 115%;
+    max-width: none;
+
+    transform: none;
   }
 
-  .hero-product-glow {
-    width: 340px;
-    height: 340px;
-  }
-
-  .hero-bottle {
-    width: 155px;
-    height: 255px;
-  }
-
-  .hero-bottle-cap {
-    width: 64px;
-    height: 55px;
-    top: -55px;
-  }
-
-  .hero-bottle-label {
-    width: 115px;
-    min-height: 90px;
+  .hero-product:hover .hero-perfumes-image {
+    transform: none;
   }
 
   .hero-floating-card {
     right: 0;
-    bottom: 45px;
+    bottom: 20px;
+
     width: 125px;
+
     padding: 14px;
   }
 
@@ -624,7 +477,7 @@
 
   .hero-product-caption {
     left: 0;
-    bottom: 60px;
+    bottom: 35px;
   }
 }
 
@@ -641,21 +494,16 @@
   }
 
   .hero-product {
-    min-height: 430px;
+    min-height: 330px;
   }
 
-  .hero-product-ring {
-    width: 290px;
-    height: 290px;
-  }
-
-  .hero-bottle {
-    width: 140px;
-    height: 230px;
+  .hero-perfumes-image {
+    width: 125%;
   }
 
   .hero-floating-card {
     right: -5px;
+    bottom: 10px;
   }
 
   .hero-product-caption {

@@ -355,6 +355,47 @@
 }
 
 /* ================================
+   CLEAR FILTERS
+================================ */
+
+.clear-filters-button {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-top: 5px;
+  padding: 0 0 5px;
+
+  border: none;
+  border-bottom: 1px solid #4a4742;
+
+  background: transparent;
+  color: #8d8981;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.clear-filters-button:hover {
+  color: #c5a15b;
+
+  border-color: #c5a15b;
+}
+
+/* ================================
    PRODUCTS
 ================================ */
 
@@ -529,6 +570,10 @@
   .shop-sort select {
     min-width: 170px;
   }
+
+  .clear-filters-button {
+    margin-top: 5px;
+  }
 }
 
 @media (max-width: 500px) {
@@ -587,5 +632,9 @@
 
   .shop-product-grid {
     grid-template-columns: 1fr;
+  }
+
+  .clear-filters-button {
+    margin-top: 0;
   }
 }

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import Header from "../components/Header";
+import "./Login.css";
 
 function Login() {
   const navigate = useNavigate();
@@ -41,52 +43,87 @@ function Login() {
   };
 
   return (
-    <main>
-      <h1>Вход</h1>
+    <>
+      <Header />
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
+      <main className="login-page">
+        <div className="login-card">
+          <div className="login-header">
+            <span className="login-eyebrow">
+              PERFUM DECANTS4LESS
+            </span>
 
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Въведете email"
-            autoComplete="email"
-            required
-          />
+            <h1>Добре дошли отново</h1>
+
+            <p>
+              Влезте в своя профил, за да управлявате
+              поръчките си и своите бонус точки.
+            </p>
+          </div>
+
+          <form
+            className="login-form"
+            onSubmit={handleSubmit}
+          >
+            <div className="login-form-group">
+              <label htmlFor="email">
+                Email
+              </label>
+
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Въведете email"
+                autoComplete="email"
+                required
+              />
+            </div>
+
+            <div className="login-form-group">
+              <label htmlFor="password">
+                Парола
+              </label>
+
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Въведете парола"
+                autoComplete="current-password"
+                required
+              />
+            </div>
+
+            {error && (
+              <div className="login-error">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="login-button"
+              disabled={loading}
+            >
+              {loading ? "Влизане..." : "Вход"}
+            </button>
+          </form>
+
+          <div className="login-footer">
+            <span>Нямате акаунт?</span>
+
+            <Link to="/register">
+              Създайте профил
+            </Link>
+          </div>
         </div>
-
-        <div>
-          <label htmlFor="password">Парола</label>
-
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Въведете парола"
-            autoComplete="current-password"
-            required
-          />
-        </div>
-
-        {error && <p>{error}</p>}
-
-        <button type="submit" disabled={loading}>
-          {loading ? "Влизане..." : "Вход"}
-        </button>
-      </form>
-
-      <p>
-        Нямате акаунт?{" "}
-        <Link to="/register">Регистрация</Link>
-      </p>
-    </main>
+      </main>
+    </>
   );
 }
 

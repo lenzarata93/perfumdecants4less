@@ -27,13 +27,15 @@ function Header() {
 
         {/* LOGO */}
         <Link
-          to="/"
-          className="logo"
-          onClick={closeMenu}
-        >
-          <span>PERFUM</span>
-          <strong>DECANTS4LESS</strong>
-        </Link>
+  to="/"
+  className="logo"
+  onClick={closeMenu}
+>
+  <img
+    src="/logo.png"
+    alt="PerfumDecants4Less"
+  />
+</Link>
 
         {/* MAIN NAVIGATION */}
         <nav
