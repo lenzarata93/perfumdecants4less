@@ -1,48 +1,167 @@
-
-import "./Header.css";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useUser } from "../context/UserContext";
+import "./Header.css";
+
+const API_URL = "http://localhost:5000/api/products";
 
 function Header() {
+  const navigate = useNavigate();
+  const { cartItems } = useCart();
+  const { user } = useUser();
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
 
-  const { cartCount } = useCart();
-  const { user, isLoggedIn, isAdmin } = useUser();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState([]);
+
+  const searchRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const cartCount = cartItems?.reduce(
+    (total, item) => total + Number(item.quantity || 0),
+    0
+  ) || 0;
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+          throw new Error("Неуспешно зареждане на продуктите.");
+        }
+
+        const data = await response.json();
+        setProducts(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Search products error:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    }
+  }, [searchOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target)
+      ) {
+        setSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   const closeMenu = () => {
     setMenuOpen(false);
     setAdminOpen(false);
   };
 
-  const toggleAdminMenu = () => {
-    setAdminOpen((current) => !current);
+  const openSearch = () => {
+    setSearchOpen(true);
+    setMenuOpen(false);
+  };
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchTerm("");
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+
+    const query = searchTerm.trim();
+
+    if (!query) return;
+
+    setSearchOpen(false);
+    navigate(`/shop?search=${encodeURIComponent(query)}`);
+  };
+
+  const handleSearchResultClick = (productId) => {
+    setSearchOpen(false);
+    setSearchTerm("");
+    navigate(`/product/${productId}`);
+  };
+
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+
+  const searchResults = normalizedSearch
+    ? products
+        .filter((product) => {
+          const name = product.name?.toLowerCase() || "";
+          const brand = product.brand?.toLowerCase() || "";
+
+          return (
+            name.includes(normalizedSearch) ||
+            brand.includes(normalizedSearch)
+          );
+        })
+        .slice(0, 5)
+    : [];
+
+  const getStartingPrice = (product) => {
+    const prices = [
+      Number(product.price3ml),
+      Number(product.price5ml),
+      Number(product.price10ml),
+      Number(product.price20ml),
+    ].filter((price) => price > 0);
+
+    if (!prices.length) return null;
+
+    return Math.min(...prices);
   };
 
   return (
-    <header className="site-header">
-      <div className="header-container">
-
+    <header className="header">
+      <div className="header-inner">
         {/* LOGO */}
         <Link
-  to="/"
-  className="logo"
-  onClick={closeMenu}
->
-  <img
-    src="/logo.png"
-    alt="PerfumDecants4Less"
-  />
-</Link>
-
-        {/* MAIN NAVIGATION */}
-        <nav
-          className={`main-nav ${
-            menuOpen ? "open" : ""
-          }`}
+          to="/"
+          className="logo"
+          onClick={closeMenu}
         >
+          <img
+            src="/logo.png"
+            alt="PerfumDecants4Less"
+          />
+        </Link>
+
+        {/* DESKTOP NAVIGATION */}
+        <nav className={`main-nav ${menuOpen ? "mobile-open" : ""}`}>
           <Link to="/" onClick={closeMenu}>
             Начало
           </Link>
@@ -51,154 +170,32 @@ function Header() {
             Парфюми
           </Link>
 
-          <Link to="/categories" onClick={closeMenu}>
+          <a href="/#categories" onClick={closeMenu}>
             Категории
-          </Link>
+          </a>
 
-          <Link to="/about" onClick={closeMenu}>
+          <a href="/#about" onClick={closeMenu}>
             За нас
-          </Link>
+          </a>
 
-          {/* MOBILE ADMIN MENU */}
-          {isLoggedIn && isAdmin && (
-            <div className="mobile-admin-menu">
-              <div className="mobile-admin-title">
-                ADMIN
-              </div>
-
-              <Link
-                to="/admin/products"
-                onClick={closeMenu}
-              >
-                📦 Продукти
-              </Link>
-
-              <Link
-                to="/admin/products/new"
-                onClick={closeMenu}
-              >
-                ➕ Добави парфюм
-              </Link>
-
-              <Link
-                to="/admin/orders"
-                onClick={closeMenu}
-              >
-                🧾 Поръчки
-              </Link>
-            </div>
-          )}
-
-          {/* MOBILE AUTH */}
-          <div className="mobile-auth">
-
-            {!isLoggedIn ? (
-              <>
-                <Link
-                  to="/login"
-                  className="mobile-auth-login"
-                  onClick={closeMenu}
-                >
-                  Вход
-                </Link>
-
-                <Link
-                  to="/register"
-                  className="mobile-auth-register"
-                  onClick={closeMenu}
-                >
-                  Регистрация
-                </Link>
-              </>
-            ) : (
-              <Link
-                to="/profile"
-                className="mobile-auth-profile"
-                onClick={closeMenu}
-              >
-                Моят профил
-              </Link>
-            )}
-
-          </div>
-        </nav>
-
-        {/* HEADER ACTIONS */}
-        <div className="header-actions">
-
-          {/* SEARCH */}
-          <button
-            type="button"
-            className="header-icon"
-            aria-label="Търсене"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <circle
-                cx="11"
-                cy="11"
-                r="6.5"
-              />
-
-              <path d="M16 16L21 21" />
-            </svg>
-          </button>
-
-          {/* DESKTOP AUTH */}
-          {!isLoggedIn ? (
-            <div className="desktop-auth">
-
-              <Link
-                to="/login"
-                className="header-login"
-                onClick={closeMenu}
-              >
-                Вход
-              </Link>
-
-              <Link
-                to="/register"
-                className="header-register"
-                onClick={closeMenu}
-              >
-                Регистрация
-              </Link>
-
-            </div>
-          ) : (
-            <>
-              {/* DESKTOP ADMIN */}
-              {isAdmin && (
-                <div className="admin-header-menu">
+          {menuOpen && (
+            <div className="mobile-extra-links">
+              {user?.isAdmin && (
+                <div className="mobile-admin-links">
                   <button
                     type="button"
-                    className="admin-header-button"
-                    onClick={toggleAdminMenu}
-                    aria-expanded={adminOpen}
+                    onClick={() => setAdminOpen((prev) => !prev)}
                   >
-                    ADMIN
-
-                    <span
-                      className={
-                        adminOpen
-                          ? "admin-arrow open"
-                          : "admin-arrow"
-                      }
-                    >
-                      ▾
-                    </span>
+                    Администрация
+                    <span>{adminOpen ? "−" : "+"}</span>
                   </button>
 
                   {adminOpen && (
-                    <div className="admin-dropdown">
-
+                    <div className="mobile-admin-dropdown">
                       <Link
                         to="/admin/products"
                         onClick={closeMenu}
                       >
-                        <span>📦</span>
                         Продукти
                       </Link>
 
@@ -206,73 +203,203 @@ function Header() {
                         to="/admin/products/new"
                         onClick={closeMenu}
                       >
-                        <span>➕</span>
-                        Добави парфюм
+                        Добави продукт
                       </Link>
 
                       <Link
                         to="/admin/orders"
                         onClick={closeMenu}
                       >
-                        <span>🧾</span>
                         Поръчки
                       </Link>
-
                     </div>
                   )}
                 </div>
               )}
 
-              {/* PROFILE */}
-              <Link
-                to="/profile"
-                className="header-profile"
-                aria-label={`Профил на ${user.firstName}`}
-                onClick={closeMenu}
+              {user ? (
+                <Link to="/profile" onClick={closeMenu}>
+                  Профил
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login" onClick={closeMenu}>
+                    Вход
+                  </Link>
+
+                  <Link to="/register" onClick={closeMenu}>
+                    Регистрация
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
+        </nav>
+
+        {/* RIGHT SIDE */}
+        <div className="header-actions">
+
+          {/* SEARCH */}
+          <div
+            className={`header-search ${
+              searchOpen ? "search-active" : ""
+            }`}
+            ref={searchRef}
+          >
+            {!searchOpen ? (
+              <button
+                type="button"
+                className="header-icon"
+                aria-label="Търсене"
+                onClick={openSearch}
               >
                 <svg
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                 >
-                  <circle
-                    cx="12"
-                    cy="8"
-                    r="3.5"
+                  <circle cx="11" cy="11" r="6.5" />
+                  <path d="M16 16L21 21" />
+                </svg>
+              </button>
+            ) : (
+              <>
+                <form
+                  className="search-form"
+                  onSubmit={handleSearchSubmit}
+                >
+                  <svg
+                    className="search-form-icon"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle cx="11" cy="11" r="6.5" />
+                    <path d="M16 16L21 21" />
+                  </svg>
+
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={searchTerm}
+                    onChange={(event) =>
+                      setSearchTerm(event.target.value)
+                    }
+                    placeholder="Търси парфюм..."
+                    autoComplete="off"
                   />
 
-                  <path d="M5 20c.8-3.5 3.3-5.5 7-5.5s6.2 2 7 5.5" />
-                </svg>
+                  <button
+                    type="button"
+                    className="search-close"
+                    onClick={closeSearch}
+                    aria-label="Затвори търсенето"
+                  >
+                    ×
+                  </button>
+                </form>
 
-                <span className="header-user-name">
-                  {user.firstName}
-                </span>
-              </Link>
-            </>
-          )}
+                {normalizedSearch && (
+                  <div className="search-dropdown">
+
+                    {searchResults.length > 0 ? (
+                      <>
+                        <div className="search-results-title">
+                          Резултати
+                        </div>
+
+                        {searchResults.map((product) => {
+                          const startingPrice =
+                            getStartingPrice(product);
+
+                          return (
+                            <button
+                              type="button"
+                              className="search-result"
+                              key={product._id}
+                              onClick={() =>
+                                handleSearchResultClick(
+                                  product._id
+                                )
+                              }
+                            >
+                              <div className="search-result-image">
+                                {product.image ? (
+                                  <img
+                                    src={product.image}
+                                    alt={product.name}
+                                  />
+                                ) : (
+                                  <span>
+                                    P
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="search-result-info">
+                                <strong>
+                                  {product.name}
+                                </strong>
+
+                                <span>
+                                  {product.brand}
+                                </span>
+                              </div>
+
+                              {startingPrice !== null && (
+                                <div className="search-result-price">
+                                  <small>от</small>
+                                  <strong>
+                                    €{startingPrice.toFixed(2)}
+                                  </strong>
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+
+                        <button
+                          type="button"
+                          className="search-all-results"
+                          onClick={handleSearchSubmit}
+                        >
+                          Виж всички резултати
+                          <span>→</span>
+                        </button>
+                      </>
+                    ) : (
+                      <div className="search-no-results">
+                        <span className="search-no-results-icon">
+                          ×
+                        </span>
+
+                        <strong>
+                          Няма намерени парфюми
+                        </strong>
+
+                        <p>
+                          Опитай с друго име или марка.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
           {/* CART */}
           <Link
             to="/cart"
-            className="header-cart"
-            aria-label={`Количка: ${cartCount} артикула`}
+            className="header-icon cart-icon"
+            aria-label="Количка"
+            onClick={closeMenu}
           >
             <svg
               viewBox="0 0 24 24"
               aria-hidden="true"
             >
-              <path d="M3.5 5h2l1.8 10.2a2 2 0 0 0 2 1.8h7.8a2 2 0 0 0 1.9-1.4L21 8H6.2" />
-
-              <circle
-                cx="9"
-                cy="20"
-                r="1"
-              />
-
-              <circle
-                cx="18"
-                cy="20"
-                r="1"
-              />
+              <path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5L21 8H6" />
+              <circle cx="10" cy="20" r="1.3" />
+              <circle cx="18" cy="20" r="1.3" />
             </svg>
 
             {cartCount > 0 && (
@@ -282,24 +409,85 @@ function Header() {
             )}
           </Link>
 
-          {/* MOBILE MENU */}
+          {/* DESKTOP USER / ADMIN */}
+          <div className="desktop-account">
+            {user?.isAdmin && (
+              <div className="admin-menu">
+                <button
+                  type="button"
+                  className="admin-button"
+                  onClick={() =>
+                    setAdminOpen((prev) => !prev)
+                  }
+                >
+                  Админ
+                  <span>
+                    {adminOpen ? "▲" : "▼"}
+                  </span>
+                </button>
+
+                {adminOpen && (
+                  <div className="admin-dropdown">
+                    <Link
+                      to="/admin/products"
+                      onClick={() => setAdminOpen(false)}
+                    >
+                      Продукти
+                    </Link>
+
+                    <Link
+                      to="/admin/products/new"
+                      onClick={() => setAdminOpen(false)}
+                    >
+                      Добави продукт
+                    </Link>
+
+                    <Link
+                      to="/admin/orders"
+                      onClick={() => setAdminOpen(false)}
+                    >
+                      Поръчки
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {user ? (
+              <Link
+                to="/profile"
+                className="account-link"
+                onClick={closeMenu}
+              >
+                Профил
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="account-link"
+                onClick={closeMenu}
+              >
+                Вход
+              </Link>
+            )}
+          </div>
+
+          {/* MOBILE MENU BUTTON */}
           <button
             type="button"
-            className="menu-button"
-            aria-label={
-              menuOpen
-                ? "Затвори меню"
-                : "Отвори меню"
-            }
-            aria-expanded={menuOpen}
-            onClick={() =>
-              setMenuOpen(!menuOpen)
-            }
+            className={`menu-toggle ${
+              menuOpen ? "open" : ""
+            }`}
+            onClick={() => {
+              setMenuOpen((prev) => !prev);
+              setAdminOpen(false);
+            }}
+            aria-label="Меню"
           >
             <span></span>
             <span></span>
+            <span></span>
           </button>
-
         </div>
       </div>
     </header>

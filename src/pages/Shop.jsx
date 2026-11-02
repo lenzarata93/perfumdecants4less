@@ -1,10 +1,12 @@
-
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "../components/Header";
 import ProductCard from "../components/ProductCard";
 import "./Shop.css";
 
 function Shop() {
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -13,11 +15,24 @@ function Shop() {
   // FILTER STATE
   // ================================
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
+
   const [selectedGenders, setSelectedGenders] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [sortBy, setSortBy] = useState("popular");
+
+  // ================================
+  // SYNC SEARCH WITH URL
+  // ================================
+
+  useEffect(() => {
+    const searchFromUrl = searchParams.get("search") || "";
+
+    setSearchTerm(searchFromUrl);
+  }, [searchParams]);
 
   // ================================
   // FETCH PRODUCTS
@@ -41,7 +56,7 @@ function Shop() {
 
         const data = await response.json();
 
-        setProducts(data);
+        setProducts(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error(
           "Fetch products error:",
@@ -228,6 +243,28 @@ function Shop() {
     setSelectedSizes([]);
     setSelectedCategories([]);
     setSortBy("popular");
+
+    // Премахваме ?search= от URL
+    setSearchParams({});
+  };
+
+  // ================================
+  // SEARCH INPUT
+  // ================================
+
+  const handleSearchChange = (event) => {
+    const value = event.target.value;
+
+    setSearchTerm(value);
+
+    // Синхронизираме URL-а с търсенето
+    if (value.trim()) {
+      setSearchParams({
+        search: value,
+      });
+    } else {
+      setSearchParams({});
+    }
   };
 
   const hasActiveFilters =
@@ -242,32 +279,6 @@ function Shop() {
       <Header />
 
       <div className="shop-page">
-
-        {/* ================================
-            SHOP HEADER
-        ================================= */}
-
-        <header className="shop-page-header">
-          <div className="section-container">
-
-            <p className="section-eyebrow">
-              PERFUMDECANTS4LESS
-            </p>
-
-            <h1>
-              Открий своя
-              <br />
-              <span>следващ аромат.</span>
-            </h1>
-
-            <p>
-              Дизайнерски и нишови парфюми в
-              удобни размери. Избери аромат,
-              размер и го добави в колекцията си.
-            </p>
-
-          </div>
-        </header>
 
         {/* ================================
             SHOP CONTENT
@@ -288,11 +299,7 @@ function Shop() {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(event) =>
-                    setSearchTerm(
-                      event.target.value
-                    )
-                  }
+                  onChange={handleSearchChange}
                   placeholder="Търси парфюм или марка..."
                   aria-label="Търси парфюм или марка"
                 />
@@ -595,7 +602,7 @@ function Shop() {
                     className="clear-filters-button"
                     onClick={clearFilters}
                   >
-                    Изчисти филтрите
+                    × Изчисти филтрите
                   </button>
                 )}
 
@@ -610,7 +617,9 @@ function Shop() {
                 <div className="shop-products-header">
 
                   <span>
-                    Парфюми
+                    {searchTerm.trim()
+                      ? `Резултати за „${searchTerm.trim()}“`
+                      : "Парфюми"}
                   </span>
 
                   <span>
@@ -625,11 +634,9 @@ function Shop() {
 
                 {loading && (
                   <div className="shop-empty">
-
                     <p>
                       Зареждаме продуктите...
                     </p>
-
                   </div>
                 )}
 
@@ -637,11 +644,9 @@ function Shop() {
 
                 {error && (
                   <div className="shop-empty">
-
                     <p>
                       {error}
                     </p>
-
                   </div>
                 )}
 
@@ -651,11 +656,9 @@ function Shop() {
                   !error &&
                   products.length === 0 && (
                     <div className="shop-empty">
-
                       <p>
                         Все още няма налични продукти.
                       </p>
-
                     </div>
                   )}
 
