@@ -29,7 +29,7 @@ const benefits = [
 
 function Benefits() {
   return (
-    <section className="benefits-section">
+    <section id="about" className="benefits-section">
       <div className="section-container">
 
         <div className="benefits-heading">

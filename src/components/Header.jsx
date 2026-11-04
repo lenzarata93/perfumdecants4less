@@ -1,5 +1,6 @@
+
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useUser } from "../context/UserContext";
 import { API_URL } from "../config";
@@ -7,6 +8,8 @@ import "./Header.css";
 
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { cartItems } = useCart();
   const { user } = useUser();
 
@@ -83,6 +86,35 @@ function Header() {
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
+
+  // Navigation to homepage sections
+  useEffect(() => {
+    if (location.pathname !== "/" || !location.hash) {
+      return;
+    }
+
+    const targetId = decodeURIComponent(location.hash.slice(1));
+
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById(targetId);
+
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      } else {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [location.pathname, location.hash]);
 
   const closeMenu = () => {
     setMenuOpen(false);
@@ -170,13 +202,13 @@ function Header() {
             Парфюми
           </Link>
 
-          <a href="/#categories" onClick={closeMenu}>
+          <Link to="/#categories" onClick={closeMenu}>
             Категории
-          </a>
+          </Link>
 
-          <a href="/#about" onClick={closeMenu}>
+          <Link to="/#about" onClick={closeMenu}>
             За нас
-          </a>
+          </Link>
 
           {menuOpen && (
             <div className="mobile-extra-links">
@@ -316,9 +348,7 @@ function Header() {
                               className="search-result"
                               key={product._id}
                               onClick={() =>
-                                handleSearchResultClick(
-                                  product._id
-                                )
+                                handleSearchResultClick(product._id)
                               }
                             >
                               <div className="search-result-image">

@@ -30,7 +30,7 @@ const sizes = [
 
 function Categories() {
   return (
-    <section className="categories-section">
+    <section id="categories" className="categories-section">
       <div className="section-container">
 
         <div className="categories-heading">
