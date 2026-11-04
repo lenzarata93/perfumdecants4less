@@ -1,5 +1,8 @@
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
+import { API_URL } from "../config";
 import Header from "../components/Header";
 import "./Profile.css";
 
@@ -8,12 +11,95 @@ function Profile() {
 
   const {
     user,
+    token,
     logout,
   } = useUser();
+
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState("");
+
+  useEffect(() => {
+    const fetchMyOrders = async () => {
+      if (!user || !token) {
+        setOrdersLoading(false);
+        return;
+      }
+
+      try {
+        setOrdersLoading(true);
+        setOrdersError("");
+
+        const response = await fetch(
+          `${API_URL}/api/orders/my-orders`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Грешка при зареждане на поръчките."
+          );
+        }
+
+        setOrders(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Fetch my orders error:", error);
+        setOrdersError(error.message);
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    fetchMyOrders();
+  }, [user, token]);
 
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const getOrderStatus = (status) => {
+    const statuses = {
+      pending: "Очаква потвърждение",
+      confirmed: "Потвърдена",
+      processing: "Обработва се",
+      shipped: "Изпратена",
+      completed: "Завършена",
+      cancelled: "Отказана",
+    };
+
+    return statuses[status] || status || "Неизвестен статус";
+  };
+
+  const getStatusClass = (status) => {
+    const classes = {
+      pending: "pending",
+      confirmed: "confirmed",
+      processing: "processing",
+      shipped: "shipped",
+      completed: "completed",
+      cancelled: "cancelled",
+    };
+
+    return classes[status] || "pending";
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "Няма дата";
+
+    return new Date(date).toLocaleDateString("bg-BG", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
   };
 
   if (!user) {
@@ -47,11 +133,9 @@ function Profile() {
       <Header />
 
       <main className="profile-page">
-
         <div className="profile-container">
 
           <div className="profile-heading">
-
             <div>
               <span className="profile-eyebrow">
                 MY ACCOUNT
@@ -73,7 +157,6 @@ function Profile() {
             >
               Изход
             </button>
-
           </div>
 
           <div className="profile-stats">
@@ -172,36 +255,152 @@ function Profile() {
                 </div>
               </div>
 
-              <div className="empty-orders">
-
-                <div className="empty-orders-icon">
-                  ◇
+              {ordersLoading ? (
+                <div className="empty-orders">
+                  <p>Зареждане на поръчките...</p>
                 </div>
+              ) : ordersError ? (
+                <div className="empty-orders">
+                  <h3>Неуспешно зареждане</h3>
 
-                <h3>
-                  Все още нямате поръчки
-                </h3>
+                  <p>{ordersError}</p>
 
-                <p>
-                  След първата ви покупка историята на
-                  поръчките ще се появи тук.
-                </p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                  >
+                    Опитай отново
+                  </button>
+                </div>
+              ) : orders.length === 0 ? (
+                <div className="empty-orders">
 
-                <button
-                  type="button"
-                  onClick={() => navigate("/shop")}
-                >
-                  Разгледай парфюмите
-                </button>
+                  <div className="empty-orders-icon">
+                    ◇
+                  </div>
 
-              </div>
+                  <h3>
+                    Все още нямате поръчки
+                  </h3>
+
+                  <p>
+                    След първата ви покупка историята на
+                    поръчките ще се появи тук.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/shop")}
+                  >
+                    Разгледай парфюмите
+                  </button>
+
+                </div>
+              ) : (
+                <div className="my-orders-list">
+
+                  {orders.map((order) => (
+                    <article
+                      className="my-order-item"
+                      key={order._id}
+                    >
+
+                      <div className="my-order-header">
+
+                        <div>
+                          <span className="my-order-label">
+                            ПОРЪЧКА
+                          </span>
+
+                          <h3>
+                            {order.orderNumber || order._id}
+                          </h3>
+
+                          <span className="my-order-date">
+                            {formatDate(order.createdAt)}
+                          </span>
+                        </div>
+
+                        <span
+                          className={`my-order-status ${getStatusClass(order.status)}`}
+                        >
+                          {getOrderStatus(order.status)}
+                        </span>
+
+                      </div>
+
+                      <div className="my-order-products">
+
+                        {(order.items || []).map((item, index) => (
+                          <div
+                            className="my-order-product"
+                            key={`${item.productId || item.name}-${index}`}
+                          >
+
+                            {item.image && (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="my-order-product-image"
+                              />
+                            )}
+
+                            <div className="my-order-product-info">
+
+                              <strong>
+                                {item.name}
+                              </strong>
+
+                              <span>
+                                {item.brand || ""}
+                                {item.brand ? " · " : ""}
+                                {item.size} мл × {item.quantity}
+                              </span>
+
+                            </div>
+
+                            <strong className="my-order-product-price">
+                              {Number(item.total || 0).toFixed(2)} €
+                            </strong>
+
+                          </div>
+                        ))}
+
+                      </div>
+
+                      <div className="my-order-footer">
+
+                        <div>
+                          <span>Обща стойност</span>
+
+                          <strong>
+                            {Number(order.total || 0).toFixed(2)} €
+                          </strong>
+                        </div>
+
+                        {Number(order.pointsEarned || 0) > 0 && (
+                          <div>
+                            <span>Спечелени точки</span>
+
+                            <strong>
+                              +{Number(order.pointsEarned).toFixed(2)}
+                            </strong>
+                          </div>
+                        )}
+
+                      </div>
+
+                    </article>
+                  ))}
+
+                </div>
+              )}
 
             </section>
 
           </div>
 
         </div>
-
       </main>
     </>
   );
