@@ -1,8 +1,10 @@
+
 const express = require("express");
 
 const {
   createOrder,
   getOrders,
+  getMyOrders,
   updateOrderStatus,
 } = require("../controllers/orderController");
 
@@ -16,6 +18,13 @@ router.post(
   "/",
   optionalAuthMiddleware,
   createOrder
+);
+
+// Поръчки на текущия потребител.
+router.get(
+  "/my-orders",
+  optionalAuthMiddleware,
+  getMyOrders
 );
 
 router.get("/", getOrders);

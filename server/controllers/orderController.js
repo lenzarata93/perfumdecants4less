@@ -1,4 +1,3 @@
-
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Counter = require("../models/Counter");
@@ -642,6 +641,35 @@ const getOrders = async (req, res) => {
 };
 
 /**
+ * Връща поръчките на текущия потребител.
+ */
+const getMyOrders = async (req, res) => {
+  try {
+    if (!req.user || !req.user.userId) {
+      return res.status(401).json({
+        message: "Моля, влезте в профила си.",
+      });
+    }
+
+    const orders = await Order.find({
+      userId: req.user.userId,
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error(
+      "Get my orders error:",
+      error
+    );
+
+    res.status(500).json({
+      message: "Грешка при зареждане на вашите поръчки.",
+      error: error.message,
+    });
+  }
+};
+
+/**
  * Променя статуса на поръчка и начислява бонус точки.
  */
 const updateOrderStatus = async (req, res) => {
@@ -802,5 +830,6 @@ const updateOrderStatus = async (req, res) => {
 module.exports = {
   createOrder,
   getOrders,
+  getMyOrders,
   updateOrderStatus,
 };
