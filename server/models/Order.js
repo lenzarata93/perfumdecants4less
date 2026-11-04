@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 
 const inventoryUsageSchema = new mongoose.Schema(
@@ -79,6 +78,9 @@ const orderItemSchema = new mongoose.Schema(
       trim: true,
     },
 
+    /*
+     * Бутилката, която е определила продажната цена.
+     */
     pricingBottleId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -90,11 +92,17 @@ const orderItemSchema = new mongoose.Schema(
       min: 0,
     },
 
+    /*
+     * Реално използваните количества от всяка бутилка.
+     */
     inventoryUsage: {
       type: [inventoryUsageSchema],
       default: [],
     },
 
+    /*
+     * Общата реална себестойност на тази позиция.
+     */
     costTotal: {
       type: Number,
       required: true,
@@ -113,6 +121,14 @@ const orderSchema = new mongoose.Schema(
       index: true,
     },
 
+    /*
+     * Регистрираният клиент, направил поръчката.
+     *
+     * null = поръчка като гост.
+     *
+     * Това ни позволява да запазим възможността
+     * за guest checkout.
+     */
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -195,11 +211,14 @@ const orderSchema = new mongoose.Schema(
 
     items: {
       type: [orderItemSchema],
+
       required: true,
 
       validate: {
         validator: (items) => items.length > 0,
-        message: "Поръчката трябва да съдържа поне един продукт.",
+
+        message:
+          "Поръчката трябва да съдържа поне един продукт.",
       },
     },
 
@@ -221,6 +240,10 @@ const orderSchema = new mongoose.Schema(
       min: 0,
     },
 
+    /*
+     * Обща себестойност на всички продукти
+     * в поръчката.
+     */
     totalCost: {
       type: Number,
       required: true,
@@ -228,33 +251,20 @@ const orderSchema = new mongoose.Schema(
       default: 0,
     },
 
+    /*
+     * Брутна печалба преди други разходи.
+     *
+     * subtotal - totalCost
+     */
     grossProfit: {
       type: Number,
       required: true,
       default: 0,
     },
 
-    // Бонус точки от тази поръчка.
-    pointsEarned: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    // Защита от повторно начисляване.
-    pointsAwarded: {
-      type: Boolean,
-      default: false,
-    },
-
-    // Дата на начисляване.
-    pointsAwardedAt: {
-      type: Date,
-      default: null,
-    },
-
     status: {
       type: String,
+
       enum: [
         "pending",
         "confirmed",
@@ -263,6 +273,7 @@ const orderSchema = new mongoose.Schema(
         "completed",
         "cancelled",
       ],
+
       default: "pending",
     },
 
@@ -277,4 +288,7 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model(
+  "Order",
+  orderSchema
+);
