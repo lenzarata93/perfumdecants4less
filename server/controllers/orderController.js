@@ -1,6 +1,9 @@
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Counter = require("../models/Counter");
+const mongoose = require("mongoose");
+const User = require("../models/User");
+const BonusTransaction = require("../models/BonusTransaction");
 
 const {
   calculatePricesFromBottle,
@@ -638,14 +641,11 @@ const getOrders = async (req, res) => {
 };
 
 /**
- * Променя статуса на поръчка.
- *
- * Засега тази функция само променя статуса.
- *
- * Логиката за бонус точките ще бъде
- * добавена на следващата стъпка.
+ * Променя статуса на поръчка и начислява бонус точки.
  */
 const updateOrderStatus = async (req, res) => {
+  const session = await mongoose.startSession();
+
   try {
     const { status } = req.body;
 
@@ -664,44 +664,93 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-    const order = await Order.findById(req.params.id);
+    let updatedOrder = null;
+    let awardedPoints = 0;
 
-    if (!order) {
-      return res.status(404).json({
-        message: "Поръчката не е намерена.",
-      });
-    }
+    await session.withTransaction(async () => {
+      const order = await Order.findById(req.params.id).session(session);
 
-    // Завършена или отказана поръчка не може
-    // повече да променя статуса си.
-    if (
-      order.status === "completed" ||
-      order.status === "cancelled"
-    ) {
-      return res.status(400).json({
-        message:
-          "Тази поръчка е с финален статус и повече не може да бъде променяна.",
-      });
-    }
+      if (!order) {
+        const error = new Error("Поръчката не е намерена.");
+        error.statusCode = 404;
+        throw error;
+      }
 
-    order.status = status;
+      // Завършена или отказана поръчка не може повече да променя статуса си.
+      if (order.status === "completed" || order.status === "cancelled") {
+        const error = new Error(
+          "Тази поръчка е с финален статус и повече не може да бъде променяна."
+        );
+        error.statusCode = 400;
+        throw error;
+      }
 
-    await order.save();
+      order.status = status;
 
-    res.status(200).json({
-      message: "Статусът на поръчката е променен.",
-      order,
+      // Бонус точки се начисляват само на регистриран клиент
+      // при преминаване на поръчката към completed.
+      if (status === "completed" && order.userId && !order.pointsAwarded) {
+        // 1 точка за всеки 10 € оборот.
+        // Отрязваме до втория знак след десетичната запетая.
+        const points = Math.floor(
+          (Number(order.subtotal) / 10) * 100
+        ) / 100;
+
+        if (points > 0) {
+          const user = await User.findById(order.userId).session(session);
+
+          if (!user) {
+            throw new Error("Потребителят на поръчката не е намерен.");
+          }
+
+          const newBalance = Number(
+            (Number(user.bonusPoints || 0) + points).toFixed(2)
+          );
+
+          user.bonusPoints = newBalance;
+          await user.save({ session });
+
+          await BonusTransaction.create(
+            [
+              {
+                userId: user._id,
+                type: "earned",
+                points,
+                balanceAfter: newBalance,
+                description: `Бонус точки от поръчка ${order.orderNumber}`,
+                orderId: order._id,
+              },
+            ],
+            { session }
+          );
+
+          order.pointsEarned = points;
+          order.pointsAwarded = true;
+          order.pointsAwardedAt = new Date();
+          awardedPoints = points;
+        }
+      }
+
+      await order.save({ session });
+      updatedOrder = order;
+    });
+
+    return res.status(200).json({
+      message:
+        awardedPoints > 0
+          ? `Статусът е променен. Начислени са ${awardedPoints.toFixed(2)} бонус точки.`
+          : "Статусът на поръчката е променен.",
+      order: updatedOrder,
+      awardedPoints,
     });
   } catch (error) {
-    console.error(
-      "Update order status error:",
-      error
-    );
+    console.error("Update order status error:", error);
 
-    res.status(500).json({
-      message: "Грешка при промяна на статуса.",
-      error: error.message,
+    return res.status(error.statusCode || 500).json({
+      message: error.message || "Грешка при промяна на статуса.",
     });
+  } finally {
+    await session.endSession();
   }
 };
 
