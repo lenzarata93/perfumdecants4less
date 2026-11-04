@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const inventoryUsageSchema = new mongoose.Schema(
@@ -260,6 +261,29 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 0,
+    },
+
+    /*
+     * Бонус точки, начислени от тази поръчка.
+     */
+    pointsEarned: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    /*
+     * Дали точките вече са начислени.
+     * Предпазва от повторно начисляване.
+     */
+    pointsAwarded: {
+      type: Boolean,
+      default: false,
+    },
+
+    pointsAwardedAt: {
+      type: Date,
+      default: null,
     },
 
     status: {
