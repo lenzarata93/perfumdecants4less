@@ -386,6 +386,16 @@ function Profile() {
                           </strong>
                         </div>
 
+                        {Number(order.pointsEarned || 0) > 0 && (
+                          <div className="my-order-points">
+                            <span>Спечелени точки</span>
+
+                            <strong>
+                              +{Number(order.pointsEarned).toFixed(2)}
+                            </strong>
+                          </div>
+                        )}
+
                       </div>
 
                     </article>
