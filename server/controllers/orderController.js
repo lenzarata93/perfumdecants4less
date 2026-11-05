@@ -859,31 +859,58 @@ const getBestSellingProducts = async (req, res) => {
       { $match: { "product.active": true } },
       { $sort: { soldQuantity: -1, revenue: -1 } },
       { $limit: 8 },
-      {
-        $project: {
-          _id: "$product._id",
-          name: "$product.name",
-          brand: "$product.brand",
-          description: "$product.description",
-          gender: "$product.gender",
-          category: "$product.category",
-          image: "$product.image",
-          pricePerMl: "$product.pricePerMl",
-          price3ml: "$product.price3ml",
-          price5ml: "$product.price5ml",
-          price10ml: "$product.price10ml",
-          price20ml: "$product.price20ml",
-          availableMl: "$product.availableMl",
-          active: "$product.active",
-          soldQuantity: 1,
-          revenue: 1,
-        },
-      },
     ]);
 
-    return res.status(200).json(products);
+    const productsWithPrices = await Promise.all(
+      products.map(async (item) => {
+        const product = item.product;
+
+        const activeBottle = getActiveBottle(
+          product.bottles
+        );
+
+        let prices = {
+          pricePerMl: 0,
+          price3ml: 0,
+          price5ml: 0,
+          price10ml: 0,
+          price20ml: 0,
+        };
+
+        if (activeBottle) {
+          prices = await calculatePricesFromBottle(
+            activeBottle
+          );
+        }
+
+        return {
+          _id: product._id,
+          name: product.name,
+          brand: product.brand,
+          description: product.description,
+          gender: product.gender,
+          category: product.category,
+          image: product.image,
+
+          pricePerMl: prices.pricePerMl,
+          price3ml: prices.price3ml,
+          price5ml: prices.price5ml,
+          price10ml: prices.price10ml,
+          price20ml: prices.price20ml,
+
+          availableMl: product.availableMl,
+          active: product.active,
+
+          soldQuantity: item.soldQuantity,
+          revenue: item.revenue,
+        };
+      })
+    );
+
+    return res.status(200).json(productsWithPrices);
   } catch (error) {
     console.error("Get best-selling products error:", error);
+
     return res.status(500).json({
       message: "Грешка при зареждане на най-продаваните продукти.",
       error: error.message,
