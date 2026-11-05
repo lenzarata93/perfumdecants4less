@@ -11,6 +11,7 @@ import Checkout from "./pages/Checkout";
 import AdminOrders from "./pages/AdminOrders";
 import Profile from "./pages/Profile";
 import AddProduct from "./pages/AddProduct";
+import AdminFinance from "./pages/AdminFinance";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -64,6 +65,12 @@ function App() {
             path="/profile"
             element={<Profile />}
           />
+
+          <Route
+  path="/admin/finance"
+  element={<AdminFinance />}
+/>
+
         </Routes>
       </CartProvider>
     </BrowserRouter>
