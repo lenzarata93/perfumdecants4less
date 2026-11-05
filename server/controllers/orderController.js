@@ -858,7 +858,7 @@ const getBestSellingProducts = async (req, res) => {
       { $unwind: "$product" },
       { $match: { "product.active": true } },
       { $sort: { soldQuantity: -1, revenue: -1 } },
-      { $limit: 8 },
+      { $limit: 10 },
     ]);
 
     const productsWithPrices = await Promise.all(

@@ -5,16 +5,13 @@
 
 .product-card {
   position: relative;
-
   display: flex;
   flex-direction: column;
-
   min-width: 0;
   overflow: hidden;
 
   background: #151515;
   color: #f4f1ea;
-
   border: 1px solid #292929;
 
   transition:
@@ -25,7 +22,6 @@
 
 .product-card:hover {
   transform: translateY(-4px);
-
   border-color: #6f5a2f;
 
   box-shadow:
@@ -39,7 +35,6 @@
 
 .product-image {
   position: relative;
-
   overflow: hidden;
 
   background:
@@ -52,15 +47,13 @@
 }
 
 /* ================================
-   BADGE
+   AVAILABILITY BADGE
 ================================ */
 
 .product-badge {
   position: absolute;
-
   top: 12px;
   left: 14px;
-
   z-index: 3;
 
   padding: 7px 13px;
@@ -73,10 +66,125 @@
 
   font-size: 10px;
   font-weight: 700;
-
   letter-spacing: 0.8px;
-
   text-transform: uppercase;
+}
+
+/* ================================
+   BESTSELLER RANKING
+================================ */
+
+.bestseller-rank {
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-width: 48px;
+  height: 44px;
+  padding: 0 11px;
+
+  border: 1px solid rgba(197, 161, 91, 0.8);
+  border-radius: 8px;
+
+  background: rgba(17, 17, 17, 0.95);
+  color: #e5c77c;
+
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+}
+
+.bestseller-rank-number {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bestseller-rank-label {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+}
+
+/* FIRST PLACE - GOLD */
+
+.bestseller-rank-1 {
+  min-width: 92px;
+
+  border-color: #e7c66e;
+
+  background: linear-gradient(
+    135deg,
+    #f3d98d,
+    #b88b35
+  );
+
+  color: #241a08;
+
+  box-shadow:
+    0 5px 20px rgba(197, 161, 91, 0.28);
+}
+
+/* SECOND PLACE - SILVER */
+
+.bestseller-rank-2 {
+  min-width: 92px;
+
+  border-color: #d8dce2;
+
+  background: linear-gradient(
+    135deg,
+    #e6e8eb,
+    #929ba8
+  );
+
+  color: #20252b;
+}
+
+/* THIRD PLACE - BRONZE */
+
+.bestseller-rank-3 {
+  min-width: 92px;
+
+  border-color: #d69a68;
+
+  background: linear-gradient(
+    135deg,
+    #e0aa78,
+    #99572e
+  );
+
+  color: #28170d;
+}
+
+/* PLACES 4–10 */
+
+.bestseller-rank-4,
+.bestseller-rank-5,
+.bestseller-rank-6,
+.bestseller-rank-7,
+.bestseller-rank-8,
+.bestseller-rank-9,
+.bestseller-rank-10 {
+  background: rgba(17, 17, 17, 0.94);
+  border-color: #a98a4e;
+  color: #e5c77c;
+}
+
+/* Move availability below the rank badge */
+
+.product-card--bestseller .product-badge {
+  top: 68px;
+}
+
+.product-card--bestseller:hover .bestseller-rank {
+  transform: translateY(-2px);
+  transition: transform 0.25s ease;
 }
 
 /* ================================
@@ -85,10 +193,8 @@
 
 .product-favorite {
   position: absolute;
-
   top: 10px;
   right: 12px;
-
   z-index: 3;
 
   display: flex;
@@ -97,7 +203,6 @@
 
   width: 42px;
   height: 42px;
-
   padding: 0;
 
   border: 1px solid #d6d3cc;
@@ -118,9 +223,7 @@
 .product-favorite:hover {
   border-color: #c5a15b;
   color: #c5a15b;
-
   background: #171717;
-
   transform: scale(1.05);
 }
 
@@ -130,9 +233,7 @@
 
   fill: none;
   stroke: currentColor;
-
   stroke-width: 1.5;
-
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -144,18 +245,14 @@
 .product-placeholder {
   width: 100%;
   aspect-ratio: 1 / 1;
-
   overflow: hidden;
-
   background: #111111;
 }
 
 .product-image-real {
   display: block;
-
   width: 100%;
   height: 100%;
-
   object-fit: cover;
 
   transition: transform 0.5s ease;
@@ -182,14 +279,12 @@
 .placeholder-cap {
   width: 45px;
   height: 25px;
-
   background: #b99752;
 }
 
 .placeholder-neck {
   width: 28px;
   height: 20px;
-
   background: #c5a15b;
 }
 
@@ -216,10 +311,8 @@
 
 .quick-view {
   position: absolute;
-
   left: 50%;
   bottom: 18px;
-
   z-index: 4;
 
   display: flex;
@@ -235,7 +328,6 @@
 
   font-size: 11px;
   font-weight: 600;
-
   letter-spacing: 1px;
 
   text-decoration: none;
@@ -243,8 +335,7 @@
 
   opacity: 0;
 
-  transform:
-    translate(-50%, 8px);
+  transform: translate(-50%, 8px);
 
   transition:
     opacity 0.25s ease,
@@ -254,9 +345,7 @@
 
 .product-card:hover .quick-view {
   opacity: 1;
-
-  transform:
-    translate(-50%, 0);
+  transform: translate(-50%, 0);
 }
 
 .quick-view:hover {
@@ -275,7 +364,6 @@
 .product-info {
   display: flex;
   flex-direction: column;
-
   flex: 1;
 
   padding: 24px 22px 20px;
@@ -299,9 +387,7 @@
 
   font-size: 11px;
   font-weight: 600;
-
   letter-spacing: 2px;
-
   text-transform: uppercase;
 }
 
@@ -316,7 +402,6 @@
 
   font-size: 21px;
   font-weight: 600;
-
   line-height: 1.15;
   letter-spacing: -0.3px;
 }
@@ -338,7 +423,6 @@
 .product-sizes {
   display: flex;
   flex-wrap: wrap;
-
   gap: 7px;
 
   margin-top: auto;
@@ -348,7 +432,6 @@
 .product-size {
   min-width: 58px;
   height: 38px;
-
   padding: 0 12px;
 
   border: 1px solid #4a4335;
@@ -358,7 +441,6 @@
   color: #d7d2c8;
 
   font-family: inherit;
-
   font-size: 12px;
   font-weight: 600;
 
@@ -373,15 +455,12 @@
 
 .product-size:hover:not(:disabled) {
   border-color: #c5a15b;
-
   color: #e3c477;
-
   transform: translateY(-1px);
 }
 
 .product-size.active {
   border-color: #c5a15b;
-
   background: #c5a15b;
   color: #111111;
 
@@ -391,7 +470,6 @@
 
 .product-size:disabled {
   opacity: 0.3;
-
   cursor: not-allowed;
 }
 
@@ -403,7 +481,6 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-
   gap: 15px;
 }
 
@@ -414,26 +491,20 @@
 .product-price {
   display: flex;
   align-items: baseline;
-
   gap: 7px;
 }
 
 .product-price span {
   color: #817c74;
-
   font-size: 10px;
-
   letter-spacing: 1px;
-
   text-transform: uppercase;
 }
 
 .product-price strong {
   color: #f4f1ea;
-
   font-size: 26px;
   font-weight: 600;
-
   line-height: 1;
 }
 
@@ -448,9 +519,7 @@
 
   width: 50px;
   height: 50px;
-
   flex-shrink: 0;
-
   padding: 0;
 
   border: 1px solid #c5a15b;
@@ -469,7 +538,6 @@
 
 .add-to-cart:hover:not(:disabled) {
   background: #dfbd6b;
-
   transform: translateY(-2px);
 
   box-shadow:
@@ -478,7 +546,6 @@
 
 .add-to-cart:disabled {
   opacity: 0.3;
-
   cursor: not-allowed;
 }
 
@@ -488,9 +555,7 @@
 
   fill: none;
   stroke: currentColor;
-
   stroke-width: 1.6;
-
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -501,9 +566,7 @@
 
 .product-availability {
   margin-top: 8px;
-
   color: #77736c;
-
   font-size: 12px;
 }
 
@@ -537,7 +600,6 @@
   .product-size {
     min-width: 54px;
     height: 36px;
-
     padding: 0 10px;
   }
 
@@ -549,5 +611,26 @@
   .product-favorite {
     width: 38px;
     height: 38px;
+  }
+
+  .bestseller-rank {
+    top: 9px;
+    left: 9px;
+    height: 39px;
+    min-width: 42px;
+  }
+
+  .bestseller-rank-1,
+  .bestseller-rank-2,
+  .bestseller-rank-3 {
+    min-width: 78px;
+  }
+
+  .bestseller-rank-number {
+    font-size: 17px;
+  }
+
+  .product-card--bestseller .product-badge {
+    top: 58px;
   }
 }

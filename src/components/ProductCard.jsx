@@ -1,9 +1,10 @@
+
 import "./ProductCard.css";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
-function ProductCard({ product }) {
+function ProductCard({ product, bestsellerRank = null }) {
   const [selectedSize, setSelectedSize] = useState(5);
 
   const {
@@ -22,11 +23,6 @@ function ProductCard({ product }) {
 
   /*
    * Колко ml от този продукт вече има в количката.
-   *
-   * Например:
-   * 10 ml x 1 = 10 ml
-   * 5 ml x 1 = 5 ml
-   * Общо = 15 ml
    */
   const cartProductMl = cartItems
     .filter(
@@ -42,8 +38,7 @@ function ProductCard({ product }) {
     );
 
   /*
-   * Реално оставащото количество, което може
-   * да бъде добавено в количката.
+   * Реално оставащото количество.
    */
   const remainingMl = Math.max(
     availableMl - cartProductMl,
@@ -71,8 +66,36 @@ function ProductCard({ product }) {
   };
 
   return (
-    <article className="product-card">
+    <article
+      className={`product-card ${
+        bestsellerRank
+          ? "product-card--bestseller"
+          : ""
+      }`}
+    >
       <div className="product-image">
+
+        {bestsellerRank >= 1 && bestsellerRank <= 10 && (
+          <div
+            className={`bestseller-rank bestseller-rank-${bestsellerRank}`}
+            aria-label={`Място ${bestsellerRank} в класацията`}
+          >
+            <span className="bestseller-rank-number">
+              {String(bestsellerRank).padStart(2, "0")}
+            </span>
+
+            {bestsellerRank <= 3 && (
+              <span className="bestseller-rank-label">
+                {bestsellerRank === 1
+                  ? "WINNER"
+                  : bestsellerRank === 2
+                  ? "SECOND"
+                  : "THIRD"}
+              </span>
+            )}
+          </div>
+        )}
+
         {product.active && (
           <span className="product-badge">
             Налично
@@ -138,13 +161,6 @@ function ProductCard({ product }) {
               prices[size] || 0
             );
 
-            /*
-             * Размерът е активен само ако:
-             *
-             * 1. Има достатъчно общо налични ml
-             * 2. Не са вече изчерпани от количката
-             * 3. Има зададена цена
-             */
             const sizeAvailable =
               remainingMl >= size &&
               price > 0;

@@ -1,3 +1,4 @@
+
 import "./BestSellers.css";
 import ProductCard from "./ProductCard";
 import { useEffect, useState } from "react";
@@ -124,10 +125,11 @@ function BestSellers() {
           !error &&
           products.length > 0 && (
             <div className="products-grid">
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <ProductCard
                   key={product._id}
                   product={product}
+                  bestsellerRank={index + 1}
                 />
               ))}
             </div>
