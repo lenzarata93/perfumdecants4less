@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "../components/Header";
@@ -9,6 +10,9 @@ function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
+  const [bestSellerIds, setBestSellerIds] = useState([]);
+  const [bestSellersLoading, setBestSellersLoading] = useState(true);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -40,13 +44,18 @@ function Shop() {
   // ================================
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
         setError("");
 
         const response = await fetch(
-          `${API_URL}/api/products`
+          `${API_URL}/api/products`,
+          {
+            signal: controller.signal,
+          }
         );
 
         if (!response.ok) {
@@ -59,6 +68,10 @@ function Shop() {
 
         setProducts(Array.isArray(data) ? data : []);
       } catch (error) {
+        if (error.name === "AbortError") {
+          return;
+        }
+
         console.error(
           "Fetch products error:",
           error
@@ -66,11 +79,71 @@ function Shop() {
 
         setError(error.message);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProducts();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  // ================================
+  // FETCH BESTSELLER IDS
+  // ================================
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchBestSellerIds = async () => {
+      try {
+        const response = await fetch(
+          `${API_URL}/api/orders/best-sellers`,
+          {
+            signal: controller.signal,
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            "Грешка при зареждане на бестселърите."
+          );
+        }
+
+        const data = await response.json();
+
+        const ids = Array.isArray(data)
+          ? data.map((product) => String(product._id))
+          : [];
+
+        setBestSellerIds(ids);
+      } catch (error) {
+        if (error.name === "AbortError") {
+          return;
+        }
+
+        console.error(
+          "Fetch bestseller IDs error:",
+          error
+        );
+
+        setBestSellerIds([]);
+      } finally {
+        if (!controller.signal.aborted) {
+          setBestSellersLoading(false);
+        }
+      }
+    };
+
+    fetchBestSellerIds();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   // ================================
@@ -163,18 +236,29 @@ function Shop() {
     }
 
     // ==============================
-    // CATEGORY
+    // CATEGORY + BESTSELLERS
     // ==============================
 
-    if (
-      selectedCategories.length > 0
-    ) {
-      result = result.filter(
-        (product) =>
-          selectedCategories.includes(
-            product.category
-          )
-      );
+    if (selectedCategories.length > 0) {
+      result = result.filter((product) => {
+        return selectedCategories.some(
+          (category) => {
+            // Бестселърите се проверяват
+            // чрез реалната Top 10 класация.
+
+            if (category === "Бестселъри") {
+              return bestSellerIds.includes(
+                String(product._id)
+              );
+            }
+
+            // Останалите категории
+            // продължават да работят както досега.
+
+            return product.category === category;
+          }
+        );
+      });
     }
 
     // ==============================
@@ -227,6 +311,7 @@ function Shop() {
     return result;
   }, [
     products,
+    bestSellerIds,
     searchTerm,
     selectedGenders,
     selectedSizes,
@@ -274,6 +359,14 @@ function Shop() {
     selectedSizes.length > 0 ||
     selectedCategories.length > 0 ||
     sortBy !== "popular";
+
+  // ================================
+  // BESTSELLER FILTER LOADING
+  // ================================
+
+  const waitingForBestSellers =
+    selectedCategories.includes("Бестселъри") &&
+    bestSellersLoading;
 
   return (
     <>
@@ -624,7 +717,7 @@ function Shop() {
                   </span>
 
                   <span>
-                    {loading
+                    {loading || waitingForBestSellers
                       ? "Зареждане..."
                       : `${filteredProducts.length} продукта`}
                   </span>
@@ -633,10 +726,12 @@ function Shop() {
 
                 {/* LOADING */}
 
-                {loading && (
+                {(loading || waitingForBestSellers) && (
                   <div className="shop-empty">
                     <p>
-                      Зареждаме продуктите...
+                      {waitingForBestSellers
+                        ? "Зареждаме класацията на бестселърите..."
+                        : "Зареждаме продуктите..."}
                     </p>
                   </div>
                 )}
@@ -654,6 +749,7 @@ function Shop() {
                 {/* NO PRODUCTS */}
 
                 {!loading &&
+                  !waitingForBestSellers &&
                   !error &&
                   products.length === 0 && (
                     <div className="shop-empty">
@@ -666,6 +762,7 @@ function Shop() {
                 {/* NO FILTER RESULTS */}
 
                 {!loading &&
+                  !waitingForBestSellers &&
                   !error &&
                   products.length > 0 &&
                   filteredProducts.length === 0 && (
@@ -683,6 +780,7 @@ function Shop() {
                 {/* PRODUCTS */}
 
                 {!loading &&
+                  !waitingForBestSellers &&
                   !error &&
                   filteredProducts.length > 0 && (
                     <div className="shop-product-grid">
