@@ -244,6 +244,13 @@ function Header() {
                       >
                         Поръчки
                       </Link>
+
+                      <Link
+                        to="/admin/finance"
+                        onClick={closeMenu}
+                      >
+                        Финанси
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -475,6 +482,13 @@ function Header() {
                       onClick={() => setAdminOpen(false)}
                     >
                       Поръчки
+                    </Link>
+
+                    <Link
+                      to="/admin/finance"
+                      onClick={() => setAdminOpen(false)}
+                    >
+                      Финанси
                     </Link>
                   </div>
                 )}
