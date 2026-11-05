@@ -368,25 +368,25 @@ function Profile() {
 
                       </div>
 
-                     <div className="my-order-footer">
-  <div>
-    <span>Обща стойност</span>
+                      <div className="my-order-footer">
 
-    <strong>
-      {Number(order.total || 0).toFixed(2)} €
-    </strong>
-  </div>
+                        <div>
+                          <span>Артикули</span>
 
-  {Number(order.pointsEarned || 0) > 0 && (
-    <div>
-      <span>Спечелени точки</span>
+                          <strong>
+                            {Number(order.subtotal || 0).toFixed(2)} €
+                          </strong>
+                        </div>
 
-      <strong>
-        +{Number(order.pointsEarned).toFixed(2)}
-      </strong>
-    </div>
-  )}
-</div>
+                        <div className="my-order-grand-total">
+                          <span>Обща цена</span>
+
+                          <strong>
+                            {Number(order.total || 0).toFixed(2)} €
+                          </strong>
+                        </div>
+
+                      </div>
 
                     </article>
                   ))}
