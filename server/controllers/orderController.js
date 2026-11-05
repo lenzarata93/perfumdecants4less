@@ -827,9 +827,74 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+
+/**
+ * Връща 8-те най-продавани продукта.
+ *
+ * Класацията включва само завършени поръчки.
+ * Броим продадените отливки, а не милилитрите.
+ */
+const getBestSellingProducts = async (req, res) => {
+  try {
+    const products = await Order.aggregate([
+      { $match: { status: "completed" } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.productId",
+          soldQuantity: { $sum: "$items.quantity" },
+          revenue: { $sum: "$items.total" },
+        },
+      },
+      { $sort: { soldQuantity: -1, revenue: -1 } },
+      {
+        $lookup: {
+          from: Product.collection.name,
+          localField: "_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      { $match: { "product.active": true } },
+      { $sort: { soldQuantity: -1, revenue: -1 } },
+      { $limit: 8 },
+      {
+        $project: {
+          _id: "$product._id",
+          name: "$product.name",
+          brand: "$product.brand",
+          description: "$product.description",
+          gender: "$product.gender",
+          category: "$product.category",
+          image: "$product.image",
+          pricePerMl: "$product.pricePerMl",
+          price3ml: "$product.price3ml",
+          price5ml: "$product.price5ml",
+          price10ml: "$product.price10ml",
+          price20ml: "$product.price20ml",
+          availableMl: "$product.availableMl",
+          active: "$product.active",
+          soldQuantity: 1,
+          revenue: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).json(products);
+  } catch (error) {
+    console.error("Get best-selling products error:", error);
+    return res.status(500).json({
+      message: "Грешка при зареждане на най-продаваните продукти.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrders,
   getMyOrders,
   updateOrderStatus,
+  getBestSellingProducts,
 };

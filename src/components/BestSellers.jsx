@@ -1,68 +1,76 @@
 import "./BestSellers.css";
 import ProductCard from "./ProductCard";
-
-const products = [
-  {
-    id: 1,
-    brand: "MANCERA",
-    name: "Red Tobacco",
-    description: "Intense · Spicy · Woody",
-    image: null,
-    prices: {
-      5: 5.25,
-      10: 9.35,
-      20: 17.3,
-    },
-    badge: "BESTSELLER",
-  },
-  {
-    id: 2,
-    brand: "MAISON FRANCIS KURKDJIAN",
-    name: "Baccarat Rouge 540",
-    description: "Amber · Woody · Floral",
-    image: null,
-    prices: {
-      5: 30.65,
-      10: 55.45,
-      20: 101.8,
-    },
-    badge: "POPULAR",
-  },
-  {
-    id: 3,
-    brand: "VALENTINO",
-    name: "Purple Melancholia",
-    description: "Woody · Amber · Floral",
-    image: null,
-    prices: {
-      5: 6,
-      10: 11,
-      20: 20,
-    },
-  },
-  {
-    id: 4,
-    brand: "XERJOFF",
-    name: "Naxos",
-    description: "Honey · Tobacco · Vanilla",
-    image: null,
-    prices: {
-      5: 12,
-      10: 22,
-      20: 40,
-    },
-    badge: "BESTSELLER",
-  },
-];
+import { useEffect, useState } from "react";
+import { API_URL } from "../config";
 
 function BestSellers() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchBestSellers = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          `${API_URL}/api/orders/best-sellers`,
+          {
+            signal: controller.signal,
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Грешка при зареждане на най-продаваните продукти."
+          );
+        }
+
+        setProducts(
+          Array.isArray(data) ? data : []
+        );
+      } catch (err) {
+        if (err.name === "AbortError") {
+          return;
+        }
+
+        console.error(
+          "Best sellers error:",
+          err
+        );
+
+        setError(
+          "В момента не можем да заредим най-продаваните аромати."
+        );
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchBestSellers();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   return (
     <section className="best-sellers-section">
       <div className="section-container">
 
         <div className="best-sellers-heading">
           <div>
-            <p className="section-eyebrow">BESTSELLERS</p>
+            <p className="section-eyebrow">
+              BESTSELLERS
+            </p>
 
             <h2>
               Аромати, които
@@ -77,21 +85,53 @@ function BestSellers() {
               в колекцията на PerfumDecants4Less.
             </p>
 
-            <a href="/shop" className="view-all-link">
+            <a
+              href="/shop"
+              className="view-all-link"
+            >
               Виж всички
               <span>→</span>
             </a>
           </div>
         </div>
 
-        <div className="products-grid">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-            />
-          ))}
-        </div>
+        {/* LOADING */}
+        {loading && (
+          <div className="best-sellers-message">
+            Зареждане на най-продаваните аромати...
+          </div>
+        )}
+
+        {/* ERROR */}
+        {!loading && error && (
+          <div className="best-sellers-message">
+            {error}
+          </div>
+        )}
+
+        {/* EMPTY */}
+        {!loading &&
+          !error &&
+          products.length === 0 && (
+            <div className="best-sellers-message">
+              Все още няма достатъчно завършени
+              поръчки за класация.
+            </div>
+          )}
+
+        {/* PRODUCTS */}
+        {!loading &&
+          !error &&
+          products.length > 0 && (
+            <div className="products-grid">
+              {products.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                />
+              ))}
+            </div>
+          )}
 
       </div>
     </section>
