@@ -69,7 +69,7 @@ function Hero() {
         <div className="hero-image-overlay"></div>
 
         <div className="hero-floating-card">
-          <span>CHOOSE YOUR SIZE</span>
+          <span>Size</span>
 
           <div>
             <strong>3</strong>
