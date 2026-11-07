@@ -1,4 +1,6 @@
+
 import "./Hero.css";
+import { Link } from "react-router-dom";
 
 function Hero() {
   return (
@@ -26,10 +28,10 @@ function Hero() {
 
         <div className="hero-actions">
 
-          <a href="/shop" className="hero-button-primary">
+          <Link to="/shop" className="hero-button-primary">
             Разгледай парфюмите
             <span>→</span>
-          </a>
+          </Link>
 
           <a href="/categories" className="hero-button-link">
             Как работи?
