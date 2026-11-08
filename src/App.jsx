@@ -15,7 +15,7 @@ import AdminOrders from "./pages/AdminOrders";
 import Profile from "./pages/Profile";
 import AddProduct from "./pages/AddProduct";
 import AdminFinance from "./pages/AdminFinance";
-
+import AdminRaffles from "./pages/AdminRaffles";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
@@ -76,6 +76,11 @@ function App() {
             path="/admin/finance"
             element={<AdminFinance />}
           />
+          
+          <Route
+  path="/admin/raffles"
+  element={<AdminRaffles />}
+/>
         </Routes>
       </CartProvider>
     </BrowserRouter>
