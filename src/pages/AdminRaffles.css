@@ -1,0 +1,495 @@
+
+/* =====================================
+   ADMIN RAFFLES PAGE
+===================================== */
+
+.admin-raffles-page {
+  min-height: 100vh;
+  padding: 50px 20px 80px;
+  background: #0d0d0d;
+  color: #f5f1e8;
+}
+
+.admin-raffles-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* HEADER */
+
+.admin-raffles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 45px;
+}
+
+.admin-raffles-eyebrow {
+  color: #c6a15b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  margin-bottom: 12px;
+}
+
+.admin-raffles-header h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.15;
+  margin: 0 0 12px;
+  color: #f5f1e8;
+}
+
+.admin-raffles-header p {
+  color: rgba(245, 241, 232, 0.6);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.admin-raffles-count {
+  min-width: 110px;
+  padding: 18px 24px;
+  border: 1px solid rgba(198, 161, 91, 0.3);
+  border-radius: 14px;
+  text-align: center;
+  background: rgba(198, 161, 91, 0.06);
+}
+
+.admin-raffles-count strong {
+  display: block;
+  color: #d5b477;
+  font-size: 32px;
+}
+
+.admin-raffles-count span {
+  display: block;
+  color: rgba(245, 241, 232, 0.6);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* MESSAGES */
+
+.raffle-message {
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+
+.raffle-error {
+  background: rgba(180, 55, 55, 0.12);
+  border: 1px solid rgba(220, 80, 80, 0.3);
+  color: #ffaaaa;
+}
+
+.raffle-success {
+  background: rgba(70, 150, 100, 0.12);
+  border: 1px solid rgba(90, 180, 120, 0.3);
+  color: #a8e0b8;
+}
+
+/* SECTION HEADINGS */
+
+.raffle-section-heading {
+  margin-bottom: 25px;
+}
+
+.raffle-section-heading > span {
+  color: #c6a15b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.raffle-section-heading h2 {
+  margin: 8px 0 0;
+  font-size: 25px;
+  color: #f5f1e8;
+}
+
+/* CREATE FORM */
+
+.raffle-create-section {
+  padding: 30px;
+  margin-bottom: 55px;
+  border: 1px solid rgba(198, 161, 91, 0.22);
+  border-radius: 18px;
+  background: #151515;
+}
+
+.raffle-create-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.raffle-create-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.raffle-create-form label > span {
+  color: #d7c7a7;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.raffle-create-form input,
+.raffle-create-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 15px;
+  border: 1px solid rgba(198, 161, 91, 0.22);
+  border-radius: 9px;
+  background: #0e0e0e;
+  color: #f5f1e8;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.raffle-create-form input:focus,
+.raffle-create-form textarea:focus {
+  border-color: #c6a15b;
+}
+
+.raffle-create-form input::placeholder,
+.raffle-create-form textarea::placeholder {
+  color: rgba(245, 241, 232, 0.3);
+}
+
+.raffle-create-form textarea {
+  resize: vertical;
+  min-height: 95px;
+}
+
+.raffle-create-form small {
+  color: rgba(245, 241, 232, 0.45);
+  font-size: 11px;
+}
+
+/* BUTTONS */
+
+.raffle-primary-button,
+.raffle-cancel-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  min-height: 44px;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.raffle-primary-button {
+  border: 1px solid #c6a15b;
+  background: linear-gradient(135deg, #d5b477, #ad8545);
+  color: #17120a;
+}
+
+.raffle-primary-button:hover {
+  background: linear-gradient(135deg, #e5c98f, #c19a59);
+  transform: translateY(-1px);
+}
+
+.raffle-primary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.raffle-cancel-button {
+  margin-top: 18px;
+  border: 1px solid rgba(210, 90, 90, 0.35);
+  background: rgba(180, 55, 55, 0.1);
+  color: #e99a9a;
+}
+
+.raffle-cancel-button:hover {
+  background: rgba(180, 55, 55, 0.2);
+}
+
+/* EMPTY STATE */
+
+.raffle-empty {
+  padding: 45px 20px;
+  border: 1px dashed rgba(198, 161, 91, 0.25);
+  border-radius: 14px;
+  text-align: center;
+  background: rgba(198, 161, 91, 0.025);
+  color: rgba(245, 241, 232, 0.55);
+}
+
+.raffle-empty h3 {
+  color: #e4d5b9;
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.raffle-empty p {
+  margin: 0;
+  font-size: 13px;
+}
+
+/* RAFFLE LIST */
+
+.raffle-admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.raffle-admin-card {
+  padding: 24px;
+  border: 1px solid rgba(198, 161, 91, 0.2);
+  border-radius: 16px;
+  background: #151515;
+}
+
+.raffle-admin-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.raffle-admin-image {
+  flex: 0 0 180px;
+  width: 180px;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #0c0c0c;
+}
+
+.raffle-admin-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.raffle-admin-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.raffle-admin-info h3 {
+  margin: 12px 0 8px;
+  color: #f5f1e8;
+  font-size: 21px;
+}
+
+.raffle-admin-info > p {
+  margin: 0 0 18px;
+  color: rgba(245, 241, 232, 0.58);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* STATUS */
+
+.raffle-status {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.raffle-status.draft {
+  background: rgba(150, 150, 150, 0.12);
+  color: #bcbcbc;
+}
+
+.raffle-status.active {
+  background: rgba(198, 161, 91, 0.14);
+  color: #d5b477;
+}
+
+.raffle-status.completed {
+  background: rgba(80, 160, 110, 0.13);
+  color: #9ed7ad;
+}
+
+.raffle-status.cancelled {
+  background: rgba(180, 55, 55, 0.13);
+  color: #e99a9a;
+}
+
+/* STATS */
+
+.raffle-admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.raffle-admin-stats > div {
+  padding: 13px;
+  border: 1px solid rgba(198, 161, 91, 0.14);
+  border-radius: 9px;
+  background: rgba(198, 161, 91, 0.035);
+}
+
+.raffle-admin-stats span {
+  display: block;
+  color: rgba(245, 241, 232, 0.5);
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+.raffle-admin-stats strong {
+  color: #e2c58e;
+  font-size: 17px;
+}
+
+/* PROGRESS */
+
+.raffle-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.raffle-progress-track {
+  flex: 1;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.raffle-progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #a77d3c, #e0bf7b);
+  transition: width 0.3s ease;
+}
+
+.raffle-progress > span {
+  min-width: 40px;
+  color: #d5b477;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* WINNER */
+
+.raffle-winner {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px 17px;
+  margin-top: 18px;
+  border: 1px solid rgba(198, 161, 91, 0.3);
+  border-radius: 10px;
+  background: rgba(198, 161, 91, 0.07);
+}
+
+.raffle-winner > span {
+  color: #c6a15b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.raffle-winner strong {
+  color: #f0d9a8;
+  font-size: 16px;
+}
+
+.raffle-winner small {
+  color: rgba(245, 241, 232, 0.5);
+  font-size: 12px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+  .admin-raffles-page {
+    padding: 30px 14px 55px;
+  }
+
+  .admin-raffles-header {
+    align-items: flex-start;
+    margin-bottom: 32px;
+  }
+
+  .admin-raffles-header h1 {
+    font-size: 27px;
+  }
+
+  .admin-raffles-count {
+    min-width: 75px;
+    padding: 12px;
+  }
+
+  .admin-raffles-count strong {
+    font-size: 25px;
+  }
+
+  .raffle-create-section {
+    padding: 20px 16px;
+    margin-bottom: 40px;
+  }
+
+  .raffle-create-form {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .raffle-create-form .raffle-primary-button {
+    width: 100%;
+  }
+
+  .raffle-admin-card {
+    padding: 17px;
+  }
+
+  .raffle-admin-main {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .raffle-admin-image {
+    width: 100%;
+    height: 210px;
+    flex-basis: auto;
+  }
+
+  .raffle-admin-info {
+    width: 100%;
+  }
+
+  .raffle-admin-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .raffle-admin-info .raffle-primary-button,
+  .raffle-admin-info .raffle-cancel-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-raffles-header {
+    flex-direction: column;
+  }
+
+  .raffle-admin-stats {
+    grid-template-columns: 1fr;
+  }
+}
