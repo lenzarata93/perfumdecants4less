@@ -1,3 +1,4 @@
+
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Counter = require("../models/Counter");
@@ -725,6 +726,45 @@ const updateOrderStatus = async (req, res) => {
       }
 
       order.status = status;
+
+      /*
+       * -------------------------
+       * ОБЩО ПОХАРЧЕНО
+       * -------------------------
+       *
+       * При завършване на поръчката
+       * добавяме стойността на продуктите
+       * към totalSpent на потребителя.
+       *
+       * Доставката не се включва.
+       *
+       * Операцията е в същата транзакция,
+       * за да няма частично записване.
+       */
+
+      if (
+        status === "completed" &&
+        order.userId
+      ) {
+        const spendingUser = await User.findById(
+          order.userId
+        ).session(session);
+
+        if (!spendingUser) {
+          throw new Error(
+            "Потребителят на поръчката не е намерен."
+          );
+        }
+
+        spendingUser.totalSpent = Number(
+          (
+            Number(spendingUser.totalSpent || 0) +
+            Number(order.subtotal || 0)
+          ).toFixed(2)
+        );
+
+        await spendingUser.save({ session });
+      }
 
       /*
        * Бонус точки се начисляват само:
