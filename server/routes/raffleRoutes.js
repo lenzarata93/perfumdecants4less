@@ -10,6 +10,7 @@ const {
   activateRaffle,
   joinRaffle,
   cancelRaffle,
+  getRaffleEntries,
 } = require("../controllers/raffleController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -32,6 +33,14 @@ router.get(
   authMiddleware,
   adminMiddleware,
   getAllRaffles
+);
+
+// Участници в конкретна томбола
+router.get(
+  "/:id/entries",
+  authMiddleware,
+  adminMiddleware,
+  getRaffleEntries
 );
 
 // Създаване на томбола
