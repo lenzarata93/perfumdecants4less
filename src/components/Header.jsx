@@ -251,6 +251,14 @@ function Header() {
                       >
                         Финанси
                       </Link>
+
+                      {/* НОВА СЕКЦИЯ - ТОМБОЛИ */}
+                      <Link
+                        to="/admin/raffles"
+                        onClick={closeMenu}
+                      >
+                        Томболи
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -489,6 +497,14 @@ function Header() {
                       onClick={() => setAdminOpen(false)}
                     >
                       Финанси
+                    </Link>
+
+                    {/* НОВА СЕКЦИЯ - ТОМБОЛИ */}
+                    <Link
+                      to="/admin/raffles"
+                      onClick={() => setAdminOpen(false)}
+                    >
+                      Томболи
                     </Link>
                   </div>
                 )}
