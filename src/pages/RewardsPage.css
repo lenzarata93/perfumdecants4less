@@ -1,0 +1,565 @@
+
+/* ================================
+   REWARDS PAGE
+================================ */
+
+.rewards-page {
+  min-height: 100vh;
+  padding: 70px 20px 100px;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(196, 157, 75, 0.10),
+      transparent 40%
+    ),
+    #090909;
+  color: #f5f5f5;
+}
+
+.rewards-page-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ================================
+   PAGE HEADER
+================================ */
+
+.rewards-page-header {
+  max-width: 760px;
+  margin: 0 auto 55px;
+  text-align: center;
+}
+
+.rewards-page-header > p:first-child {
+  margin-bottom: 18px;
+  color: #c9a45c;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 4px;
+}
+
+.rewards-page-header h1 {
+  margin: 0 0 20px;
+  font-size: clamp(34px, 5vw, 58px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -1.5px;
+}
+
+.rewards-page-header h1 span {
+  color: #c9a45c;
+}
+
+.rewards-page-header > p:last-child {
+  max-width: 600px;
+  margin: 0 auto;
+  color: #aaa;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ================================
+   BONUS POINTS CARD
+================================ */
+
+.rewards-points-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 600px;
+  margin: 0 auto 75px;
+  padding: 30px 35px;
+  border: 1px solid rgba(201, 164, 92, 0.35);
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    #171717,
+    #101010
+  );
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.35);
+}
+
+.rewards-points-card > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rewards-points-card span {
+  color: #c9a45c;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.rewards-points-card strong {
+  color: #f4d28b;
+  font-size: 48px;
+  line-height: 1;
+}
+
+.rewards-points-card small {
+  color: #999;
+  font-size: 13px;
+}
+
+.rewards-points-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 75px;
+  height: 75px;
+  border: 1px solid #c9a45c;
+  border-radius: 50%;
+  color: #e4bd72;
+  font-size: 23px;
+  font-weight: 700;
+  box-shadow: 0 0 25px rgba(201, 164, 92, 0.12);
+}
+
+/* ================================
+   MESSAGES
+================================ */
+
+.rewards-page-message {
+  max-width: 800px;
+  margin: -45px auto 40px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.rewards-page-error {
+  border: 1px solid rgba(220, 75, 75, 0.4);
+  background: rgba(150, 30, 30, 0.12);
+  color: #ff8585;
+}
+
+.rewards-page-success {
+  border: 1px solid rgba(201, 164, 92, 0.4);
+  background: rgba(201, 164, 92, 0.08);
+  color: #e4bd72;
+}
+
+/* ================================
+   SECTION HEADING
+================================ */
+
+.rewards-raffles-section {
+  margin-top: 20px;
+}
+
+.rewards-page-section-heading {
+  margin-bottom: 35px;
+  text-align: center;
+}
+
+.rewards-page-section-heading > span {
+  color: #c9a45c;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.rewards-page-section-heading h2 {
+  margin: 12px 0 0;
+  color: #f5f5f5;
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 600;
+}
+
+/* ================================
+   EMPTY / LOADING
+================================ */
+
+.rewards-page-empty {
+  padding: 65px 20px;
+  border: 1px solid #292929;
+  border-radius: 12px;
+  background: #111;
+  text-align: center;
+  color: #aaa;
+}
+
+.rewards-page-empty h3 {
+  margin: 0 0 12px;
+  color: #e5c27d;
+  font-size: 22px;
+}
+
+.rewards-page-empty p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ================================
+   RAFFLE GRID
+================================ */
+
+.rewards-raffles-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(280px, 1fr)
+  );
+  gap: 28px;
+}
+
+/* ================================
+   RAFFLE CARD
+================================ */
+
+.rewards-raffle-card {
+  overflow: hidden;
+  border: 1px solid rgba(201, 164, 92, 0.22);
+  border-radius: 14px;
+  background: linear-gradient(
+    160deg,
+    #191919,
+    #101010
+  );
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.rewards-raffle-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(201, 164, 92, 0.65);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+/* ================================
+   RAFFLE IMAGE
+================================ */
+
+.rewards-raffle-image {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 260px;
+  padding: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle,
+      rgba(201, 164, 92, 0.12),
+      transparent 65%
+    ),
+    #0c0c0c;
+}
+
+.rewards-raffle-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(
+    0 10px 20px rgba(0, 0, 0, 0.6)
+  );
+}
+
+.rewards-no-image {
+  color: rgba(201, 164, 92, 0.5);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 5px;
+}
+
+.rewards-active-label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 7px 12px;
+  border: 1px solid rgba(201, 164, 92, 0.5);
+  border-radius: 4px;
+  background: rgba(10, 10, 10, 0.85);
+  color: #e4bd72;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+/* ================================
+   CARD CONTENT
+================================ */
+
+.rewards-raffle-content {
+  padding: 25px;
+}
+
+.rewards-raffle-content h3 {
+  margin: 0 0 12px;
+  color: #f0d18e;
+  font-size: 23px;
+  font-weight: 600;
+}
+
+.rewards-raffle-description {
+  min-height: 40px;
+  margin: 0 0 22px;
+  color: #aaa;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ================================
+   RAFFLE STATISTICS
+================================ */
+
+.rewards-raffle-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin: 25px 0 18px;
+}
+
+.rewards-raffle-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.rewards-raffle-stats span {
+  color: #888;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.rewards-raffle-stats strong {
+  color: #f1d08b;
+  font-size: 20px;
+}
+
+/* ================================
+   PROGRESS BAR
+================================ */
+
+.rewards-page-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.rewards-page-progress > div {
+  flex: 1;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #303030;
+}
+
+.rewards-page-progress > div span {
+  display: block;
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    #92703b,
+    #f0d18e
+  );
+  transition: width 0.4s ease;
+}
+
+.rewards-page-progress strong {
+  min-width: 38px;
+  color: #d9b66e;
+  font-size: 12px;
+  text-align: right;
+}
+
+/* ================================
+   ENTRY RULE
+================================ */
+
+.rewards-entry-rule {
+  margin-bottom: 22px;
+  padding: 12px;
+  border: 1px solid rgba(201, 164, 92, 0.18);
+  border-radius: 6px;
+  background: rgba(201, 164, 92, 0.05);
+  color: #d5b574;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ================================
+   QUANTITY INPUT
+================================ */
+
+.rewards-quantity-label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-bottom: 15px;
+  color: #bbb;
+  font-size: 13px;
+}
+
+.rewards-quantity-label input {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid #393939;
+  border-radius: 6px;
+  outline: none;
+  background: #090909;
+  color: #f0d18e;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.rewards-quantity-label input:focus {
+  border-color: #c9a45c;
+}
+
+/* ================================
+   ENTRY TOTAL
+================================ */
+
+.rewards-entry-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  color: #aaa;
+  font-size: 13px;
+}
+
+.rewards-entry-total strong {
+  color: #e4bd72;
+  font-size: 17px;
+}
+
+/* ================================
+   JOIN BUTTON
+================================ */
+
+.rewards-join-button {
+  width: 100%;
+  padding: 15px 20px;
+  border: 1px solid #c9a45c;
+  border-radius: 6px;
+  background: linear-gradient(
+    135deg,
+    #c9a45c,
+    #a47c39
+  );
+  color: #111;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.rewards-join-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(
+    135deg,
+    #e4c47e,
+    #bd944d
+  );
+}
+
+.rewards-join-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ================================
+   LOGIN NOTE
+================================ */
+
+.rewards-login-note {
+  margin: 20px 0 0;
+  padding: 14px;
+  border: 1px solid rgba(201, 164, 92, 0.2);
+  border-radius: 6px;
+  color: #d5b574;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+  .rewards-page {
+    padding: 45px 16px 70px;
+  }
+
+  .rewards-page-header {
+    margin-bottom: 38px;
+  }
+
+  .rewards-page-header h1 {
+    letter-spacing: -0.5px;
+  }
+
+  .rewards-page-header > p:last-child {
+    font-size: 14px;
+  }
+
+  .rewards-points-card {
+    margin-bottom: 55px;
+    padding: 23px;
+  }
+
+  .rewards-points-card strong {
+    font-size: 40px;
+  }
+
+  .rewards-points-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 19px;
+  }
+
+  .rewards-raffles-grid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .rewards-raffle-image {
+    height: 230px;
+  }
+
+  .rewards-raffle-content {
+    padding: 21px;
+  }
+}
+
+@media (max-width: 400px) {
+  .rewards-page {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .rewards-points-card {
+    padding: 18px;
+  }
+
+  .rewards-points-card strong {
+    font-size: 34px;
+  }
+
+  .rewards-points-card small {
+    font-size: 11px;
+  }
+
+  .rewards-raffle-content h3 {
+    font-size: 20px;
+  }
+}
