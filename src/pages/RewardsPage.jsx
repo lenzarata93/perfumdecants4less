@@ -8,7 +8,7 @@ import "./RewardsPage.css";
 const RAFFLES_API_URL = `${API_URL}/api/raffles`;
 
 function RewardsPage() {
-  const { token, user, isLoggedIn } = useUser();
+  const { token, user, isLoggedIn, setUser } = useUser();
 
   const [raffles, setRaffles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -128,6 +128,12 @@ function RewardsPage() {
               quantity === 1 ? "участие" : "участия"
             }!`
       );
+
+      // Незабавно обновяване на бонус точките
+      setUser((currentUser) => ({
+        ...currentUser,
+        bonusPoints: data.remainingPoints,
+      }));
 
       setQuantities((current) => ({
         ...current,
