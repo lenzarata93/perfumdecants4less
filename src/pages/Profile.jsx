@@ -19,6 +19,18 @@ function Profile() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState("");
 
+  // =====================================
+  // RAFFLE PARTICIPATIONS
+  // =====================================
+
+  const [myRaffles, setMyRaffles] = useState([]);
+  const [rafflesLoading, setRafflesLoading] = useState(true);
+  const [rafflesError, setRafflesError] = useState("");
+
+  // =====================================
+  // FETCH MY ORDERS
+  // =====================================
+
   useEffect(() => {
     const fetchMyOrders = async () => {
       if (!user || !token) {
@@ -61,10 +73,78 @@ function Profile() {
     fetchMyOrders();
   }, [user, token]);
 
+  // =====================================
+  // FETCH MY RAFFLE PARTICIPATIONS
+  // =====================================
+
+  useEffect(() => {
+    const fetchMyRaffles = async () => {
+      if (!user || !token) {
+        setRafflesLoading(false);
+        return;
+      }
+
+      try {
+        setRafflesLoading(true);
+        setRafflesError("");
+
+        const response = await fetch(
+          `${API_URL}/api/raffles/my-entries`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Грешка при зареждане на участията."
+          );
+        }
+
+        setMyRaffles(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Fetch my raffles error:", error);
+        setRafflesError(error.message);
+      } finally {
+        setRafflesLoading(false);
+      }
+    };
+
+    fetchMyRaffles();
+  }, [user, token]);
+
+  // =====================================
+  // TOTAL SPENT
+  // Само завършени поръчки
+  // Без доставка
+  // =====================================
+
+  const totalSpent = orders
+    .filter((order) => order.status === "completed")
+    .reduce(
+      (total, order) =>
+        total + Number(order.subtotal || 0),
+      0
+    );
+
+  // =====================================
+  // LOGOUT
+  // =====================================
+
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+
+  // =====================================
+  // ORDER STATUS
+  // =====================================
 
   const getOrderStatus = (status) => {
     const statuses = {
@@ -92,6 +172,44 @@ function Profile() {
     return classes[status] || "pending";
   };
 
+  // =====================================
+  // RAFFLE STATUS
+  // =====================================
+
+  const getRaffleStatus = (raffle) => {
+    if (raffle.isWinner) {
+      return "Печеливш";
+    }
+
+    const statuses = {
+      active: "Активна",
+      completed: "Приключила",
+      cancelled: "Отменена",
+      draft: "Предстояща",
+    };
+
+    return statuses[raffle.status] || raffle.status;
+  };
+
+  const getRaffleStatusClass = (raffle) => {
+    if (raffle.isWinner) {
+      return "raffle-winner";
+    }
+
+    const classes = {
+      active: "raffle-active",
+      completed: "raffle-completed",
+      cancelled: "raffle-cancelled",
+      draft: "raffle-draft",
+    };
+
+    return classes[raffle.status] || "raffle-draft";
+  };
+
+  // =====================================
+  // FORMAT DATE
+  // =====================================
+
   const formatDate = (date) => {
     if (!date) return "Няма дата";
 
@@ -101,6 +219,10 @@ function Profile() {
       year: "numeric",
     });
   };
+
+  // =====================================
+  // LOGIN CHECK
+  // =====================================
 
   if (!user) {
     return (
@@ -127,6 +249,10 @@ function Profile() {
       </>
     );
   }
+
+  // =====================================
+  // PROFILE
+  // =====================================
 
   return (
     <>
@@ -181,11 +307,11 @@ function Profile() {
               </span>
 
               <strong>
-                {Number(user.totalSpent || 0).toFixed(2)} €
+                {totalSpent.toFixed(2)} €
               </strong>
 
               <span className="stat-description">
-                Обща стойност на покупките
+                Стойност на завършените покупки
               </span>
             </div>
 
@@ -245,6 +371,209 @@ function Profile() {
               </div>
 
             </section>
+
+            {/* =====================================
+                MY RAFFLES
+            ===================================== */}
+
+            <section className="profile-card my-raffles-card">
+
+              <div className="profile-card-header">
+                <div>
+                  <span>MY REWARDS</span>
+                  <h2>Моите игри</h2>
+                </div>
+              </div>
+
+              {rafflesLoading ? (
+                <div className="empty-orders">
+                  <p>Зареждане на участията...</p>
+                </div>
+              ) : rafflesError ? (
+                <div className="empty-orders">
+                  <h3>Неуспешно зареждане</h3>
+
+                  <p>{rafflesError}</p>
+
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                  >
+                    Опитай отново
+                  </button>
+                </div>
+              ) : myRaffles.length === 0 ? (
+                <div className="empty-orders">
+
+                  <div className="empty-orders-icon">
+                    ◇
+                  </div>
+
+                  <h3>
+                    Все още не участваш в томбола
+                  </h3>
+
+                  <p>
+                    Използвай натрупаните си бонус точки,
+                    за да се включиш в игрите и да спечелиш награди.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/rewards")}
+                  >
+                    Разгледай наградите
+                  </button>
+
+                </div>
+              ) : (
+                <div className="my-raffles-list">
+
+                  {myRaffles.map((raffle) => (
+                    <article
+                      className="my-raffle-item"
+                      key={raffle.raffleId}
+                    >
+
+                      <div className="my-raffle-main">
+
+                        {raffle.image ? (
+                          <img
+                            src={raffle.image}
+                            alt={raffle.title}
+                            className="my-raffle-image"
+                          />
+                        ) : (
+                          <div className="my-raffle-image-placeholder">
+                            REWARD
+                          </div>
+                        )}
+
+                        <div className="my-raffle-info">
+
+                          <span className="my-raffle-label">
+                            НАГРАДА
+                          </span>
+
+                          <h3>
+                            {raffle.title}
+                          </h3>
+
+                          {raffle.description && (
+                            <p>
+                              {raffle.description}
+                            </p>
+                          )}
+
+                          <span
+                            className={`my-raffle-status ${getRaffleStatusClass(raffle)}`}
+                          >
+                            {getRaffleStatus(raffle)}
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                      <div className="my-raffle-details">
+
+                        <div className="my-raffle-detail">
+                          <span>ТВОИ УЧАСТИЯ</span>
+
+                          <strong>
+                            {raffle.entries}
+                          </strong>
+                        </div>
+
+                        <div className="my-raffle-detail">
+                          <span>ОБЩО УЧАСТИЯ</span>
+
+                          <strong>
+                            {raffle.collectedPoints}
+                          </strong>
+                        </div>
+
+                        <div className="my-raffle-detail">
+                          <span>ПОХАРЧЕНИ ТОЧКИ</span>
+
+                          <strong>
+                            {Number(raffle.pointsSpent || 0).toFixed(0)}
+                          </strong>
+                        </div>
+
+                        <div className="my-raffle-detail my-raffle-chance">
+                          <span>ШАНС ЗА ПЕЧАЛБА</span>
+
+                          <strong>
+                            {Number(raffle.chance || 0).toFixed(2)}%
+                          </strong>
+                        </div>
+
+                      </div>
+
+                      <div className="my-raffle-tickets">
+
+                        <span>
+                          ТВОИТЕ НОМЕРА:
+                        </span>
+
+                        <div className="my-raffle-ticket-list">
+                          {raffle.entryNumbers.map((number) => (
+                            <span
+                              className={`my-raffle-ticket ${
+                                raffle.isWinner &&
+                                raffle.status === "completed" &&
+                                number === raffle.entryNumbers.find(
+                                  (_, index) =>
+                                    raffle.isWinner &&
+                                    raffle.status === "completed" &&
+                                    raffle.entryNumbers[index] === number
+                                )
+                                  ? "my-raffle-ticket-winner"
+                                  : ""
+                              }`}
+                              key={number}
+                            >
+                              #{number}
+                            </span>
+                          ))}
+                        </div>
+
+                      </div>
+
+                      {raffle.status === "completed" && (
+                        <div className="my-raffle-result">
+                          {raffle.isWinner ? (
+                            <strong>
+                              Поздравления! Ти спечели тази награда!
+                            </strong>
+                          ) : (
+                            <span>
+                              Томболата приключи. Благодарим ти за участието!
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {raffle.status === "cancelled" && (
+                        <div className="my-raffle-result">
+                          <span>
+                            Тази томбола е отменена.
+                          </span>
+                        </div>
+                      )}
+
+                    </article>
+                  ))}
+
+                </div>
+              )}
+
+            </section>
+
+            {/* =====================================
+                MY ORDERS
+            ===================================== */}
 
             <section className="profile-card orders-card">
 
