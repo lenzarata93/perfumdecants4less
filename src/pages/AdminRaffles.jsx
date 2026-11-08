@@ -23,6 +23,12 @@ function AdminRaffles() {
     targetPoints: "",
   });
 
+  // НОВО: състояние за участниците
+  const [selectedRaffle, setSelectedRaffle] = useState(null);
+  const [participants, setParticipants] = useState([]);
+  const [participantsLoading, setParticipantsLoading] = useState(false);
+  const [participantsError, setParticipantsError] = useState("");
+
   const authHeaders = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -191,6 +197,49 @@ function AdminRaffles() {
     } catch (error) {
       console.error("Cancel raffle error:", error);
       setError(error.message);
+    }
+  };
+
+  // НОВО: зареждане на участниците в избрана томбола
+  const handleShowParticipants = async (raffle) => {
+    if (selectedRaffle?._id === raffle._id) {
+      setSelectedRaffle(null);
+      setParticipants([]);
+      setParticipantsError("");
+      return;
+    }
+
+    try {
+      setSelectedRaffle(raffle);
+      setParticipants([]);
+      setParticipantsLoading(true);
+      setParticipantsError("");
+
+      const response = await fetch(
+        `${RAFFLES_API_URL}/${raffle._id}/entries`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Грешка при зареждане на участниците."
+        );
+      }
+
+      setParticipants(
+        Array.isArray(data.participants) ? data.participants : []
+      );
+    } catch (error) {
+      console.error("Fetch raffle participants error:", error);
+      setParticipantsError(error.message);
+    } finally {
+      setParticipantsLoading(false);
     }
   };
 
@@ -450,6 +499,78 @@ function AdminRaffles() {
                           >
                             Отмени томболата
                           </button>
+                        )}
+
+                        {/* НОВО: бутон за участниците */}
+                        <button
+                          type="button"
+                          className="raffle-primary-button"
+                          onClick={() =>
+                            handleShowParticipants(raffle)
+                          }
+                        >
+                          {selectedRaffle?._id === raffle._id
+                            ? "Скрий участниците"
+                            : "Участници"}
+                        </button>
+
+                        {/* НОВО: панел с участниците */}
+                        {selectedRaffle?._id === raffle._id && (
+                          <div className="raffle-participants-panel">
+                            <h4>Участници в томболата</h4>
+
+                            {participantsLoading ? (
+                              <p>Зареждаме участниците...</p>
+                            ) : participantsError ? (
+                              <p className="raffle-error-text">
+                                {participantsError}
+                              </p>
+                            ) : participants.length === 0 ? (
+                              <p>
+                                Все още няма участници в тази томбола.
+                              </p>
+                            ) : (
+                              <div className="raffle-participants-list">
+                                {participants.map((participant) => (
+                                  <div
+                                    className={`raffle-participant ${
+                                      participant.isWinner
+                                        ? "raffle-participant-winner"
+                                        : ""
+                                    }`}
+                                    key={participant.userId}
+                                  >
+                                    <div className="raffle-participant-info">
+                                      <strong>
+                                        {participant.firstName || ""}{" "}
+                                        {participant.lastName || ""}
+                                      </strong>
+
+                                      <small>
+                                        {participant.email || "Няма имейл"}
+                                      </small>
+
+                                      <span>
+                                        {participant.entries} участия
+                                      </span>
+
+                                      <p>
+                                        Билети:{" "}
+                                        {participant.entryNumbers?.join(", ") ||
+                                          "—"}
+                                      </p>
+                                    </div>
+
+                                    {participant.isWinner && (
+                                      <span className="raffle-participant-winner-label">
+                                        ПОБЕДИТЕЛ
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
