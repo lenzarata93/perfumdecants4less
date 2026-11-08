@@ -11,6 +11,7 @@ const {
   joinRaffle,
   cancelRaffle,
   getRaffleEntries,
+  getMyRaffleEntries,
 } = require("../controllers/raffleController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -70,6 +71,13 @@ router.patch(
 // =====================================
 // USER ROUTES
 // =====================================
+
+// Моите участия във всички томболи
+router.get(
+  "/my-entries",
+  authMiddleware,
+  getMyRaffleEntries
+);
 
 // Участие в томбола
 router.post(
