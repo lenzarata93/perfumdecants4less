@@ -393,6 +393,109 @@ const getRaffleEntries = async (req, res) => {
 };
 
 // =====================================
+// USER: GET MY RAFFLE PARTICIPATIONS
+// =====================================
+
+const getMyRaffleEntries = async (req, res) => {
+  try {
+    if (!req.user || !req.user.userId) {
+      return res.status(401).json({
+        message: "Моля, влезте в профила си.",
+      });
+    }
+
+    const entries = await RaffleEntry.find({
+      user: req.user.userId,
+    })
+      .populate({
+        path: "raffle",
+        select:
+          "title description image targetPoints collectedPoints status winner winnerEntry completedAt",
+      })
+      .sort({ participatedAt: -1 });
+
+    const raffleMap = new Map();
+
+    for (const entry of entries) {
+      const raffle = entry.raffle;
+
+      if (!raffle) {
+        continue;
+      }
+
+      const raffleId = raffle._id.toString();
+
+      if (!raffleMap.has(raffleId)) {
+        raffleMap.set(raffleId, {
+          raffleId: raffle._id,
+          title: raffle.title,
+          description: raffle.description,
+          image: raffle.image,
+          targetPoints: raffle.targetPoints,
+          collectedPoints: raffle.collectedPoints,
+          status: raffle.status,
+          completedAt: raffle.completedAt,
+          entries: 0,
+          pointsSpent: 0,
+          entryNumbers: [],
+          isWinner: false,
+          chance: 0,
+        });
+      }
+
+      const userRaffle = raffleMap.get(raffleId);
+
+      userRaffle.entries += 1;
+
+      userRaffle.pointsSpent += Number(
+        entry.pointsSpent || 0
+      );
+
+      userRaffle.entryNumbers.push(
+        entry.entryNumber
+      );
+
+      if (entry.isWinner) {
+        userRaffle.isWinner = true;
+      }
+    }
+
+    const participations = Array.from(
+      raffleMap.values()
+    ).map((raffle) => {
+      const totalEntries = Number(
+        raffle.collectedPoints || 0
+      );
+
+      const chance =
+        totalEntries > 0
+          ? (raffle.entries / totalEntries) * 100
+          : 0;
+
+      return {
+        ...raffle,
+        entryNumbers: raffle.entryNumbers.sort(
+          (a, b) => a - b
+        ),
+        chance: Number(chance.toFixed(2)),
+      };
+    });
+
+    return res.status(200).json(participations);
+  } catch (error) {
+    console.error(
+      "Get my raffle entries error:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Грешка при зареждане на твоите участия.",
+    });
+  }
+};
+
+// =====================================
 // ADMIN: CANCEL RAFFLE
 // =====================================
 
@@ -445,4 +548,5 @@ module.exports = {
   joinRaffle,
   cancelRaffle,
   getRaffleEntries,
+  getMyRaffleEntries,
 };
