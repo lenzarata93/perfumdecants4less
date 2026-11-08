@@ -18,6 +18,7 @@ import AdminFinance from "./pages/AdminFinance";
 import AdminRaffles from "./pages/AdminRaffles";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import RewardsPage from "./pages/RewardsPage";
 
 function App() {
   return (
@@ -27,7 +28,10 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
-
+          <Route
+  path="/rewards"
+  element={<RewardsPage />}
+/>
           <Route path="/shop" element={<Shop />} />
 
           <Route
