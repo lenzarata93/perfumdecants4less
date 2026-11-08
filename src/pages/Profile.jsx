@@ -523,12 +523,7 @@ function Profile() {
                               className={`my-raffle-ticket ${
                                 raffle.isWinner &&
                                 raffle.status === "completed" &&
-                                number === raffle.entryNumbers.find(
-                                  (_, index) =>
-                                    raffle.isWinner &&
-                                    raffle.status === "completed" &&
-                                    raffle.entryNumbers[index] === number
-                                )
+                                number === raffle.winningEntryNumber
                                   ? "my-raffle-ticket-winner"
                                   : ""
                               }`}
@@ -546,6 +541,8 @@ function Profile() {
                           {raffle.isWinner ? (
                             <strong>
                               Поздравления! Ти спечели тази награда!
+                              <br />
+                              Печеливш билет: #{raffle.winningEntryNumber}
                             </strong>
                           ) : (
                             <span>
