@@ -1,3 +1,8 @@
+
+/* =====================================
+   REWARDS SECTION
+===================================== */
+
 .rewards-section {
   position: relative;
 
@@ -672,5 +677,36 @@
   .reward-floating-label {
     bottom: 45px;
     left: 0;
+  }
+}
+
+/* =====================================
+   DYNAMIC REWARD IMAGE
+===================================== */
+
+.reward-dynamic-image {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  height: 100%;
+  max-height: 260px;
+
+  object-fit: contain;
+
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.5));
+}
+
+.reward-product:has(.reward-dynamic-image) {
+  padding: 15px;
+}
+
+.reward-product:has(.reward-dynamic-image) .reward-dynamic-image {
+  border-radius: 8px;
+}
+
+@media (max-width: 700px) {
+  .reward-dynamic-image {
+    max-height: 220px;
   }
 }
