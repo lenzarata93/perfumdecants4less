@@ -411,6 +411,10 @@ const getMyRaffleEntries = async (req, res) => {
         path: "raffle",
         select:
           "title description image targetPoints collectedPoints status winner winnerEntry completedAt",
+        populate: {
+          path: "winnerEntry",
+          select: "entryNumber",
+        },
       })
       .sort({ participatedAt: -1 });
 
@@ -435,6 +439,8 @@ const getMyRaffleEntries = async (req, res) => {
           collectedPoints: raffle.collectedPoints,
           status: raffle.status,
           completedAt: raffle.completedAt,
+          winningEntryNumber:
+            raffle.winnerEntry?.entryNumber || null,
           entries: 0,
           pointsSpent: 0,
           entryNumbers: [],
