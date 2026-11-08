@@ -307,6 +307,92 @@ const joinRaffle = async (req, res) => {
 };
 
 // =====================================
+// ADMIN: GET RAFFLE PARTICIPANTS
+// =====================================
+
+const getRaffleEntries = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Невалиден идентификатор на томболата.",
+      });
+    }
+
+    const raffle = await Raffle.findById(id).select(
+      "title targetPoints collectedPoints status"
+    );
+
+    if (!raffle) {
+      return res.status(404).json({
+        message: "Томболата не е намерена.",
+      });
+    }
+
+    const participants = await RaffleEntry.aggregate([
+      {
+        $match: {
+          raffle: new mongoose.Types.ObjectId(id),
+        },
+      },
+      {
+        $group: {
+          _id: "$user",
+          entries: { $sum: 1 },
+          pointsSpent: { $sum: "$pointsSpent" },
+          entryNumbers: { $push: "$entryNumber" },
+          isWinner: { $max: "$isWinner" },
+        },
+      },
+      {
+        $lookup: {
+          from: User.collection.name,
+          localField: "_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id",
+          firstName: "$user.firstName",
+          lastName: "$user.lastName",
+          email: "$user.email",
+          entries: 1,
+          pointsSpent: 1,
+          entryNumbers: 1,
+          isWinner: 1,
+        },
+      },
+      {
+        $sort: {
+          entries: -1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      raffle,
+      participants,
+    });
+  } catch (error) {
+    console.error("Get raffle entries error:", error);
+
+    return res.status(500).json({
+      message: "Грешка при зареждане на участниците.",
+    });
+  }
+};
+
+// =====================================
 // ADMIN: CANCEL RAFFLE
 // =====================================
 
@@ -358,4 +444,5 @@ module.exports = {
   activateRaffle,
   joinRaffle,
   cancelRaffle,
+  getRaffleEntries,
 };
