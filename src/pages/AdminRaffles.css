@@ -493,3 +493,113 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =====================================
+   RAFFLE PARTICIPANTS
+===================================== */
+
+.raffle-participants-panel {
+  width: 100%;
+  margin-top: 24px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 12px;
+}
+
+.raffle-participants-panel h4 {
+  margin: 0 0 18px;
+  color: #d4af37;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.raffle-participants-panel > p {
+  color: #bdbdbd;
+  font-size: 14px;
+}
+
+.raffle-error-text {
+  color: #ff7777 !important;
+}
+
+.raffle-participants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.raffle-participant {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 9px;
+}
+
+.raffle-participant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.raffle-participant-info strong {
+  color: #fff;
+  font-size: 15px;
+}
+
+.raffle-participant-info small {
+  color: #aaa;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.raffle-participant-info > span {
+  color: #d4af37;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.raffle-participant-info p {
+  margin: 3px 0 0;
+  color: #c9c9c9;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.raffle-participant-winner {
+  border-color: rgba(212, 175, 55, 0.65);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.raffle-participant-winner-label {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  color: #111;
+  background: #d4af37;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 600px) {
+  .raffle-participants-panel {
+    padding: 14px;
+  }
+
+  .raffle-participant {
+    flex-direction: column;
+    gap: 12px;
+    padding: 13px;
+  }
+
+  .raffle-participant-winner-label {
+    align-self: flex-start;
+  }
+}
