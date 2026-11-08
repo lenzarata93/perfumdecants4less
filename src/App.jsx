@@ -1,6 +1,9 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { CartProvider } from "./context/CartContext";
+
+import ScrollToTop from "./components/ScrollToTop";
 
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
@@ -20,6 +23,8 @@ function App() {
   return (
     <BrowserRouter>
       <CartProvider>
+        <ScrollToTop />
+
         <Routes>
           <Route path="/" element={<Home />} />
 
@@ -34,10 +39,11 @@ function App() {
             path="/admin/products"
             element={<AdminProducts />}
           />
+
           <Route
-  path="/admin/products/new"
-  element={<AddProduct />}
-/>
+            path="/admin/products/new"
+            element={<AddProduct />}
+          />
 
           <Route
             path="/admin/orders"
@@ -67,10 +73,9 @@ function App() {
           />
 
           <Route
-  path="/admin/finance"
-  element={<AdminFinance />}
-/>
-
+            path="/admin/finance"
+            element={<AdminFinance />}
+          />
         </Routes>
       </CartProvider>
     </BrowserRouter>
