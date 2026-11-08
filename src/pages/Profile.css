@@ -548,6 +548,252 @@
 }
 
 /* =========================================
+   MY RAFFLES
+========================================= */
+
+.my-raffles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 25px 28px;
+}
+
+.my-raffle-item {
+  padding: 22px;
+  border: 1px solid #292929;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(201, 164, 92, 0.07),
+      transparent 55%
+    ),
+    #0d0d0d;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.my-raffle-item:hover {
+  border-color: rgba(201, 164, 92, 0.55);
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================
+   RAFFLE MAIN INFO
+========================================= */
+
+.my-raffle-main {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #242424;
+}
+
+.my-raffle-image {
+  width: 105px;
+  height: 115px;
+  flex-shrink: 0;
+  object-fit: contain;
+  padding: 8px;
+  border: 1px solid #333333;
+  background: #111111;
+}
+
+.my-raffle-image-placeholder {
+  width: 105px;
+  height: 115px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(201, 164, 92, 0.35);
+  background: #15120d;
+  color: #c9a45c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.my-raffle-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.my-raffle-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #c9a45c;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.my-raffle-info h3 {
+  margin: 0 0 8px;
+  color: #eeeeee;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.my-raffle-info p {
+  margin: 0 0 12px;
+  color: #777777;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* =========================================
+   RAFFLE STATUS
+========================================= */
+
+.my-raffle-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border: 1px solid #333333;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.my-raffle-active {
+  color: #d6ad62;
+  border-color: rgba(201, 164, 92, 0.35);
+  background: rgba(201, 164, 92, 0.08);
+}
+
+.my-raffle-completed {
+  color: #8dc7b0;
+  border-color: rgba(141, 199, 176, 0.3);
+  background: rgba(141, 199, 176, 0.06);
+}
+
+.my-raffle-cancelled {
+  color: #d98282;
+  border-color: rgba(217, 130, 130, 0.3);
+  background: rgba(217, 130, 130, 0.06);
+}
+
+.my-raffle-draft {
+  color: #aaaaaa;
+  border-color: rgba(170, 170, 170, 0.3);
+  background: rgba(170, 170, 170, 0.06);
+}
+
+.my-raffle-winner {
+  color: #111111;
+  border-color: #c9a45c;
+  background: #c9a45c;
+}
+
+/* =========================================
+   RAFFLE STATISTICS
+========================================= */
+
+.my-raffle-details {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 22px 0;
+  border-bottom: 1px solid #242424;
+}
+
+.my-raffle-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.my-raffle-detail span {
+  color: #777777;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.my-raffle-detail strong {
+  color: #eeeeee;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.my-raffle-chance strong {
+  color: #c9a45c;
+  font-size: 25px;
+}
+
+/* =========================================
+   RAFFLE TICKETS
+========================================= */
+
+.my-raffle-tickets {
+  padding-top: 20px;
+}
+
+.my-raffle-tickets > span {
+  display: block;
+  margin-bottom: 12px;
+  color: #777777;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.my-raffle-ticket-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.my-raffle-ticket {
+  min-width: 38px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  border: 1px solid rgba(201, 164, 92, 0.35);
+  background: rgba(201, 164, 92, 0.07);
+  color: #c9a45c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.my-raffle-ticket-winner {
+  border-color: #c9a45c;
+  background: #c9a45c;
+  color: #111111;
+  box-shadow: 0 0 12px rgba(201, 164, 92, 0.2);
+}
+
+/* =========================================
+   RAFFLE RESULT
+========================================= */
+
+.my-raffle-result {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-left: 3px solid #555555;
+  background: rgba(255, 255, 255, 0.025);
+  color: #999999;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.my-raffle-result strong {
+  color: #c9a45c;
+  font-size: 13px;
+}
+
+.my-raffle-result:has(strong) {
+  border-left-color: #c9a45c;
+  background: rgba(201, 164, 92, 0.08);
+}
+
+/* =========================================
    TABLET
 ========================================= */
 
@@ -572,6 +818,11 @@
 
   .profile-info:last-child {
     border-bottom: none;
+  }
+
+  .my-raffle-details {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 22px;
   }
 }
 
@@ -655,5 +906,59 @@
   .profile-login-card {
     margin: 45px auto;
     padding: 30px 22px;
+  }
+
+  .my-raffles-list {
+    padding: 15px;
+  }
+
+  .my-raffle-item {
+    padding: 16px;
+  }
+
+  .my-raffle-main {
+    align-items: flex-start;
+    gap: 13px;
+  }
+
+  .my-raffle-image,
+  .my-raffle-image-placeholder {
+    width: 82px;
+    height: 95px;
+  }
+
+  .my-raffle-info h3 {
+    font-size: 18px;
+  }
+
+  .my-raffle-info p {
+    font-size: 11px;
+  }
+
+  .my-raffle-details {
+    gap: 20px 12px;
+  }
+
+  .my-raffle-detail span {
+    font-size: 8px;
+    letter-spacing: 0.7px;
+  }
+
+  .my-raffle-detail strong {
+    font-size: 20px;
+  }
+
+  .my-raffle-chance strong {
+    font-size: 23px;
+  }
+
+  .my-raffle-ticket-list {
+    gap: 6px;
+  }
+
+  .my-raffle-ticket {
+    min-width: 35px;
+    height: 32px;
+    font-size: 11px;
   }
 }
