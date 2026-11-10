@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { API_URL } from "../config";
@@ -33,7 +34,14 @@ function AdminProducts() {
       }
 
       const data = await response.json();
-      setProducts(data);
+
+      const sortedProducts = [...data].sort(
+        (a, b) =>
+          Number(a.availableMl || 0) -
+          Number(b.availableMl || 0)
+      );
+
+      setProducts(sortedProducts);
     } catch (error) {
       console.error("Admin products fetch error:", error);
       setError(error.message);
@@ -122,11 +130,17 @@ function AdminProducts() {
       }
 
       setProducts((currentProducts) =>
-        currentProducts.map((product) =>
-          product._id === productId
-            ? data.product
-            : product
-        )
+        currentProducts
+          .map((product) =>
+            product._id === productId
+              ? data.product
+              : product
+          )
+          .sort(
+            (a, b) =>
+              Number(a.availableMl || 0) -
+              Number(b.availableMl || 0)
+          )
       );
 
       setSuccessMessage("Бутилката е добавена успешно.");
