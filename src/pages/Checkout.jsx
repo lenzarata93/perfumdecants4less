@@ -1,3 +1,4 @@
+
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
@@ -33,8 +34,8 @@ function Checkout() {
   });
 
   const deliveryPrices = {
-    econt: 4.0,
-    speedy: 3.0,
+    econt: 4.5,
+    speedy: 4.5,
   };
 
   const deliveryPrice =
@@ -293,7 +294,7 @@ function Checkout() {
 
               </section>
 
-              {/* ДОСТАВКА */}
+              {/* ДОСТАВКА ДО ОФИС */}
 
               <section className="checkout-section">
 
@@ -302,55 +303,73 @@ function Checkout() {
 
                   <div>
                     <h2>
-                      Доставка
+                      Доставка до офис
                     </h2>
 
                     <p>
-                      Избери куриер и въведи
-                      адреса си.
+                      Избери куриер и посочи
+                      желания офис.
                     </p>
                   </div>
                 </div>
 
-                <div className="checkout-fields checkout-fields-two">
+                <div className="checkout-field">
+                  <label htmlFor="city">
+                    Град
+                  </label>
 
-                  <div className="checkout-field">
-                    <label htmlFor="city">
-                      Град
-                    </label>
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder="Пловдив"
+                    required
+                  />
+                </div>
 
-                    <input
-                      id="city"
-                      name="city"
-                      type="text"
-                      value={formData.city}
-                      onChange={handleChange}
-                      placeholder="Пловдив"
-                      required
-                    />
-                  </div>
+                <div className="checkout-field">
+                  <label htmlFor="postalCode">
+                    Пощенски код
+                  </label>
 
-                  <div className="checkout-field">
-                    <label htmlFor="postalCode">
-                      Пощенски код
-                    </label>
+                  <input
+                    id="postalCode"
+                    name="postalCode"
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={handleChange}
+                    placeholder="4000"
+                    required
+                  />
+                </div>
 
-                    <input
-                      id="postalCode"
-                      name="postalCode"
-                      type="text"
-                      value={formData.postalCode}
-                      onChange={handleChange}
-                      placeholder="4000"
-                      required
-                    />
-                  </div>
+                <div className="checkout-field">
+                  <label htmlFor="deliveryMethod">
+                    Избери куриер
+                  </label>
 
+                  <select
+                    id="deliveryMethod"
+                    name="deliveryMethod"
+                    value={formData.deliveryMethod}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="econt">
+                      Офис на Еконт — €4.50
+                    </option>
+
+                    <option value="speedy">
+                      Офис на Спиди — €4.50
+                    </option>
+                  </select>
                 </div>
 
                 <div className="checkout-field">
                   <label htmlFor="address">
-                    Адрес
+                    Име или адрес на офиса
                   </label>
 
                   <input
@@ -359,30 +378,9 @@ function Checkout() {
                     type="text"
                     value={formData.address}
                     onChange={handleChange}
-                    placeholder="ул. Пример №10"
+                    placeholder="Напр. Еконт Център, ул. ..."
                     required
                   />
-                </div>
-
-                <div className="checkout-field">
-                  <label htmlFor="deliveryMethod">
-                    Метод на доставка
-                  </label>
-
-                  <select
-                    id="deliveryMethod"
-                    name="deliveryMethod"
-                    value={formData.deliveryMethod}
-                    onChange={handleChange}
-                  >
-                    <option value="econt">
-                      Еконт — €4.00
-                    </option>
-
-                    <option value="speedy">
-                      Спиди — €3.00
-                    </option>
-                  </select>
                 </div>
 
               </section>
@@ -537,8 +535,8 @@ function Checkout() {
                     Доставка (
                     {formData.deliveryMethod ===
                     "econt"
-                      ? "Еконт"
-                      : "Спиди"}
+                      ? "Офис на Еконт"
+                      : "Офис на Спиди"}
                     )
                   </span>
 
