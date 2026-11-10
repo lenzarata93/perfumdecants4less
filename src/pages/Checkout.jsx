@@ -18,9 +18,9 @@ function Checkout() {
     clearCart,
   } = useCart();
 
-  const {
-    token,
-  } = useUser();
+  const { token } = useUser();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -56,6 +56,11 @@ function Checkout() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Защита от повторно изпращане
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     try {
       const orderData = {
         customer: {
@@ -87,8 +92,7 @@ function Checkout() {
         "Content-Type": "application/json",
       };
 
-      // Ако потребителят е логнат,
-      // изпращаме JWT токена към backend-а.
+      // Изпращаме JWT токена, ако потребителят е логнат
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
@@ -111,13 +115,9 @@ function Checkout() {
         );
       }
 
-      console.log(
-        "Created order:",
-        data.order
-      );
+      console.log("Created order:", data.order);
 
-      // Изчистваме количката само след
-      // успешно създадена поръчка.
+      // Изчистваме количката само след успешно създадена поръчка
       clearCart();
 
       alert(
@@ -126,15 +126,15 @@ function Checkout() {
 
       navigate("/");
     } catch (error) {
-      console.error(
-        "Checkout error:",
-        error
-      );
+      console.error("Checkout error:", error);
 
       alert(
         error.message ||
           "Възникна грешка при създаване на поръчката."
       );
+
+      // Разрешаваме нов опит само при грешка
+      setIsSubmitting(false);
     }
   };
 
@@ -235,6 +235,7 @@ function Checkout() {
                       onChange={handleChange}
                       placeholder="Иван"
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -251,6 +252,7 @@ function Checkout() {
                       onChange={handleChange}
                       placeholder="Иванов"
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -271,6 +273,7 @@ function Checkout() {
                       onChange={handleChange}
                       placeholder="08XXXXXXXX"
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -287,6 +290,7 @@ function Checkout() {
                       onChange={handleChange}
                       placeholder="ivan@example.com"
                       required
+                      disabled={isSubmitting}
                     />
                   </div>
 
@@ -294,7 +298,7 @@ function Checkout() {
 
               </section>
 
-              {/* ДОСТАВКА ДО ОФИС */}
+              {/* ДОСТАВКА */}
 
               <section className="checkout-section">
 
@@ -326,6 +330,7 @@ function Checkout() {
                     onChange={handleChange}
                     placeholder="Пловдив"
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -342,6 +347,7 @@ function Checkout() {
                     onChange={handleChange}
                     placeholder="4000"
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -356,6 +362,7 @@ function Checkout() {
                     value={formData.deliveryMethod}
                     onChange={handleChange}
                     required
+                    disabled={isSubmitting}
                   >
                     <option value="econt">
                       Офис на Еконт — €4.50
@@ -380,6 +387,7 @@ function Checkout() {
                     onChange={handleChange}
                     placeholder="Напр. Еконт Център, ул. ..."
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -429,19 +437,31 @@ function Checkout() {
 
               <button
                 type="submit"
-                className="checkout-submit"
+                className={`checkout-submit ${
+                  isSubmitting
+                    ? "checkout-submit-loading"
+                    : ""
+                }`}
+                disabled={isSubmitting}
               >
-                Потвърди поръчката
-
-                <span>→</span>
+                {isSubmitting ? (
+                  <>
+                    <span className="checkout-spinner"></span>
+                    Обработваме поръчката...
+                  </>
+                ) : (
+                  <>
+                    Потвърди поръчката
+                    <span>→</span>
+                  </>
+                )}
               </button>
 
               <button
                 type="button"
                 className="checkout-back"
-                onClick={() =>
-                  navigate("/cart")
-                }
+                onClick={() => navigate("/cart")}
+                disabled={isSubmitting}
               >
                 ← Назад към количката
               </button>
@@ -533,8 +553,7 @@ function Checkout() {
 
                   <span>
                     Доставка (
-                    {formData.deliveryMethod ===
-                    "econt"
+                    {formData.deliveryMethod === "econt"
                       ? "Офис на Еконт"
                       : "Офис на Спиди"}
                     )
