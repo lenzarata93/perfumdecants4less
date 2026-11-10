@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { API_URL } from "../config";
@@ -13,6 +14,15 @@ function AdminOrders() {
 
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  // Сортиране: най-новите поръчки първи
+  const sortOrders = (ordersList) => {
+    return [...ordersList].sort(
+      (a, b) =>
+        new Date(b.createdAt) - new Date(a.createdAt)
+    );
+  };
 
   const fetchOrders = async () => {
     try {
@@ -27,7 +37,7 @@ function AdminOrders() {
 
       const data = await response.json();
 
-      setOrders(data);
+      setOrders(sortOrders(data));
     } catch (error) {
       console.error("Admin orders fetch error:", error);
       setError(error.message);
@@ -88,6 +98,26 @@ function AdminOrders() {
     setError("");
   };
 
+  // Брой поръчки по статус
+  const getStatusCount = (status) => {
+    if (status === "all") {
+      return orders.length;
+    }
+
+    return orders.filter(
+      (order) => order.status === status
+    ).length;
+  };
+
+  // Филтриране на поръчките
+  const filteredOrders = orders.filter((order) => {
+    if (statusFilter === "all") {
+      return true;
+    }
+
+    return order.status === statusFilter;
+  });
+
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       setUpdatingOrderId(orderId);
@@ -117,10 +147,12 @@ function AdminOrders() {
       }
 
       setOrders((currentOrders) =>
-        currentOrders.map((order) =>
-          order._id === orderId
-            ? data.order
-            : order
+        sortOrders(
+          currentOrders.map((order) =>
+            order._id === orderId
+              ? data.order
+              : order
+          )
         )
       );
 
@@ -194,17 +226,96 @@ function AdminOrders() {
             </div>
           )}
 
-          {orders.length === 0 ? (
+          {/* ФИЛТРИ */}
+          <div className="admin-orders-filters">
+            <button
+              type="button"
+              className={
+                statusFilter === "all" ? "active" : ""
+              }
+              onClick={() => setStatusFilter("all")}
+            >
+              Всички ({getStatusCount("all")})
+            </button>
+
+            <button
+              type="button"
+              className={
+                statusFilter === "pending" ? "active" : ""
+              }
+              onClick={() => setStatusFilter("pending")}
+            >
+              Нови ({getStatusCount("pending")})
+            </button>
+
+            <button
+              type="button"
+              className={
+                statusFilter === "confirmed" ? "active" : ""
+              }
+              onClick={() => setStatusFilter("confirmed")}
+            >
+              Потвърдени ({getStatusCount("confirmed")})
+            </button>
+
+            <button
+              type="button"
+              className={
+                statusFilter === "processing" ? "active" : ""
+              }
+              onClick={() => setStatusFilter("processing")}
+            >
+              Обработват се ({getStatusCount("processing")})
+            </button>
+
+            <button
+              type="button"
+              className={
+                statusFilter === "shipped" ? "active" : ""
+              }
+              onClick={() => setStatusFilter("shipped")}
+            >
+              Изпратени ({getStatusCount("shipped")})
+            </button>
+
+            <button
+              type="button"
+              className={
+                statusFilter === "completed" ? "active" : ""
+              }
+              onClick={() => setStatusFilter("completed")}
+            >
+              Завършени ({getStatusCount("completed")})
+            </button>
+
+            <button
+              type="button"
+              className={
+                statusFilter === "cancelled" ? "active" : ""
+              }
+              onClick={() => setStatusFilter("cancelled")}
+            >
+              Отказани ({getStatusCount("cancelled")})
+            </button>
+          </div>
+
+          {filteredOrders.length === 0 ? (
             <div className="admin-orders-empty">
-              <h2>Няма поръчки</h2>
+              <h2>
+                {orders.length === 0
+                  ? "Няма поръчки"
+                  : "Няма поръчки с този статус"}
+              </h2>
 
               <p>
-                Все още няма създадени поръчки.
+                {orders.length === 0
+                  ? "Все още няма създадени поръчки."
+                  : "Опитай с друг филтър."}
               </p>
             </div>
           ) : (
             <section className="admin-orders-list">
-              {orders.map((order) => {
+              {filteredOrders.map((order) => {
                 const isExpanded =
                   expandedOrderId === order._id;
 
@@ -271,8 +382,7 @@ function AdminOrders() {
                         <select
                           value={order.status}
                           disabled={
-                            isUpdating ||
-                            isFinalStatus
+                            isUpdating || isFinalStatus
                           }
                           className={`status-select status-${order.status}`}
                           onChange={(event) =>
@@ -349,9 +459,7 @@ function AdminOrders() {
                         <span>Брутна печалба</span>
 
                         <strong>
-                          {formatEuro(
-                            order.grossProfit
-                          )}
+                          {formatEuro(order.grossProfit)}
                         </strong>
                       </div>
 
@@ -359,9 +467,7 @@ function AdminOrders() {
                         type="button"
                         className="admin-order-details-button"
                         onClick={() =>
-                          toggleOrderDetails(
-                            order._id
-                          )
+                          toggleOrderDetails(order._id)
                         }
                       >
                         {isExpanded
@@ -378,15 +484,11 @@ function AdminOrders() {
                               ДЕТАЙЛИ НА ПОРЪЧКАТА
                             </span>
 
-                            <h2>
-                              {order.orderNumber}
-                            </h2>
+                            <h2>{order.orderNumber}</h2>
                           </div>
 
                           <div className="order-detail-date">
-                            {formatDate(
-                              order.createdAt
-                            )}
+                            {formatDate(order.createdAt)}
                           </div>
                         </div>
 
@@ -399,13 +501,8 @@ function AdminOrders() {
                               {order.customer.lastName}
                             </strong>
 
-                            <p>
-                              {order.customer.phone}
-                            </p>
-
-                            <p>
-                              {order.customer.email}
-                            </p>
+                            <p>{order.customer.phone}</p>
+                            <p>{order.customer.email}</p>
                           </div>
 
                           <div className="order-detail-card">
@@ -422,9 +519,7 @@ function AdminOrders() {
                               {order.delivery.postalCode}
                             </p>
 
-                            <p>
-                              {order.delivery.address}
-                            </p>
+                            <p>{order.delivery.address}</p>
                           </div>
 
                           <div className="order-detail-card">
@@ -436,8 +531,7 @@ function AdminOrders() {
 
                             <p>
                               Статус:{" "}
-                              {order.payment?.status ||
-                                "pending"}
+                              {order.payment?.status || "pending"}
                             </p>
                           </div>
                         </div>
@@ -481,76 +575,52 @@ function AdminOrders() {
 
                                   <div className="order-item-financial">
                                     <div>
-                                      <span>
-                                        ЦЕНА / БР.
-                                      </span>
+                                      <span>ЦЕНА / БР.</span>
 
                                       <strong>
-                                        {formatEuro(
-                                          item.price
-                                        )}
+                                        {formatEuro(item.price)}
                                       </strong>
                                     </div>
 
                                     <div>
-                                      <span>
-                                        ОБЩО
-                                      </span>
+                                      <span>ОБЩО</span>
 
                                       <strong>
-                                        {formatEuro(
-                                          item.total
-                                        )}
+                                        {formatEuro(item.total)}
                                       </strong>
                                     </div>
                                   </div>
 
                                   <div className="order-item-pricing">
-                                    <span>
-                                      ЦЕНОВА БУТИЛКА
-                                    </span>
+                                    <span>ЦЕНОВА БУТИЛКА</span>
 
                                     <strong>
                                       {Number(
-                                        item.pricingPurchasePricePerMl ||
-                                          0
+                                        item.pricingPurchasePricePerMl || 0
                                       ).toFixed(3)}{" "}
                                       €/ml
                                     </strong>
 
                                     <small>
-                                      ID:{" "}
-                                      {
-                                        item.pricingBottleId
-                                      }
+                                      ID: {item.pricingBottleId}
                                     </small>
                                   </div>
 
                                   <div className="order-item-cost">
-                                    <span>
-                                      СЕБЕСТОЙНОСТ
-                                    </span>
+                                    <span>СЕБЕСТОЙНОСТ</span>
 
                                     <strong>
-                                      {formatEuro(
-                                        item.costTotal
-                                      )}
+                                      {formatEuro(item.costTotal)}
                                     </strong>
                                   </div>
 
                                   <div className="order-item-inventory">
-                                    <span>
-                                      ИЗПОЛЗВАНА НАЛИЧНОСТ
-                                    </span>
+                                    <span>ИЗПОЛЗВАНА НАЛИЧНОСТ</span>
 
-                                    {item.inventoryUsage
-                                      ?.length > 0 ? (
+                                    {item.inventoryUsage?.length > 0 ? (
                                       <div className="inventory-usage-list">
                                         {item.inventoryUsage.map(
-                                          (
-                                            usage,
-                                            usageIndex
-                                          ) => (
+                                          (usage, usageIndex) => (
                                             <div
                                               key={`${item.productId}-${usageIndex}`}
                                               className="inventory-usage-row"
@@ -562,16 +632,12 @@ function AdminOrders() {
                                               <span>
                                                 {Number(
                                                   usage.purchasePricePerMl
-                                                ).toFixed(
-                                                  3
-                                                )}{" "}
+                                                ).toFixed(3)}{" "}
                                                 €/ml
                                               </span>
 
                                               <strong>
-                                                {formatEuro(
-                                                  usage.cost
-                                                )}
+                                                {formatEuro(usage.cost)}
                                               </strong>
                                             </div>
                                           )
@@ -579,8 +645,7 @@ function AdminOrders() {
                                       </div>
                                     ) : (
                                       <small>
-                                        Няма записана
-                                        употреба.
+                                        Няма записана употреба.
                                       </small>
                                     )}
                                   </div>
@@ -593,53 +658,36 @@ function AdminOrders() {
                         <div className="order-financial-summary">
                           <div>
                             <span>ПРОДУКТИ</span>
-
                             <strong>
-                              {formatEuro(
-                                order.subtotal
-                              )}
+                              {formatEuro(order.subtotal)}
                             </strong>
                           </div>
 
                           <div>
                             <span>ДОСТАВКА</span>
-
                             <strong>
-                              {formatEuro(
-                                order.deliveryPrice
-                              )}
+                              {formatEuro(order.deliveryPrice)}
                             </strong>
                           </div>
 
                           <div>
                             <span>ОБЩО</span>
-
                             <strong>
-                              {formatEuro(
-                                order.total
-                              )}
+                              {formatEuro(order.total)}
                             </strong>
                           </div>
 
                           <div>
                             <span>СЕБЕСТОЙНОСТ</span>
-
                             <strong>
-                              {formatEuro(
-                                order.totalCost
-                              )}
+                              {formatEuro(order.totalCost)}
                             </strong>
                           </div>
 
                           <div className="financial-profit">
-                            <span>
-                              БРУТНА ПЕЧАЛБА
-                            </span>
-
+                            <span>БРУТНА ПЕЧАЛБА</span>
                             <strong>
-                              {formatEuro(
-                                order.grossProfit
-                              )}
+                              {formatEuro(order.grossProfit)}
                             </strong>
                           </div>
                         </div>
@@ -647,7 +695,6 @@ function AdminOrders() {
                         {order.notes && (
                           <div className="order-notes">
                             <span>БЕЛЕЖКА</span>
-
                             <p>{order.notes}</p>
                           </div>
                         )}
