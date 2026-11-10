@@ -627,4 +627,66 @@
   .checkout-summary-total strong {
     font-size: 22px;
   }
+  
+/* =========================
+   SUBMIT LOADING STATE
+========================= */
+
+.checkout-submit:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+  background: #a8894b;
+  border-color: #a8894b;
+}
+
+.checkout-submit-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: wait;
+}
+
+.checkout-spinner {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border: 2px solid rgba(17, 17, 17, 0.25);
+  border-top-color: #111;
+  border-radius: 50%;
+  animation: checkout-spin 0.7s linear infinite;
+}
+
+@keyframes checkout-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Блокиране на останалите контроли */
+
+.checkout-back:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.checkout-field input:disabled,
+.checkout-field select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Премахване на hover ефекта при зареждане */
+
+.checkout-submit:disabled:hover {
+  background: #a8894b;
+  border-color: #a8894b;
+  transform: none;
+  box-shadow: none;
+}
+
 }
