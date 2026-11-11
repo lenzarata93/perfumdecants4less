@@ -357,10 +357,14 @@ const createOrder = async (req, res) => {
       });
     }
 
+    // Четирите разрешени варианта за доставка.
     if (
-      !["econt", "speedy"].includes(
-        delivery.method
-      )
+      ![
+        "econt",
+        "speedy",
+        "econtAddress",
+        "speedyAddress",
+      ].includes(delivery.method)
     ) {
       return res.status(400).json({
         message:
@@ -496,17 +500,20 @@ const createOrder = async (req, res) => {
      * -------------------------
      * ДОСТАВКА
      * -------------------------
+     *
+     * Цената се определя от backend-а.
+     * Не използваме цена, изпратена от клиента.
      */
 
-    let deliveryPrice = 0;
+    const deliveryPrices = {
+      speedy: 5.0,
+      econt: 5.0,
+      speedyAddress: 8.0,
+      econtAddress: 8.0,
+    };
 
-    if (delivery.method === "econt") {
-      deliveryPrice = 4;
-    }
-
-    if (delivery.method === "speedy") {
-      deliveryPrice = 3;
-    }
+    const deliveryPrice =
+      deliveryPrices[delivery.method];
 
     const total = Number(
       (subtotal + deliveryPrice).toFixed(2)
