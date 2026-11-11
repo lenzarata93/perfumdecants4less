@@ -34,8 +34,17 @@ function Checkout() {
   });
 
   const deliveryPrices = {
-    econt: 4.5,
-    speedy: 4.5,
+    speedy: 5.0,
+    econt: 5.0,
+    speedyAddress: 8.0,
+    econtAddress: 8.0,
+  };
+
+  const deliveryLabels = {
+    speedy: "Офис на Speedy",
+    econt: "Офис на Еконт",
+    speedyAddress: "Личен адрес Speedy",
+    econtAddress: "Личен адрес Еконт",
   };
 
   const deliveryPrice =
@@ -307,12 +316,11 @@ function Checkout() {
 
                   <div>
                     <h2>
-                      Доставка до офис
+                      Доставка
                     </h2>
 
                     <p>
-                      Избери куриер и посочи
-                      желания офис.
+                      Избери куриер и начин на доставка.
                     </p>
                   </div>
                 </div>
@@ -353,7 +361,7 @@ function Checkout() {
 
                 <div className="checkout-field">
                   <label htmlFor="deliveryMethod">
-                    Избери куриер
+                    Избери начин на доставка
                   </label>
 
                   <select
@@ -364,19 +372,29 @@ function Checkout() {
                     required
                     disabled={isSubmitting}
                   >
-                    <option value="econt">
-                      Офис на Еконт — €4.50
+                    <option value="speedy">
+                      Офис на Speedy — €5.00
                     </option>
 
-                    <option value="speedy">
-                      Офис на Спиди — €4.50
+                    <option value="econt">
+                      Офис на Еконт — €5.00
+                    </option>
+
+                    <option value="speedyAddress">
+                      Личен адрес Speedy — €8.00
+                    </option>
+
+                    <option value="econtAddress">
+                      Личен адрес Еконт — €8.00
                     </option>
                   </select>
                 </div>
 
                 <div className="checkout-field">
                   <label htmlFor="address">
-                    Име или адрес на офиса
+                    {formData.deliveryMethod.includes("Address")
+                      ? "Адрес за доставка"
+                      : "Име или адрес на офиса"}
                   </label>
 
                   <input
@@ -385,7 +403,11 @@ function Checkout() {
                     type="text"
                     value={formData.address}
                     onChange={handleChange}
-                    placeholder="Напр. Еконт Център, ул. ..."
+                    placeholder={
+                      formData.deliveryMethod.includes("Address")
+                        ? "Улица, номер, вход, апартамент"
+                        : "Напр. офис Speedy / Еконт, адрес..."
+                    }
                     required
                     disabled={isSubmitting}
                   />
@@ -552,11 +574,7 @@ function Checkout() {
                 <div className="checkout-summary-row">
 
                   <span>
-                    Доставка (
-                    {formData.deliveryMethod === "econt"
-                      ? "Офис на Еконт"
-                      : "Офис на Спиди"}
-                    )
+                    Доставка ({deliveryLabels[formData.deliveryMethod]})
                   </span>
 
                   <strong>
