@@ -168,7 +168,12 @@ const orderSchema = new mongoose.Schema(
       method: {
         type: String,
         required: true,
-        enum: ["econt", "speedy"],
+        enum: [
+          "econt",
+          "speedy",
+          "econtAddress",
+          "speedyAddress",
+        ],
       },
 
       price: {
