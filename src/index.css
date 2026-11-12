@@ -108,4 +108,21 @@ img {
   .section-heading h2 {
     font-size: 42px;
   }
+  
+/* =====================================
+   GLOBAL MOBILE WIDTH PROTECTION
+===================================== */
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+* {
+  min-width: 0;
+}
+
 }
