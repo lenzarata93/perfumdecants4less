@@ -5,12 +5,12 @@ import { API_URL } from "../config";
 import "./Rewards.css";
 
 function Rewards() {
-  const [raffle, setRaffle] = useState(null);
+  const [raffles, setRaffles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchActiveRaffle = async () => {
+    const fetchActiveRaffles = async () => {
       try {
         setLoading(true);
         setError("");
@@ -27,38 +27,42 @@ function Rewards() {
           );
         }
 
-        setRaffle(Array.isArray(data) && data.length > 0 ? data[0] : null);
+        setRaffles(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error("Fetch active raffle error:", error);
+        console.error("Fetch active raffles error:", error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchActiveRaffle();
+    fetchActiveRaffles();
   }, []);
 
-  const collectedPoints = raffle?.collectedPoints || 0;
-  const targetPoints = raffle?.targetPoints || 0;
+  const getProgress = (raffle) => {
+    if (!raffle.targetPoints) return 0;
 
-  const progress = targetPoints > 0
-    ? Math.min(100, (collectedPoints / targetPoints) * 100)
-    : 0;
+    return Math.min(
+      100,
+      (Number(raffle.collectedPoints || 0) /
+        Number(raffle.targetPoints)) *
+        100
+    );
+  };
 
-  const remainingPoints = Math.max(
-    0,
-    targetPoints - collectedPoints
-  );
+  const getRemaining = (raffle) => {
+    return Math.max(
+      0,
+      Number(raffle.targetPoints || 0) -
+        Number(raffle.collectedPoints || 0)
+    );
+  };
 
   return (
     <section className="rewards-section">
       <div className="section-container">
-
         <div className="rewards-wrapper">
-
           <div className="rewards-content">
-
             <p className="section-eyebrow">
               PERFUMDECANTS4LESS REWARDS
             </p>
@@ -78,7 +82,6 @@ function Rewards() {
             </p>
 
             <div className="rewards-rule">
-
               <div className="rewards-rule-number">
                 <strong>1</strong>
                 <span>PT</span>
@@ -91,11 +94,9 @@ function Rewards() {
                   Точките се натрупват и участват в бъдещи тегления.
                 </span>
               </div>
-
             </div>
 
             <div className="rewards-actions">
-
               <Link
                 to="/rewards"
                 className="rewards-button"
@@ -107,35 +108,28 @@ function Rewards() {
               <span className="rewards-note">
                 Без допълнително заплащане
               </span>
-
             </div>
-
           </div>
 
           <div className="rewards-visual">
-
             <div className="rewards-glow"></div>
 
-            <div className="reward-card">
-
-              <div className="reward-card-top">
-                <span>REWARD DRAW</span>
-                <span>01</span>
+            {loading ? (
+              <div className="rewards-carousel-message">
+                Зареждаме активните награди...
               </div>
+            ) : error ? (
+              <div className="rewards-carousel-message">
+                Наградите временно не могат да бъдат заредени.
+              </div>
+            ) : raffles.length === 0 ? (
+              <div className="reward-card">
+                <div className="reward-card-top">
+                  <span>REWARD DRAW</span>
+                  <span>00</span>
+                </div>
 
-              <div className="reward-product">
-
-                {loading ? (
-                  <div className="reward-bottle-body">
-                    <strong>ЗАРЕЖДАНЕ...</strong>
-                  </div>
-                ) : raffle?.image ? (
-                  <img
-                    src={raffle.image}
-                    alt={raffle.title}
-                    className="reward-dynamic-image"
-                  />
-                ) : (
+                <div className="reward-product">
                   <div className="reward-bottle">
                     <div className="reward-bottle-cap"></div>
                     <div className="reward-bottle-neck"></div>
@@ -144,82 +138,118 @@ function Rewards() {
                       <strong>REWARD<br />DRAW</strong>
                     </div>
                   </div>
-                )}
-
-              </div>
-
-              <div className="reward-card-info">
-
-                <div>
-                  <span>НАГРАДА</span>
-                  <strong>
-                    {loading
-                      ? "Зареждане..."
-                      : raffle
-                        ? raffle.title
-                        : "Очаквайте нова награда"}
-                  </strong>
                 </div>
 
-                <div className="reward-size">
-                  {raffle ? `${targetPoints} PT` : "REWARDS"}
-                </div>
-
-              </div>
-
-              {raffle && (
-                <div className="reward-progress">
-
-                  <div className="reward-progress-header">
-                    <span>УЧАСТИЯ</span>
-                    <strong>
-                      {collectedPoints} / {targetPoints}
-                    </strong>
+                <div className="reward-card-info">
+                  <div>
+                    <span>НАГРАДА</span>
+                    <strong>Очаквайте нова награда</strong>
                   </div>
 
-                  <div className="reward-progress-bar">
-                    <span
-                      style={{
-                        width: `${progress}%`,
-                      }}
-                    ></span>
+                  <div className="reward-size">
+                    REWARDS
                   </div>
-
-                  <p>
-                    {remainingPoints > 0
-                      ? `Остават ${remainingPoints} свободни участия`
-                      : "Кампанията е запълнена"}
-                  </p>
-
                 </div>
-              )}
 
-              {!loading && !raffle && (
                 <div className="reward-progress">
-                  <p>
-                    {error
-                      ? "Наградата временно не може да бъде заредена."
-                      : "В момента няма активни томболи."}
-                  </p>
+                  <p>В момента няма активни томболи.</p>
                 </div>
-              )}
+              </div>
+            ) : (
+              <div className="rewards-carousel">
+                {raffles.map((raffle, index) => {
+                  const collectedPoints = Number(
+                    raffle.collectedPoints || 0
+                  );
+                  const targetPoints = Number(
+                    raffle.targetPoints || 0
+                  );
+                  const progress = getProgress(raffle);
+                  const remainingPoints = getRemaining(raffle);
 
-            </div>
+                  return (
+                    <article
+                      className="rewards-carousel-item"
+                      key={raffle._id}
+                    >
+                      <div className="reward-card">
+                        <div className="reward-card-top">
+                          <span>REWARD DRAW</span>
+                          <span>
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                        </div>
 
-            <div className="reward-floating-points">
-              <strong>{raffle ? targetPoints : "?"}</strong>
-              <span>ENTRIES</span>
-            </div>
+                        <div className="reward-product">
+                          {raffle.image ? (
+                            <img
+                              src={raffle.image}
+                              alt={raffle.title}
+                              className="reward-dynamic-image"
+                            />
+                          ) : (
+                            <div className="reward-bottle">
+                              <div className="reward-bottle-cap"></div>
+                              <div className="reward-bottle-neck"></div>
+                              <div className="reward-bottle-body">
+                                <small>PERFUMDECANTS4LESS</small>
+                                <strong>REWARD<br />DRAW</strong>
+                              </div>
+                            </div>
+                          )}
+                        </div>
 
-            <div className="reward-floating-label">
-              <span>ONE WINNER</span>
-              <strong>GOOD LUCK.</strong>
-            </div>
+                        <div className="reward-card-info">
+                          <div>
+                            <span>НАГРАДА</span>
+                            <strong>{raffle.title}</strong>
+                          </div>
 
+                          <div className="reward-size">
+                            {targetPoints} PT
+                          </div>
+                        </div>
+
+                        <div className="reward-progress">
+                          <div className="reward-progress-header">
+                            <span>УЧАСТИЯ</span>
+                            <strong>
+                              {collectedPoints} / {targetPoints}
+                            </strong>
+                          </div>
+
+                          <div className="reward-progress-bar">
+                            <span
+                              style={{
+                                width: `${progress}%`,
+                              }}
+                            ></span>
+                          </div>
+
+                          <p>
+                            {remainingPoints > 0
+                              ? `Остават ${remainingPoints} свободни участия`
+                              : "Кампанията е запълнена"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="reward-floating-points">
+                        <strong>{targetPoints}</strong>
+                        <span>ENTRIES</span>
+                      </div>
+
+                      <div className="reward-floating-label">
+                        <span>ONE WINNER</span>
+                        <strong>GOOD LUCK.</strong>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
           </div>
-
         </div>
-
       </div>
     </section>
   );
