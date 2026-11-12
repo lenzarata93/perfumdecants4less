@@ -74,18 +74,11 @@ function BestSellers() {
             </p>
 
             <h2>
-              Аромати, които
-              <br />
-              <span>говорят сами.</span>
+              Най-продавани
             </h2>
           </div>
 
           <div className="best-sellers-heading-right">
-            <p>
-              Разгледай едни от най-търсените аромати
-              в колекцията на PerfumDecants4Less.
-            </p>
-
             <a
               href="/shop"
               className="view-all-link"
@@ -124,13 +117,17 @@ function BestSellers() {
         {!loading &&
           !error &&
           products.length > 0 && (
-            <div className="products-grid">
+            <div className="best-sellers-carousel">
               {products.map((product, index) => (
-                <ProductCard
+                <div
+                  className="best-seller-item"
                   key={product._id}
-                  product={product}
-                  bestsellerRank={index + 1}
-                />
+                >
+                  <ProductCard
+                    product={product}
+                    bestsellerRank={index + 1}
+                  />
+                </div>
               ))}
             </div>
           )}
