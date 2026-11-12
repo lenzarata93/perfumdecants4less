@@ -709,6 +709,8 @@
   .reward-dynamic-image {
     max-height: 220px;
   }
+}
+
 /* =====================================
    MOBILE REWARD CARD FIX
 ===================================== */
@@ -754,6 +756,7 @@
     font-size: 11px;
   }
 }
+
 /* =====================================
    MULTIPLE ACTIVE REWARDS CAROUSEL
 ===================================== */
@@ -896,3 +899,12 @@
   }
 }
 
+/* =====================================
+   REDUCE SPACE ABOVE REWARDS
+===================================== */
+
+@media (max-width: 700px) {
+  .rewards-section {
+    padding-top: 30px;
+  }
+}
