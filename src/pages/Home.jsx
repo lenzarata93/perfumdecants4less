@@ -1,6 +1,5 @@
 import Header from "../components/Header";
 import Hero from "../components/Hero";
-//import Categories from "../components/Categories";
 import BestSellers from "../components/BestSellers";
 import Benefits from "../components/Benefits";
 import Rewards from "../components/Rewards";
@@ -14,7 +13,6 @@ function Home() {
 
       <main>
         <Hero />
-        //<Categories />
         <BestSellers />
         <Benefits />
         <Rewards />
