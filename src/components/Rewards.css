@@ -754,5 +754,145 @@
     font-size: 11px;
   }
 }
+/* =====================================
+   MULTIPLE ACTIVE REWARDS CAROUSEL
+===================================== */
 
+.rewards-carousel {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+
+  width: 100%;
+  min-width: 0;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  padding: 30px 12px 65px;
+
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 175, 55, 0.5) #171717;
 }
+
+.rewards-carousel::-webkit-scrollbar {
+  height: 5px;
+}
+
+.rewards-carousel::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+.rewards-carousel::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.5);
+  border-radius: 10px;
+}
+
+.rewards-carousel-item {
+  position: relative;
+
+  flex: 0 0 min(100%, 390px);
+  min-width: 0;
+
+  scroll-snap-align: start;
+}
+
+.rewards-carousel-item .reward-card {
+  width: 100%;
+  height: 100%;
+}
+
+.rewards-carousel-item .reward-floating-points {
+  top: 65px;
+  right: -2px;
+}
+
+.rewards-carousel-item .reward-floating-label {
+  bottom: 25px;
+  left: 12px;
+}
+
+.rewards-carousel-message {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  padding: 50px 25px;
+
+  border: 1px solid rgba(212, 175, 55, 0.24);
+  background: #111;
+
+  color: #aaa;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+  .rewards-carousel {
+    gap: 20px;
+  }
+
+  .rewards-carousel-item {
+    flex-basis: min(85%, 390px);
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .rewards-carousel {
+    gap: 16px;
+
+    margin-right: -15px;
+    padding: 25px 15px 55px 5px;
+  }
+
+  .rewards-carousel-item {
+    flex-basis: 88%;
+  }
+
+  .rewards-carousel-item .reward-card {
+    padding: 19px;
+  }
+
+  .rewards-carousel-item .reward-product {
+    height: 245px;
+  }
+
+  .rewards-carousel-item .reward-floating-points {
+    top: 55px;
+    right: -3px;
+
+    width: 75px;
+    height: 75px;
+  }
+
+  .rewards-carousel-item .reward-floating-points strong {
+    font-size: 23px;
+  }
+
+  .rewards-carousel-item .reward-floating-label {
+    bottom: 18px;
+    left: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .rewards-carousel-item {
+    flex-basis: 92%;
+  }
+
+  .rewards-carousel-item .reward-card-info strong {
+    font-size: 13px;
+  }
+}
+
