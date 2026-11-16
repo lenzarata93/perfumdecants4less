@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -274,6 +275,24 @@ function ProductDetails() {
                 <p className="product-details-description">
                   {product.description}
                 </p>
+              )}
+
+              {/* FRAGRANCE NOTES IMAGE */}
+
+              {product.notesImage && (
+                <div className="product-notes-section">
+
+                  <h2>
+                    Ароматни нотки
+                  </h2>
+
+                  <img
+                    src={product.notesImage}
+                    alt={`Ароматна пирамида на ${product.name}`}
+                    className="product-notes-image"
+                  />
+
+                </div>
               )}
 
               <div className="product-divider"></div>
