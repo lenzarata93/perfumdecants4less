@@ -277,24 +277,6 @@ function ProductDetails() {
                 </p>
               )}
 
-              {/* FRAGRANCE NOTES IMAGE */}
-
-              {product.notesImage && (
-                <div className="product-notes-section">
-
-                  <h2>
-                    Ароматни нотки
-                  </h2>
-
-                  <img
-                    src={product.notesImage}
-                    alt={`Ароматна пирамида на ${product.name}`}
-                    className="product-notes-image"
-                  />
-
-                </div>
-              )}
-
               <div className="product-divider"></div>
 
               {/* SIZE */}
@@ -412,6 +394,20 @@ function ProductDetails() {
                 </strong>
 
               </div>
+
+              {/* FRAGRANCE NOTES IMAGE */}
+
+              {product.notesImage && (
+                <div className="product-notes-section">
+
+                  <img
+                    src={product.notesImage}
+                    alt={`Ароматна пирамида на ${product.name}`}
+                    className="product-notes-image"
+                  />
+
+                </div>
+              )}
 
               {/* CART */}
 
