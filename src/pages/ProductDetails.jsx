@@ -98,6 +98,20 @@ function ProductDetails() {
 
   /*
    * Максимален брой бройки от избрания размер.
+   *
+   * Например:
+   *
+   * availableMl = 10
+   * selectedSize = 5
+   * maxQuantity = 2
+   *
+   * availableMl = 10
+   * selectedSize = 10
+   * maxQuantity = 1
+   *
+   * availableMl = 10
+   * selectedSize = 20
+   * maxQuantity = 0
    */
   const maxQuantity =
     availableMl >= selectedSize
@@ -129,12 +143,21 @@ function ProductDetails() {
         ? Math.floor(availableMl / size)
         : 0;
 
+    /*
+     * Не позволяваме избор на размер,
+     * който няма достатъчно налични ml.
+     */
     if (newMaxQuantity === 0) {
       return;
     }
 
     setSelectedSize(size);
 
+    /*
+     * Ако текущото количество е по-голямо
+     * от допустимото за новия размер,
+     * намаляваме го автоматично.
+     */
     if (quantity > newMaxQuantity) {
       setQuantity(newMaxQuantity);
     }
@@ -183,78 +206,70 @@ function ProductDetails() {
 
           <section className="product-details">
 
-            <div className="product-details-content">
+            {/* IMAGE */}
 
-              {/* PRODUCT NAME */}
+            <div className="product-details-image-wrapper">
+              <div className="product-details-image">
 
-              <div className="product-details-heading">
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                  />
+                ) : (
+                  <div className="product-details-placeholder">
 
-                <div className="product-details-brand">
-                  {product.brand}
-                </div>
+                    <div className="placeholder-bottle-large">
 
-                <h1>
-                  {product.name}
-                </h1>
+                      <div className="placeholder-cap-large"></div>
 
-                {product.rating > 0 && (
-                  <div className="product-rating">
+                      <div className="placeholder-neck-large"></div>
 
-                    <div className="stars">
-                      {"★".repeat(
-                        Math.round(product.rating)
-                      )}
+                      <div className="placeholder-body-large">
+                        <span>
+                          PD4L
+                        </span>
+                      </div>
 
-                      {"☆".repeat(
-                        5 - Math.round(product.rating)
-                      )}
                     </div>
-
-                    <span>
-                      {Number(product.rating).toFixed(1)}
-                    </span>
 
                   </div>
                 )}
 
               </div>
+            </div>
 
-              {/* MAIN PRODUCT IMAGE */}
+            {/* INFO */}
 
-              <div className="product-details-image-wrapper">
+            <div className="product-details-info">
 
-                <div className="product-details-image">
-
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                    />
-                  ) : (
-                    <div className="product-details-placeholder">
-
-                      <div className="placeholder-bottle-large">
-
-                        <div className="placeholder-cap-large"></div>
-
-                        <div className="placeholder-neck-large"></div>
-
-                        <div className="placeholder-body-large">
-                          <span>
-                            PD4L
-                          </span>
-                        </div>
-
-                      </div>
-
-                    </div>
-                  )}
-
-                </div>
-
+              <div className="product-details-brand">
+                {product.brand}
               </div>
 
-              {/* DESCRIPTION */}
+              <h1>
+                {product.name}
+              </h1>
+
+              {product.rating > 0 && (
+                <div className="product-rating">
+
+                  <div className="stars">
+                    {"★".repeat(
+                      Math.round(product.rating)
+                    )}
+
+                    {"☆".repeat(
+                      5 - Math.round(product.rating)
+                    )}
+                  </div>
+
+                  <span>
+                    {Number(product.rating).toFixed(1)}
+                  </span>
+
+                </div>
+              )}
 
               {product.description && (
                 <p className="product-details-description">
@@ -262,12 +277,31 @@ function ProductDetails() {
                 </p>
               )}
 
-              {/* SIZE AND PRICES */}
+              {/* FRAGRANCE NOTES IMAGE */}
+
+              {product.notesImage && (
+                <div className="product-notes-section">
+
+                  <h2>
+                    Ароматни нотки
+                  </h2>
+
+                  <img
+                    src={product.notesImage}
+                    alt={`Ароматна пирамида на ${product.name}`}
+                    className="product-notes-image"
+                  />
+
+                </div>
+              )}
+
+              <div className="product-divider"></div>
+
+              {/* SIZE */}
 
               <div className="product-option">
 
                 <div className="product-option-header">
-
                   <span>
                     Размер
                   </span>
@@ -275,7 +309,6 @@ function ProductDetails() {
                   <strong>
                     {selectedSize} ml
                   </strong>
-
                 </div>
 
                 <div className="product-details-sizes">
@@ -321,22 +354,6 @@ function ProductDetails() {
 
               </div>
 
-              {/* FRAGRANCE NOTES IMAGE */}
-
-              {product.notesImage && (
-                <div className="product-notes-section">
-
-                  <img
-                    src={product.notesImage}
-                    alt={`Ароматна пирамида на ${product.name}`}
-                    className="product-notes-image"
-                  />
-
-                </div>
-              )}
-
-              <div className="product-divider"></div>
-
               {/* QUANTITY */}
 
               <div className="product-option">
@@ -381,7 +398,7 @@ function ProductDetails() {
 
               </div>
 
-              {/* TOTAL PRICE */}
+              {/* PRICE */}
 
               <div className="product-details-price">
 
@@ -396,7 +413,7 @@ function ProductDetails() {
 
               </div>
 
-              {/* ADD TO CART */}
+              {/* CART */}
 
               <button
                 type="button"
@@ -409,7 +426,7 @@ function ProductDetails() {
                   : "Изчерпано"}
               </button>
 
-              {/* FEATURES */}
+              {/* INFO */}
 
               <div className="product-details-features">
 
