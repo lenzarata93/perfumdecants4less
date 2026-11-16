@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const bottleSchema = new mongoose.Schema(
@@ -67,6 +68,13 @@ const productSchema = new mongoose.Schema(
     },
 
     image: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    // Изображение с ароматните нотки от Cloudinary
+    notesImage: {
       type: String,
       default: "",
       trim: true,
