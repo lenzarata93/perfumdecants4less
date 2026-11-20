@@ -132,9 +132,294 @@
   color: #e58c8c;
 }
 
+/* =========================
+   FUND SECTION
+========================= */
+
+.fund-section {
+  margin-top: 45px;
+  padding: 30px;
+  background: #171612;
+  border: 1px solid #51432b;
+  border-radius: 16px;
+}
+
+.fund-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.fund-header h2 {
+  color: #d8bd82;
+  font-size: 28px;
+  margin: 12px 0 8px;
+}
+
+.fund-header p {
+  color: #99958b;
+  margin: 0;
+  font-size: 13px;
+}
+
+.fund-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.fund-card {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 24px;
+  background: #201e19;
+  border: 1px solid #393327;
+  border-radius: 12px;
+}
+
+.fund-card > span {
+  color: #aaa397;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.fund-card > strong {
+  color: #d8bd82;
+  font-size: 27px;
+  overflow-wrap: anywhere;
+}
+
+.fund-card small {
+  color: #77736b;
+  font-size: 12px;
+}
+
+.fund-card.fund-balance {
+  border-color: #a4874d;
+  background: linear-gradient(
+    135deg,
+    #292419,
+    #1b1a17
+  );
+}
+
+.fund-card.fund-balance strong {
+  font-size: 34px;
+}
+
+.fund-positive {
+  color: #8fbd8b !important;
+}
+
+.fund-negative {
+  color: #d58b80 !important;
+}
+
+/* =========================
+   EXPENSE FORM
+========================= */
+
+.fund-expense-panel {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 30px;
+  padding: 26px;
+  margin-bottom: 30px;
+  background: #201e19;
+  border: 1px solid #393327;
+  border-radius: 12px;
+}
+
+.fund-expense-panel h3 {
+  color: #d8bd82;
+  margin: 12px 0;
+  font-size: 20px;
+}
+
+.fund-expense-panel p {
+  color: #99958b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.fund-expense-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.fund-expense-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #c4bba9;
+  font-size: 13px;
+}
+
+.fund-expense-panel input {
+  width: 100%;
+  padding: 13px 14px;
+  background: #11110f;
+  border: 1px solid #51432b;
+  border-radius: 7px;
+  color: #f5f0e6;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.fund-expense-panel input:focus {
+  border-color: #c9ad72;
+}
+
+.fund-expense-panel input::placeholder {
+  color: #77736b;
+}
+
+.fund-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.fund-expense-panel form button {
+  padding: 14px;
+  background: #b99a5b;
+  color: #11110f;
+  border: 1px solid #b99a5b;
+  border-radius: 7px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.fund-expense-panel form button:hover {
+  background: #d8bd82;
+}
+
+.fund-expense-panel form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   FUND MESSAGES
+========================= */
+
+.fund-message {
+  padding: 13px 16px;
+  margin-bottom: 18px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.fund-error {
+  background: rgba(180, 70, 70, 0.12);
+  border: 1px solid rgba(180, 70, 70, 0.35);
+  color: #e58c8c;
+}
+
+.fund-success {
+  background: rgba(90, 150, 90, 0.12);
+  border: 1px solid rgba(90, 150, 90, 0.35);
+  color: #9acb96;
+}
+
+/* =========================
+   FUND HISTORY
+========================= */
+
+.fund-history {
+  padding: 25px;
+  background: #201e19;
+  border: 1px solid #393327;
+  border-radius: 12px;
+}
+
+.fund-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.fund-history-header h3 {
+  color: #d8bd82;
+  margin: 10px 0 0;
+  font-size: 21px;
+}
+
+.fund-history-header > span {
+  color: #99958b;
+  font-size: 12px;
+}
+
+.fund-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.fund-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 550px;
+}
+
+.fund-table th {
+  padding: 14px 12px;
+  color: #b99a5b;
+  font-size: 11px;
+  text-align: left;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #51432b;
+}
+
+.fund-table td {
+  padding: 16px 12px;
+  color: #c4bba9;
+  font-size: 13px;
+  border-bottom: 1px solid #393327;
+}
+
+.fund-table tr:last-child td {
+  border-bottom: none;
+}
+
+.fund-table td:last-child {
+  text-align: right;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.fund-empty {
+  padding: 35px 15px;
+  color: #99958b;
+  text-align: center;
+  border: 1px dashed #51432b;
+  border-radius: 8px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
 @media (max-width: 1000px) {
   .finance-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .fund-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .fund-expense-panel {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -162,5 +447,39 @@
 
   .finance-summary {
     padding: 20px;
+  }
+
+  .fund-section {
+    padding: 18px;
+    margin-top: 30px;
+  }
+
+  .fund-header h2 {
+    font-size: 24px;
+  }
+
+  .fund-card {
+    padding: 20px;
+  }
+
+  .fund-card.fund-balance strong {
+    font-size: 29px;
+  }
+
+  .fund-expense-panel {
+    padding: 18px;
+  }
+
+  .fund-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .fund-history {
+    padding: 15px;
+  }
+
+  .fund-history-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
