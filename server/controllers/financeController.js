@@ -3,9 +3,9 @@ const Product = require("../models/Product");
 const Order = require("../models/Order");
 const FundTransaction = require("../models/FundTransaction");
 
-// 10.11.2026 г., 00:00 часа българско време.
+// 17.11.2026 г., 00:00 часа българско време.
 const FUND_START_DATE = new Date(
-  "2026-11-09T22:00:00.000Z"
+  "2026-11-16T22:00:00.000Z"
 );
 
 /*
@@ -56,7 +56,7 @@ const createFundTransaction = async ({
 
 /*
  * Синхронизира историческите движения
- * от 10.11.2026 г. нататък.
+ * от 17.11.2026 г. нататък.
  *
  * 1. Завършени поръчки:
  *    subtotal - totalCost
@@ -437,7 +437,7 @@ const addFundExpense = async (req, res) => {
     ) {
       return res.status(400).json({
         message:
-          "Разходът трябва да бъде от 10.11.2026 г. нататък.",
+          "Разходът трябва да бъде от 17.11.2026 г. нататък.",
       });
     }
 
