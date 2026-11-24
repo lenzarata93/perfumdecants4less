@@ -1,3 +1,4 @@
+
 .checkout-page {
   min-height: calc(100vh - 82px);
   padding: 80px 0 110px;
@@ -187,6 +188,143 @@
 }
 
 /* =========================
+   PROMO CODE
+========================= */
+
+.checkout-promo {
+  width: 100%;
+}
+
+.checkout-promo-input {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.checkout-promo-input input {
+  width: 100%;
+  min-width: 0;
+  height: 50px;
+  box-sizing: border-box;
+  padding: 0 15px;
+  border: 1px solid #303030;
+  border-radius: 0;
+  outline: none;
+  background: #0b0b0b;
+  color: #f5f1e8;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.checkout-promo-input input::placeholder {
+  color: #555;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.checkout-promo-input input:hover {
+  border-color: #454545;
+}
+
+.checkout-promo-input input:focus {
+  border-color: #c9a45c;
+  background: #101010;
+  box-shadow: 0 0 0 3px rgba(201, 164, 92, 0.07);
+}
+
+.checkout-promo-input input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.checkout-promo-input button {
+  min-width: 105px;
+  height: 50px;
+  padding: 0 17px;
+  border: 1px solid #c9a45c;
+  border-radius: 0;
+  background: transparent;
+  color: #c9a45c;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.checkout-promo-input button:hover:not(:disabled) {
+  background: #c9a45c;
+  color: #111;
+}
+
+.checkout-promo-input button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.checkout-promo-message {
+  margin: 13px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.checkout-promo-success {
+  color: #9bc58b;
+}
+
+.checkout-promo-error {
+  color: #d77b70;
+}
+
+.checkout-promo-applied {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 13px 15px;
+  border: 1px solid rgba(201, 164, 92, 0.35);
+  background: rgba(201, 164, 92, 0.06);
+}
+
+.checkout-promo-applied > span {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 25px;
+  border-radius: 50%;
+  background: rgba(201, 164, 92, 0.15);
+  color: #c9a45c;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.checkout-promo-applied strong {
+  display: block;
+  color: #e4c47e;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.checkout-promo-applied p {
+  margin: 4px 0 0;
+  color: #999;
+  font-size: 11px;
+}
+
+/* =========================
    PAYMENT
 ========================= */
 
@@ -273,6 +411,47 @@
   font-size: 18px;
 }
 
+.checkout-submit:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+  background: #a8894b;
+  border-color: #a8894b;
+}
+
+.checkout-submit-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: wait;
+}
+
+.checkout-spinner {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border: 2px solid rgba(17, 17, 17, 0.25);
+  border-top-color: #111;
+  border-radius: 50%;
+  animation: checkout-spin 0.7s linear infinite;
+}
+
+@keyframes checkout-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.checkout-submit:disabled:hover {
+  background: #a8894b;
+  border-color: #a8894b;
+  transform: none;
+  box-shadow: none;
+}
+
 .checkout-back {
   align-self: flex-start;
   padding: 0;
@@ -287,6 +466,12 @@
 
 .checkout-back:hover {
   color: #c9a45c;
+}
+
+.checkout-back:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* =========================
@@ -421,6 +606,14 @@
   font-weight: 600;
 }
 
+.checkout-discount-row {
+  color: #9bc58b;
+}
+
+.checkout-discount-row strong {
+  color: #9bc58b;
+}
+
 .checkout-summary-total {
   display: flex;
   align-items: center;
@@ -515,6 +708,16 @@
   background: #dfbd76;
   border-color: #dfbd76;
   transform: translateY(-1px);
+}
+
+/* =========================
+   DISABLED FIELDS
+========================= */
+
+.checkout-field input:disabled,
+.checkout-field select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 /* =========================
@@ -627,66 +830,12 @@
   .checkout-summary-total strong {
     font-size: 22px;
   }
-  
-/* =========================
-   SUBMIT LOADING STATE
-========================= */
 
-.checkout-submit:disabled {
-  opacity: 0.75;
-  cursor: not-allowed;
-  pointer-events: none;
-  transform: none;
-  box-shadow: none;
-  background: #a8894b;
-  border-color: #a8894b;
-}
-
-.checkout-submit-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  cursor: wait;
-}
-
-.checkout-spinner {
-  width: 18px;
-  height: 18px;
-  flex: 0 0 18px;
-  border: 2px solid rgba(17, 17, 17, 0.25);
-  border-top-color: #111;
-  border-radius: 50%;
-  animation: checkout-spin 0.7s linear infinite;
-}
-
-@keyframes checkout-spin {
-  to {
-    transform: rotate(360deg);
+  .checkout-promo-input {
+    grid-template-columns: 1fr;
   }
-}
 
-/* Блокиране на останалите контроли */
-
-.checkout-back:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.checkout-field input:disabled,
-.checkout-field select:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-/* Премахване на hover ефекта при зареждане */
-
-.checkout-submit:disabled:hover {
-  background: #a8894b;
-  border-color: #a8894b;
-  transform: none;
-  box-shadow: none;
-}
-
+  .checkout-promo-input button {
+    width: 100%;
+  }
 }
