@@ -252,12 +252,18 @@ function Header() {
                         Финанси
                       </Link>
 
-                      {/* НОВА СЕКЦИЯ - ТОМБОЛИ */}
                       <Link
                         to="/admin/raffles"
                         onClick={closeMenu}
                       >
                         Томболи
+                      </Link>
+
+                      <Link
+                        to="/admin/promos"
+                        onClick={closeMenu}
+                      >
+                        Промокодове и партньори
                       </Link>
                     </div>
                   )}
@@ -499,12 +505,18 @@ function Header() {
                       Финанси
                     </Link>
 
-                    {/* НОВА СЕКЦИЯ - ТОМБОЛИ */}
                     <Link
                       to="/admin/raffles"
                       onClick={() => setAdminOpen(false)}
                     >
                       Томболи
+                    </Link>
+
+                    <Link
+                      to="/admin/promos"
+                      onClick={() => setAdminOpen(false)}
+                    >
+                      Промокодове и партньори
                     </Link>
                   </div>
                 )}
