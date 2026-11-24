@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -47,6 +48,18 @@ const userSchema = new mongoose.Schema(
     },
 
     isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+
+    // Дали потребителят е партньор.
+    isPartner: {
+      type: Boolean,
+      default: false,
+    },
+
+    // Дали партньорският му профил е активен.
+    partnerActive: {
       type: Boolean,
       default: false,
     },
