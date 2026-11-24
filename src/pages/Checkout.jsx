@@ -21,6 +21,12 @@ function Checkout() {
   const { token } = useUser();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingPromo, setIsCheckingPromo] = useState(false);
+
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoMessage, setPromoMessage] = useState("");
+  const [promoError, setPromoError] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -50,8 +56,16 @@ function Checkout() {
   const deliveryPrice =
     deliveryPrices[formData.deliveryMethod];
 
+  const discountAmount = appliedPromo
+    ? Number(appliedPromo.discountAmount || 0)
+    : 0;
+
+  const discountedSubtotal = appliedPromo
+    ? Number(appliedPromo.discountedSubtotal)
+    : cartTotal;
+
   const orderTotal =
-    cartTotal + deliveryPrice;
+    discountedSubtotal + deliveryPrice;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -62,11 +76,108 @@ function Checkout() {
     }));
   };
 
+  /**
+   * Промяна на текста на промокода.
+   * При редактиране премахваме предишната отстъпка,
+   * за да не се използва стар код по погрешка.
+   */
+  const handlePromoInputChange = (event) => {
+    setPromoCodeInput(event.target.value);
+
+    setAppliedPromo(null);
+    setPromoMessage("");
+    setPromoError(false);
+  };
+
+  /**
+   * Проверява промокода чрез backend.
+   */
+  const handleApplyPromo = async () => {
+    if (isCheckingPromo || isSubmitting) return;
+
+    const code = promoCodeInput.trim().toUpperCase();
+
+    if (!code) {
+      setPromoError(true);
+      setPromoMessage("Моля, въведи промокод.");
+      setAppliedPromo(null);
+      return;
+    }
+
+    setIsCheckingPromo(true);
+    setPromoMessage("");
+    setPromoError(false);
+    setAppliedPromo(null);
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/orders/validate-promo`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            promoCode: code,
+            items: cartItems.map((item) => ({
+              productId: item.productId,
+              size: item.size,
+              quantity: item.quantity,
+            })),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Промокодът не може да бъде приложен."
+        );
+      }
+
+      setAppliedPromo({
+        code: data.promoCode,
+        discountAmount: Number(data.discountAmount || 0),
+        discountedSubtotal: Number(data.discountedSubtotal),
+      });
+
+      setPromoCodeInput(data.promoCode);
+
+      setPromoError(false);
+      setPromoMessage(
+        `Промокодът ${data.promoCode} е приложен успешно!`
+      );
+    } catch (error) {
+      console.error("Promo validation error:", error);
+
+      setAppliedPromo(null);
+      setPromoError(true);
+      setPromoMessage(
+        error.message || "Възникна грешка при проверката на промокода."
+      );
+    } finally {
+      setIsCheckingPromo(false);
+    }
+  };
+
+  /**
+   * Премахва приложен промокод.
+   */
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoCodeInput("");
+    setPromoMessage("");
+    setPromoError(false);
+  };
+
+  /**
+   * Създава поръчка.
+   */
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Защита от повторно изпращане
-    if (isSubmitting) return;
+    if (isSubmitting || isCheckingPromo) return;
 
     setIsSubmitting(true);
 
@@ -95,13 +206,16 @@ function Checkout() {
           size: item.size,
           quantity: item.quantity,
         })),
+
+        // Изпращаме само успешно проверения промокод.
+        promoCode: appliedPromo?.code || "",
       };
 
       const headers = {
         "Content-Type": "application/json",
       };
 
-      // Изпращаме JWT токена, ако потребителят е логнат
+      // JWT токен, ако потребителят е логнат.
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
@@ -126,7 +240,7 @@ function Checkout() {
 
       console.log("Created order:", data.order);
 
-      // Изчистваме количката само след успешно създадена поръчка
+      // Изчистваме количката само след успешна поръчка.
       clearCart();
 
       alert(
@@ -142,7 +256,6 @@ function Checkout() {
           "Възникна грешка при създаване на поръчката."
       );
 
-      // Разрешаваме нов опит само при грешка
       setIsSubmitting(false);
     }
   };
@@ -415,12 +528,100 @@ function Checkout() {
 
               </section>
 
-              {/* ПЛАЩАНЕ */}
+              {/* ПРОМОКОД */}
 
               <section className="checkout-section">
 
                 <div className="checkout-section-header">
                   <span>03</span>
+
+                  <div>
+                    <h2>
+                      Промокод
+                    </h2>
+
+                    <p>
+                      Имаш код за отстъпка? Използвай го тук.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="checkout-promo">
+
+                  <div className="checkout-promo-input">
+
+                    <input
+                      type="text"
+                      value={promoCodeInput}
+                      onChange={handlePromoInputChange}
+                      placeholder="Въведи промокод"
+                      disabled={isSubmitting || isCheckingPromo || Boolean(appliedPromo)}
+                      autoComplete="off"
+                    />
+
+                    {!appliedPromo ? (
+                      <button
+                        type="button"
+                        onClick={handleApplyPromo}
+                        disabled={
+                          isSubmitting ||
+                          isCheckingPromo ||
+                          !promoCodeInput.trim()
+                        }
+                      >
+                        {isCheckingPromo
+                          ? "Проверка..."
+                          : "Приложи"}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleRemovePromo}
+                        disabled={isSubmitting}
+                      >
+                        Премахни
+                      </button>
+                    )}
+
+                  </div>
+
+                  {promoMessage && (
+                    <p
+                      className={`checkout-promo-message ${
+                        promoError
+                          ? "checkout-promo-error"
+                          : "checkout-promo-success"
+                      }`}
+                    >
+                      {promoMessage}
+                    </p>
+                  )}
+
+                  {appliedPromo && (
+                    <div className="checkout-promo-applied">
+                      <span>✓</span>
+                      <div>
+                        <strong>
+                          {appliedPromo.code}
+                        </strong>
+
+                        <p>
+                          Спестяваш €{discountAmount.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+
+              </section>
+
+              {/* ПЛАЩАНЕ */}
+
+              <section className="checkout-section">
+
+                <div className="checkout-section-header">
+                  <span>04</span>
 
                   <div>
                     <h2>
@@ -464,7 +665,7 @@ function Checkout() {
                     ? "checkout-submit-loading"
                     : ""
                 }`}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isCheckingPromo}
               >
                 {isSubmitting ? (
                   <>
@@ -570,6 +771,20 @@ function Checkout() {
                   </strong>
 
                 </div>
+
+                {appliedPromo && (
+                  <div className="checkout-summary-row checkout-discount-row">
+
+                    <span>
+                      Отстъпка ({appliedPromo.code})
+                    </span>
+
+                    <strong>
+                      -€{discountAmount.toFixed(2)}
+                    </strong>
+
+                  </div>
+                )}
 
                 <div className="checkout-summary-row">
 
