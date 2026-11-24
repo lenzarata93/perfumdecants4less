@@ -228,9 +228,96 @@ const orderSchema = new mongoose.Schema(
       },
     },
 
+    /*
+     * Първоначална стойност на продуктите
+     * преди промокод.
+     */
     subtotal: {
       type: Number,
       required: true,
+      min: 0,
+    },
+
+    /*
+     * Информация за използвания промокод.
+     *
+     * Всички стойности се запазват към момента
+     * на създаване на поръчката.
+     */
+    promoCode: {
+      code: {
+        type: String,
+        default: "",
+        trim: true,
+        uppercase: true,
+      },
+
+      promoCodeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PromoCode",
+        default: null,
+      },
+
+      type: {
+        type: String,
+        enum: ["discount", "partner", null],
+        default: null,
+      },
+
+      partnerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null,
+      },
+
+      discountType: {
+        type: String,
+        enum: ["percent", "fixed", null],
+        default: null,
+      },
+
+      discountValue: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+
+      discountAmount: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+
+      commissionRate: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100,
+      },
+
+      commissionAmount: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+    },
+
+    /*
+     * Крайна стойност на продуктите
+     * след отстъпката.
+     */
+    discountedSubtotal: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    /*
+     * Реално приспадната отстъпка.
+     */
+    discountAmount: {
+      type: Number,
+      default: 0,
       min: 0,
     },
 
@@ -260,7 +347,7 @@ const orderSchema = new mongoose.Schema(
     /*
      * Брутна печалба преди други разходи.
      *
-     * subtotal - totalCost
+     * discountedSubtotal - totalCost
      */
     grossProfit: {
       type: Number,
