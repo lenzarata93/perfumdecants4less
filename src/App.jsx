@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import AddProduct from "./pages/AddProduct";
 import AdminFinance from "./pages/AdminFinance";
 import AdminRaffles from "./pages/AdminRaffles";
+import AdminPromos from "./pages/AdminPromos";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import RewardsPage from "./pages/RewardsPage";
@@ -28,10 +29,12 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
+
           <Route
-  path="/rewards"
-  element={<RewardsPage />}
-/>
+            path="/rewards"
+            element={<RewardsPage />}
+          />
+
           <Route path="/shop" element={<Shop />} />
 
           <Route
@@ -52,6 +55,21 @@ function App() {
           <Route
             path="/admin/orders"
             element={<AdminOrders />}
+          />
+
+          <Route
+            path="/admin/finance"
+            element={<AdminFinance />}
+          />
+
+          <Route
+            path="/admin/raffles"
+            element={<AdminRaffles />}
+          />
+
+          <Route
+            path="/admin/promos"
+            element={<AdminPromos />}
           />
 
           <Route path="/cart" element={<Cart />} />
@@ -75,16 +93,6 @@ function App() {
             path="/profile"
             element={<Profile />}
           />
-
-          <Route
-            path="/admin/finance"
-            element={<AdminFinance />}
-          />
-          
-          <Route
-  path="/admin/raffles"
-  element={<AdminRaffles />}
-/>
         </Routes>
       </CartProvider>
     </BrowserRouter>
