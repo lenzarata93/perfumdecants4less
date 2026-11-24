@@ -280,13 +280,14 @@ const validatePromoCode = async (
     return {
       promo: null,
       discountAmount: 0,
+      discountedSubtotal: subtotal,
       commissionRate: 0,
       commissionAmount: 0,
     };
   }
 
   const promo = await PromoCode.findOne({
-    code,
+    code: String(code).trim().toUpperCase(),
     active: true,
   });
 
@@ -402,6 +403,147 @@ const validatePromoCode = async (
 };
 
 /**
+ * Изчислява реалната стойност на количката.
+ *
+ * Използва актуалните цени от базата.
+ * Не променя наличностите.
+ */
+const calculateCartSubtotal = async (items) => {
+  let subtotal = 0;
+
+  for (const item of items) {
+    const product = await Product.findById(
+      item.productId
+    );
+
+    if (!product) {
+      throw new Error(
+        `Продуктът "${item.name || item.productId}" не е намерен.`
+      );
+    }
+
+    const size = Number(item.size);
+    const quantity = Number(item.quantity);
+
+    if (![3, 5, 10, 20].includes(size)) {
+      throw new Error(
+        `Невалиден размер за "${product.name}".`
+      );
+    }
+
+    if (
+      !Number.isInteger(quantity) ||
+      quantity <= 0
+    ) {
+      throw new Error(
+        `Невалидно количество за "${product.name}".`
+      );
+    }
+
+    const requestedMl = size * quantity;
+
+    if (
+      Number(product.availableMl || 0) <
+      requestedMl
+    ) {
+      throw new Error(
+        `Недостатъчна наличност за "${product.name}".`
+      );
+    }
+
+    const activeBottle = getActiveBottle(
+      product.bottles
+    );
+
+    if (!activeBottle) {
+      throw new Error(
+        `Няма активна бутилка за "${product.name}".`
+      );
+    }
+
+    const prices = await calculatePricesFromBottle(
+      activeBottle
+    );
+
+    const priceMap = {
+      3: prices.price3ml,
+      5: prices.price5ml,
+      10: prices.price10ml,
+      20: prices.price20ml,
+    };
+
+    const unitPrice = Number(priceMap[size]);
+
+    if (
+      !Number.isFinite(unitPrice) ||
+      unitPrice < 0
+    ) {
+      throw new Error(
+        `Невалидна цена за "${product.name}".`
+      );
+    }
+
+    subtotal += unitPrice * quantity;
+  }
+
+  return Number(subtotal.toFixed(2));
+};
+
+/**
+ * Проверява промокод при checkout.
+ *
+ * Не създава поръчка и не променя наличности.
+ */
+const validatePromo = async (req, res) => {
+  try {
+    const code = String(
+      req.body.promoCode || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    const { items } = req.body;
+
+    if (!code) {
+      return res.status(400).json({
+        message: "Въведи промокод.",
+      });
+    }
+
+    if (
+      !Array.isArray(items) ||
+      items.length === 0
+    ) {
+      return res.status(400).json({
+        message: "Количката е празна.",
+      });
+    }
+
+    const subtotal = await calculateCartSubtotal(
+      items
+    );
+
+    const promoData = await validatePromoCode(
+      code,
+      subtotal
+    );
+
+    return res.status(200).json({
+      message: "Промокодът е приложен успешно.",
+      promoCode: promoData.promo.code,
+      discountAmount: promoData.discountAmount,
+      discountedSubtotal: promoData.discountedSubtotal,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      message:
+        error.message ||
+        "Промокодът не може да бъде приложен.",
+    });
+  }
+};
+
+/**
  * Увеличава броя използвания на промокод.
  *
  * При ограничен брой използвания MongoDB
@@ -462,6 +604,7 @@ const createOrder = async (req, res) => {
       payment,
       items,
       notes,
+      promoCode,
     } = req.body;
 
     const userId = req.user?.userId || null;
@@ -526,102 +669,21 @@ const createOrder = async (req, res) => {
      * -------------------------
      * ПРЕДВАРИТЕЛНА ПРОВЕРКА
      * -------------------------
+     *
+     * Първо проверяваме продуктите и
+     * изчисляваме стойността на количката.
+     * Все още не променяме наличностите.
      */
 
-    for (const item of items) {
-      const product = await Product.findById(
-        item.productId
-      );
+    let subtotal;
 
-      if (!product) {
-        return res.status(404).json({
-          message:
-            `Продуктът "${item.name || item.productId}" не е намерен.`,
-        });
-      }
-
-      const size = Number(item.size);
-      const quantity = Number(item.quantity);
-
-      if (![3, 5, 10, 20].includes(size)) {
-        return res.status(400).json({
-          message:
-            `Невалиден размер за "${product.name}".`,
-        });
-      }
-
-      if (
-        !Number.isInteger(quantity) ||
-        quantity <= 0
-      ) {
-        return res.status(400).json({
-          message:
-            `Невалидно количество за "${product.name}".`,
-        });
-      }
-
-      const requestedMl = size * quantity;
-
-      if (
-        Number(product.availableMl || 0) <
-        requestedMl
-      ) {
-        return res.status(400).json({
-          message:
-            `Недостатъчна наличност за "${product.name}". Налични: ${product.availableMl} ml, заявени: ${requestedMl} ml.`,
-        });
-      }
-
-      if (!getActiveBottle(product.bottles)) {
-        return res.status(400).json({
-          message:
-            `Няма активна бутилка за "${product.name}".`,
-        });
-      }
+    try {
+      subtotal = await calculateCartSubtotal(items);
+    } catch (error) {
+      return res.status(400).json({
+        message: error.message,
+      });
     }
-
-    /*
-     * -------------------------
-     * ОБРАБОТКА НА ПРОДУКТИТЕ
-     * -------------------------
-     */
-
-    const processedItems = [];
-
-    for (const item of items) {
-      const processed =
-        await processOrderItem(item);
-
-      processedItems.push(
-        processed.item
-      );
-    }
-
-    /*
-     * -------------------------
-     * ФИНАНСОВИ СУМИ
-     * -------------------------
-     */
-
-    const subtotal = Number(
-      processedItems
-        .reduce(
-          (sum, item) =>
-            sum + item.total,
-          0
-        )
-        .toFixed(2)
-    );
-
-    const totalCost = Number(
-      processedItems
-        .reduce(
-          (sum, item) =>
-            sum + item.costTotal,
-          0
-        )
-        .toFixed(2)
-    );
 
     /*
      * -------------------------
@@ -630,7 +692,7 @@ const createOrder = async (req, res) => {
      */
 
     const promoCodeInput = String(
-      req.body.promoCode || ""
+      promoCode || ""
     )
       .trim()
       .toUpperCase();
@@ -663,6 +725,35 @@ const createOrder = async (req, res) => {
       commissionRate,
       commissionAmount,
     } = promoData;
+
+    /*
+     * -------------------------
+     * ОБРАБОТКА НА ПРОДУКТИТЕ
+     * -------------------------
+     */
+
+    const processedItems = [];
+
+    for (const item of items) {
+      const processed = await processOrderItem(item);
+
+      processedItems.push(processed.item);
+    }
+
+    /*
+     * -------------------------
+     * СЕБЕСТОЙНОСТ
+     * -------------------------
+     */
+
+    const totalCost = Number(
+      processedItems
+        .reduce(
+          (sum, item) => sum + item.costTotal,
+          0
+        )
+        .toFixed(2)
+    );
 
     /*
      * -------------------------
@@ -797,10 +888,6 @@ const createOrder = async (req, res) => {
       try {
         await incrementPromoUsage(promo._id);
       } catch (usageError) {
-        /*
-         * Поръчката не трябва да остане
-         * с промокод, който не е бил отчетен.
-         */
         await Order.findByIdAndDelete(order._id);
 
         throw usageError;
@@ -813,7 +900,7 @@ const createOrder = async (req, res) => {
      * -------------------------
      */
 
-    res.status(201).json({
+    return res.status(201).json({
       message:
         "Поръчката е създадена успешно.",
 
@@ -825,7 +912,7 @@ const createOrder = async (req, res) => {
       error
     );
 
-    res.status(500).json({
+    return res.status(500).json({
       message:
         error.message ||
         "Грешка при създаване на поръчката.",
@@ -957,6 +1044,12 @@ const updateOrderStatus = async (req, res) => {
        * Доставката не участва.
        */
 
+      const eligibleAmount = Number(
+        order.discountAmount > 0
+          ? order.discountedSubtotal
+          : order.subtotal || 0
+      );
+
       if (
         status === "completed" &&
         order.userId
@@ -974,11 +1067,7 @@ const updateOrderStatus = async (req, res) => {
         spendingUser.totalSpent = Number(
           (
             Number(spendingUser.totalSpent || 0) +
-            Number(
-              order.discountedSubtotal ??
-              order.subtotal ??
-              0
-            )
+            eligibleAmount
           ).toFixed(2)
         );
 
@@ -998,12 +1087,6 @@ const updateOrderStatus = async (req, res) => {
         order.userId &&
         !order.pointsAwarded
       ) {
-        const eligibleAmount = Number(
-          order.discountedSubtotal ??
-          order.subtotal ??
-          0
-        );
-
         const points =
           Math.floor(
             (eligibleAmount / 10) * 100
@@ -1051,6 +1134,10 @@ const updateOrderStatus = async (req, res) => {
           order.pointsAwardedAt = new Date();
 
           awardedPoints = points;
+        } else {
+          order.pointsAwarded = true;
+          order.pointsEarned = 0;
+          order.pointsAwardedAt = new Date();
         }
       }
 
@@ -1271,4 +1358,5 @@ module.exports = {
   getMyOrders,
   updateOrderStatus,
   getBestSellingProducts,
+  validatePromo,
 };
