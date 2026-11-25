@@ -16,7 +16,6 @@ function AdminOrders() {
   const [statusMessage, setStatusMessage] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  // Сортиране: най-новите поръчки първи
   const sortOrders = (ordersList) => {
     return [...ordersList].sort(
       (a, b) =>
@@ -98,7 +97,6 @@ function AdminOrders() {
     setError("");
   };
 
-  // Брой поръчки по статус
   const getStatusCount = (status) => {
     if (status === "all") {
       return orders.length;
@@ -109,7 +107,6 @@ function AdminOrders() {
     ).length;
   };
 
-  // Филтриране на поръчките
   const filteredOrders = orders.filter((order) => {
     if (statusFilter === "all") {
       return true;
@@ -325,6 +322,24 @@ function AdminOrders() {
                 const isFinalStatus =
                   order.status === "completed" ||
                   order.status === "cancelled";
+
+                // Финансови стойности на поръчката
+                const subtotal = Number(order.subtotal || 0);
+
+                const discountAmount = Number(
+                  order.discountAmount || 0
+                );
+
+                const discountedSubtotal =
+                  order.discountedSubtotal !== undefined &&
+                  order.discountedSubtotal !== null
+                    ? Number(order.discountedSubtotal)
+                    : Math.max(0, subtotal - discountAmount);
+
+                const promoCode =
+                  typeof order.promoCode === "object"
+                    ? order.promoCode?.code
+                    : order.promoCode;
 
                 return (
                   <article
@@ -655,23 +670,55 @@ function AdminOrders() {
                           </div>
                         </div>
 
+                        {/* ФИНАНСОВА РАЗБИВКА */}
                         <div className="order-financial-summary">
+
                           <div>
-                            <span>ПРОДУКТИ</span>
+                            <span>ПРОДУКТИ ПРЕДИ ОТСТЪПКА</span>
+
                             <strong>
-                              {formatEuro(order.subtotal)}
+                              {formatEuro(subtotal)}
                             </strong>
                           </div>
 
+                          {discountAmount > 0 && (
+                            <>
+                              <div>
+                                <span>
+                                  ПРОМОКОД
+                                  {promoCode
+                                    ? ` (${promoCode})`
+                                    : ""}
+                                </span>
+
+                                <strong className="financial-discount">
+                                  −{formatEuro(discountAmount)}
+                                </strong>
+                              </div>
+
+                              <div className="financial-after-discount">
+                                <span>
+                                  ПРОДУКТИ СЛЕД ОТСТЪПКА
+                                </span>
+
+                                <strong>
+                                  {formatEuro(discountedSubtotal)}
+                                </strong>
+                              </div>
+                            </>
+                          )}
+
                           <div>
                             <span>ДОСТАВКА</span>
+
                             <strong>
                               {formatEuro(order.deliveryPrice)}
                             </strong>
                           </div>
 
-                          <div>
-                            <span>ОБЩО</span>
+                          <div className="financial-order-total">
+                            <span>ОБЩО ЗА КЛИЕНТА</span>
+
                             <strong>
                               {formatEuro(order.total)}
                             </strong>
@@ -679,6 +726,7 @@ function AdminOrders() {
 
                           <div>
                             <span>СЕБЕСТОЙНОСТ</span>
+
                             <strong>
                               {formatEuro(order.totalCost)}
                             </strong>
@@ -686,10 +734,12 @@ function AdminOrders() {
 
                           <div className="financial-profit">
                             <span>БРУТНА ПЕЧАЛБА</span>
+
                             <strong>
                               {formatEuro(order.grossProfit)}
                             </strong>
                           </div>
+
                         </div>
 
                         {order.notes && (
