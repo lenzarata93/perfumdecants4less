@@ -16,6 +16,7 @@ function AdminOrders() {
   const [statusMessage, setStatusMessage] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
+  // Сортиране: най-новите поръчки първи
   const sortOrders = (ordersList) => {
     return [...ordersList].sort(
       (a, b) =>
@@ -77,11 +78,11 @@ function AdminOrders() {
   };
 
   const getDeliveryLabel = (method) => {
-    if (method === "econt") {
+    if (method === "econt" || method === "econtAddress") {
       return "Еконт";
     }
 
-    if (method === "speedy") {
+    if (method === "speedy" || method === "speedyAddress") {
       return "Спиди";
     }
 
@@ -97,6 +98,7 @@ function AdminOrders() {
     setError("");
   };
 
+  // Брой поръчки по статус
   const getStatusCount = (status) => {
     if (status === "all") {
       return orders.length;
@@ -107,6 +109,7 @@ function AdminOrders() {
     ).length;
   };
 
+  // Филтриране на поръчките
   const filteredOrders = orders.filter((order) => {
     if (statusFilter === "all") {
       return true;
@@ -323,18 +326,32 @@ function AdminOrders() {
                   order.status === "completed" ||
                   order.status === "cancelled";
 
-                // Финансови стойности на поръчката
-                const subtotal = Number(order.subtotal || 0);
+                // Финансови стойности
+                const subtotal = Number(
+                  order.subtotal || 0
+                );
 
                 const discountAmount = Number(
-                  order.discountAmount || 0
+                  order.discountAmount ??
+                  order.promoCode?.discountAmount ??
+                  0
                 );
 
                 const discountedSubtotal =
                   order.discountedSubtotal !== undefined &&
-                  order.discountedSubtotal !== null
+                  order.discountedSubtotal !== null &&
+                  Number(order.discountedSubtotal) > 0
                     ? Number(order.discountedSubtotal)
-                    : Math.max(0, subtotal - discountAmount);
+                    : Math.max(
+                        0,
+                        subtotal - discountAmount
+                      );
+
+                const deliveryPrice = Number(
+                  order.deliveryPrice ??
+                  order.delivery?.price ??
+                  0
+                );
 
                 const promoCode =
                   typeof order.promoCode === "object"
@@ -712,7 +729,7 @@ function AdminOrders() {
                             <span>ДОСТАВКА</span>
 
                             <strong>
-                              {formatEuro(order.deliveryPrice)}
+                              {formatEuro(deliveryPrice)}
                             </strong>
                           </div>
 
