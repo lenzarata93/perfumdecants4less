@@ -21,20 +21,26 @@ function Checkout() {
 
   const { token } = useUser();
 
-  // Вземаме промокода, приложен в количката.
-  const initialPromo = location.state?.appliedPromo || null;
+  // Промокод, прехвърлен от количката.
+  const transferredPromo = location.state?.appliedPromo || null;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingPromo, setIsCheckingPromo] = useState(false);
 
   const [promoCodeInput, setPromoCodeInput] = useState(
-    initialPromo?.code || ""
+    transferredPromo?.code || ""
   );
 
-  const [appliedPromo, setAppliedPromo] = useState(initialPromo);
-  const [promoMessage, setPromoMessage] = useState(
-    initialPromo ? `Промокодът ${initialPromo.code} е приложен успешно!` : ""
+  const [appliedPromo, setAppliedPromo] = useState(
+    transferredPromo
   );
+
+  const [promoMessage, setPromoMessage] = useState(
+    transferredPromo
+      ? `Промокодът ${transferredPromo.code} е приложен успешно!`
+      : ""
+  );
+
   const [promoError, setPromoError] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -73,8 +79,7 @@ function Checkout() {
     ? Number(appliedPromo.discountedSubtotal)
     : Number(cartTotal);
 
-  const orderTotal =
-    discountedSubtotal + deliveryPrice;
+  const orderTotal = discountedSubtotal + deliveryPrice;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -85,7 +90,7 @@ function Checkout() {
     }));
   };
 
-  // Промяна на текста на промокода.
+  // Промяна на промокода.
   const handlePromoInputChange = (event) => {
     setPromoCodeInput(event.target.value);
 
@@ -206,7 +211,6 @@ function Checkout() {
           quantity: item.quantity,
         })),
 
-        // Изпращаме само успешно проверения код.
         promoCode: appliedPromo?.code || "",
       };
 
@@ -315,12 +319,12 @@ function Checkout() {
 
           <div className="checkout-layout">
 
-            {/* ЛИЧНИ ДАННИ */}
-
             <form
               className="checkout-form"
               onSubmit={handleSubmit}
             >
+
+              {/* ЛИЧНИ ДАННИ */}
 
               <section className="checkout-section">
 
@@ -340,7 +344,9 @@ function Checkout() {
                 <div className="checkout-fields checkout-fields-two">
 
                   <div className="checkout-field">
-                    <label htmlFor="firstName">Име</label>
+                    <label htmlFor="firstName">
+                      Име
+                    </label>
 
                     <input
                       id="firstName"
@@ -355,7 +361,9 @@ function Checkout() {
                   </div>
 
                   <div className="checkout-field">
-                    <label htmlFor="lastName">Фамилия</label>
+                    <label htmlFor="lastName">
+                      Фамилия
+                    </label>
 
                     <input
                       id="lastName"
@@ -374,7 +382,9 @@ function Checkout() {
                 <div className="checkout-fields checkout-fields-two">
 
                   <div className="checkout-field">
-                    <label htmlFor="phone">Телефон</label>
+                    <label htmlFor="phone">
+                      Телефон
+                    </label>
 
                     <input
                       id="phone"
@@ -389,7 +399,9 @@ function Checkout() {
                   </div>
 
                   <div className="checkout-field">
-                    <label htmlFor="email">Имейл</label>
+                    <label htmlFor="email">
+                      Имейл
+                    </label>
 
                     <input
                       id="email"
@@ -424,7 +436,9 @@ function Checkout() {
                 </div>
 
                 <div className="checkout-field">
-                  <label htmlFor="city">Град</label>
+                  <label htmlFor="city">
+                    Град
+                  </label>
 
                   <input
                     id="city"
@@ -587,7 +601,9 @@ function Checkout() {
                       <span>✓</span>
 
                       <div>
-                        <strong>{appliedPromo.code}</strong>
+                        <strong>
+                          {appliedPromo.code}
+                        </strong>
 
                         <p>
                           Спестяваш €{discountAmount.toFixed(2)}
@@ -692,6 +708,7 @@ function Checkout() {
                     >
 
                       <div className="checkout-product-image">
+
                         {item.image ? (
                           <img
                             src={item.image}
@@ -700,6 +717,7 @@ function Checkout() {
                         ) : (
                           <span>PD4L</span>
                         )}
+
                       </div>
 
                       <div className="checkout-product-info">
@@ -716,8 +734,7 @@ function Checkout() {
 
                       <strong>
                         €{(
-                          Number(item.price) *
-                          item.quantity
+                          Number(item.price) * item.quantity
                         ).toFixed(2)}
                       </strong>
 
@@ -729,15 +746,18 @@ function Checkout() {
                 <div className="checkout-summary-divider"></div>
 
                 <div className="checkout-summary-row">
+
                   <span>Продукти</span>
 
                   <strong>
                     €{Number(cartTotal).toFixed(2)}
                   </strong>
+
                 </div>
 
                 {appliedPromo && (
                   <div className="checkout-summary-row checkout-discount-row">
+
                     <span>
                       Отстъпка ({appliedPromo.code})
                     </span>
@@ -745,10 +765,12 @@ function Checkout() {
                     <strong>
                       -€{discountAmount.toFixed(2)}
                     </strong>
+
                   </div>
                 )}
 
                 <div className="checkout-summary-row">
+
                   <span>
                     Доставка ({deliveryLabels[formData.deliveryMethod]})
                   </span>
@@ -756,16 +778,19 @@ function Checkout() {
                   <strong>
                     €{deliveryPrice.toFixed(2)}
                   </strong>
+
                 </div>
 
                 <div className="checkout-summary-divider"></div>
 
                 <div className="checkout-summary-total">
+
                   <span>Общо</span>
 
                   <strong>
                     €{orderTotal.toFixed(2)}
                   </strong>
+
                 </div>
 
               </div>
