@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 
 const promoCodeSchema = new mongoose.Schema(
   {
-    // Самият промокод.
     code: {
       type: String,
       required: true,
@@ -13,15 +12,12 @@ const promoCodeSchema = new mongoose.Schema(
       index: true,
     },
 
-    // Описание на промокода.
     description: {
       type: String,
       default: "",
       trim: true,
     },
 
-    // discount = обикновен промокод
-    // partner = партньорски промокод
     type: {
       type: String,
       enum: ["discount", "partner"],
@@ -29,8 +25,6 @@ const promoCodeSchema = new mongoose.Schema(
       default: "discount",
     },
 
-    // Потребителят, който получава комисионна.
-    // Попълва се само при партньорски код.
     partnerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -38,8 +32,6 @@ const promoCodeSchema = new mongoose.Schema(
       index: true,
     },
 
-    // percent = процентна отстъпка
-    // fixed = фиксирана отстъпка
     discountType: {
       type: String,
       enum: ["percent", "fixed"],
@@ -47,15 +39,12 @@ const promoCodeSchema = new mongoose.Schema(
       default: "percent",
     },
 
-    // Размер на отстъпката.
     discountValue: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    // Комисионна за партньора.
-    // По подразбиране е 10%.
     commissionRate: {
       type: Number,
       default: 10,
@@ -63,42 +52,34 @@ const promoCodeSchema = new mongoose.Schema(
       max: 100,
     },
 
-    // Минимална стойност на продуктите.
     minimumOrderAmount: {
       type: Number,
       default: 0,
       min: 0,
     },
 
-    // Максимален брой използвания.
-    // null = без ограничение.
     usageLimit: {
       type: Number,
       default: null,
       min: 1,
     },
 
-    // Реален брой използвания.
     usageCount: {
       type: Number,
       default: 0,
       min: 0,
     },
 
-    // Начало на валидност.
     startDate: {
       type: Date,
       default: Date.now,
     },
 
-    // Край на валидност.
-    // null = без крайна дата.
     endDate: {
       type: Date,
       default: null,
     },
 
-    // Активен или спрян код.
     active: {
       type: Boolean,
       default: true,
@@ -109,16 +90,14 @@ const promoCodeSchema = new mongoose.Schema(
   }
 );
 
-// Проверки преди запис.
-promoCodeSchema.pre("validate", function (next) {
+// Валидация преди запис
+promoCodeSchema.pre("validate", function () {
   if (
     this.discountType === "percent" &&
     this.discountValue > 100
   ) {
-    return next(
-      new Error(
-        "Процентната отстъпка не може да бъде над 100%."
-      )
+    throw new Error(
+      "Процентната отстъпка не може да бъде над 100%."
     );
   }
 
@@ -126,10 +105,8 @@ promoCodeSchema.pre("validate", function (next) {
     this.type === "partner" &&
     !this.partnerId
   ) {
-    return next(
-      new Error(
-        "Партньорският код трябва да бъде свързан с потребител."
-      )
+    throw new Error(
+      "Партньорският код трябва да бъде свързан с потребител."
     );
   }
 
@@ -137,10 +114,18 @@ promoCodeSchema.pre("validate", function (next) {
     this.type === "discount" &&
     this.partnerId
   ) {
-    return next(
-      new Error(
-        "Обикновеният промокод не трябва да има партньор."
-      )
+    throw new Error(
+      "Обикновеният промокод не трябва да има партньор."
+    );
+  }
+
+  if (
+    this.type === "partner" &&
+    (this.commissionRate < 0 ||
+      this.commissionRate > 100)
+  ) {
+    throw new Error(
+      "Комисионната трябва да бъде между 0 и 100%."
     );
   }
 
@@ -149,14 +134,10 @@ promoCodeSchema.pre("validate", function (next) {
     this.startDate &&
     this.endDate <= this.startDate
   ) {
-    return next(
-      new Error(
-        "Крайната дата трябва да бъде след началната дата."
-      )
+    throw new Error(
+      "Крайната дата трябва да бъде след началната дата."
     );
   }
-
-  next();
 });
 
 module.exports = mongoose.model(
