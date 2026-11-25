@@ -12,12 +12,19 @@ const {
   deactivatePartner,
 } = require("../controllers/promoController");
 
+const {
+  getMyPartnerDashboard,
+} = require("../controllers/partnerController");
+
 const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 
-// Всички маршрути по-долу изискват администраторски права.
+// Партньорът вижда само собствената си справка.
+router.get("/my-dashboard", authMiddleware, getMyPartnerDashboard);
+
+// Всички останали маршрути изискват администраторски права.
 router.use(authMiddleware, adminMiddleware);
 
 // Промокодове
