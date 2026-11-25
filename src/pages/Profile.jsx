@@ -9,11 +9,7 @@ import "./Profile.css";
 function Profile() {
   const navigate = useNavigate();
 
-  const {
-    user,
-    token,
-    logout,
-  } = useUser();
+  const { user, token, logout } = useUser();
 
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -26,6 +22,14 @@ function Profile() {
   const [myRaffles, setMyRaffles] = useState([]);
   const [rafflesLoading, setRafflesLoading] = useState(true);
   const [rafflesError, setRafflesError] = useState("");
+
+  // =====================================
+  // PARTNER DASHBOARD
+  // =====================================
+
+  const [partnerDashboard, setPartnerDashboard] = useState(null);
+  const [partnerLoading, setPartnerLoading] = useState(true);
+  const [partnerError, setPartnerError] = useState("");
 
   // =====================================
   // FETCH MY ORDERS
@@ -120,6 +124,59 @@ function Profile() {
   }, [user, token]);
 
   // =====================================
+  // FETCH PARTNER DASHBOARD
+  // =====================================
+
+  const fetchPartnerDashboard = async () => {
+    if (!user || !token) {
+      setPartnerLoading(false);
+      return;
+    }
+
+    try {
+      setPartnerLoading(true);
+      setPartnerError("");
+
+      const response = await fetch(
+        `${API_URL}/api/promos/my-dashboard`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Обикновените клиенти нямат достъп до партньорския панел.
+      if (response.status === 403) {
+        setPartnerDashboard(null);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Грешка при зареждане на партньорската статистика."
+        );
+      }
+
+      setPartnerDashboard(data);
+    } catch (error) {
+      console.error("Fetch partner dashboard error:", error);
+      setPartnerError(error.message);
+    } finally {
+      setPartnerLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPartnerDashboard();
+  }, [user, token]);
+
+  // =====================================
   // TOTAL SPENT
   // Само завършени поръчки
   // Без доставка
@@ -128,8 +185,7 @@ function Profile() {
   const totalSpent = orders
     .filter((order) => order.status === "completed")
     .reduce(
-      (total, order) =>
-        total + Number(order.subtotal || 0),
+      (total, order) => total + Number(order.subtotal || 0),
       0
     );
 
@@ -218,6 +274,34 @@ function Profile() {
       month: "2-digit",
       year: "numeric",
     });
+  };
+
+  // =====================================
+  // PARTNER HELPERS
+  // =====================================
+
+  const formatMoney = (value) => {
+    return `${Number(value || 0).toFixed(2)} €`;
+  };
+
+  const getCommissionStatus = (status) => {
+    const statuses = {
+      pending: "Очаква изплащане",
+      paid: "Изплатена",
+      cancelled: "Отменена",
+    };
+
+    return statuses[status] || status;
+  };
+
+  const getCommissionStatusClass = (status) => {
+    const classes = {
+      pending: "partner-pending",
+      paid: "partner-paid",
+      cancelled: "partner-cancelled",
+    };
+
+    return classes[status] || "";
   };
 
   // =====================================
@@ -332,6 +416,274 @@ function Profile() {
           </div>
 
           <div className="profile-content">
+
+            {/* =====================================
+                PARTNER DASHBOARD
+            ===================================== */}
+
+            {partnerDashboard && (
+              <section className="profile-card partner-dashboard">
+
+                <div className="profile-card-header">
+                  <div>
+                    <span>PARTNER PROGRAM</span>
+                    <h2>Моят партньорски профил</h2>
+                  </div>
+
+                  <span className="partner-active-badge">
+                    АКТИВЕН ПАРТНЬОР
+                  </span>
+                </div>
+
+                {/* PROMO CODE */}
+
+                <div className="partner-promo-section">
+
+                  <span className="partner-section-label">
+                    ТВОЯТ ЛИЧЕН ПРОМОКОД
+                  </span>
+
+                  {partnerDashboard.promoCodes
+                    ?.filter((promo) => promo.active)
+                    .map((promo) => (
+                      <div
+                        className="partner-promo-code"
+                        key={promo._id}
+                      >
+                        <strong>{promo.code}</strong>
+
+                        <span>
+                          {promo.discountValue}
+                          {promo.discountType === "percent"
+                            ? "%"
+                            : " €"}{" "}
+                          отстъпка
+                        </span>
+
+                        <span>
+                          Комисионна: {promo.commissionRate}%
+                        </span>
+                      </div>
+                    ))}
+
+                  {partnerDashboard.promoCodes?.filter(
+                    (promo) => promo.active
+                  ).length === 0 && (
+                    <p>
+                      В момента нямаш активен промокод.
+                    </p>
+                  )}
+
+                </div>
+
+                {/* PARTNER STATISTICS */}
+
+                <div className="partner-stats-grid">
+
+                  <div className="partner-stat">
+                    <span>ОБЩО СПЕЧЕЛЕНИ</span>
+
+                    <strong>
+                      {formatMoney(
+                        partnerDashboard.stats.totalEarned
+                      )}
+                    </strong>
+
+                    <small>
+                      Всички начислени комисионни
+                    </small>
+                  </div>
+
+                  <div className="partner-stat">
+                    <span>ЗА ИЗПЛАЩАНЕ</span>
+
+                    <strong>
+                      {formatMoney(
+                        partnerDashboard.stats.pendingAmount
+                      )}
+                    </strong>
+
+                    <small>
+                      Чакащи комисионни
+                    </small>
+                  </div>
+
+                  <div className="partner-stat">
+                    <span>ИЗПЛАТЕНИ</span>
+
+                    <strong>
+                      {formatMoney(
+                        partnerDashboard.stats.paidAmount
+                      )}
+                    </strong>
+
+                    <small>
+                      Вече изплатени комисионни
+                    </small>
+                  </div>
+
+                  <div className="partner-stat">
+                    <span>ОБОРОТ</span>
+
+                    <strong>
+                      {formatMoney(
+                        partnerDashboard.stats.referredRevenue
+                      )}
+                    </strong>
+
+                    <small>
+                      След отстъпките, без доставка
+                    </small>
+                  </div>
+
+                  <div className="partner-stat">
+                    <span>УСПЕШНИ ПОРЪЧКИ</span>
+
+                    <strong>
+                      {partnerDashboard.stats.ordersCount}
+                    </strong>
+
+                    <small>
+                      Поръчки с начислена комисионна
+                    </small>
+                  </div>
+
+                </div>
+
+                {/* COMMISSION HISTORY */}
+
+                <div className="partner-history">
+
+                  <div className="partner-history-header">
+                    <div>
+                      <span>YOUR EARNINGS</span>
+                      <h3>История на комисионните</h3>
+                    </div>
+                  </div>
+
+                  {partnerDashboard.commissions?.length === 0 ? (
+                    <div className="partner-empty">
+                      Все още нямаш начислени комисионни.
+                      Сподели своя промокод, за да започнеш да печелиш.
+                    </div>
+                  ) : (
+                    <div className="partner-history-list">
+
+                      {partnerDashboard.commissions.map(
+                        (commission) => (
+                          <article
+                            className="partner-history-item"
+                            key={commission.id}
+                          >
+
+                            <div className="partner-history-main">
+
+                              <div>
+                                <span className="partner-history-label">
+                                  ПОРЪЧКА
+                                </span>
+
+                                <strong>
+                                  {commission.orderId
+                                    ? `#${commission.orderId
+                                        .slice(-8)
+                                        .toUpperCase()}`
+                                    : "Поръчка"}
+                                </strong>
+
+                                <small>
+                                  {formatDate(commission.earnedAt)}
+                                </small>
+                              </div>
+
+                              <div className="partner-history-amount">
+                                <strong>
+                                  +{formatMoney(commission.amount)}
+                                </strong>
+
+                                <span
+                                  className={`partner-commission-status ${getCommissionStatusClass(
+                                    commission.status
+                                  )}`}
+                                >
+                                  {getCommissionStatus(
+                                    commission.status
+                                  )}
+                                </span>
+                              </div>
+
+                            </div>
+
+                            <div className="partner-history-details">
+
+                              <span>
+                                Промокод:{" "}
+                                <strong>
+                                  {commission.promoCode}
+                                </strong>
+                              </span>
+
+                              <span>
+                                Оборот:{" "}
+                                <strong>
+                                  {formatMoney(
+                                    commission.orderAmount
+                                  )}
+                                </strong>
+                              </span>
+
+                              <span>
+                                Комисионна:{" "}
+                                <strong>
+                                  {commission.commissionRate}%
+                                </strong>
+                              </span>
+
+                              {commission.paidAt && (
+                                <span>
+                                  Изплатена на:{" "}
+                                  <strong>
+                                    {formatDate(commission.paidAt)}
+                                  </strong>
+                                </span>
+                              )}
+
+                            </div>
+
+                          </article>
+                        )
+                      )}
+
+                    </div>
+                  )}
+
+                </div>
+
+              </section>
+            )}
+
+            {partnerLoading && (
+              <section className="profile-card partner-loading">
+                Зареждане на партньорската статистика...
+              </section>
+            )}
+
+            {partnerError && (
+              <section className="profile-card partner-error">
+                <p>{partnerError}</p>
+
+                <button
+                  type="button"
+                  onClick={fetchPartnerDashboard}
+                >
+                  Опитай отново
+                </button>
+              </section>
+            )}
+
+            {/* =====================================
+                PERSONAL INFORMATION
+            ===================================== */}
 
             <section className="profile-card">
 
@@ -466,7 +818,9 @@ function Profile() {
                           )}
 
                           <span
-                            className={`my-raffle-status ${getRaffleStatusClass(raffle)}`}
+                            className={`my-raffle-status ${getRaffleStatusClass(
+                              raffle
+                            )}`}
                           >
                             {getRaffleStatus(raffle)}
                           </span>
@@ -497,7 +851,9 @@ function Profile() {
                           <span>ПОХАРЧЕНИ ТОЧКИ</span>
 
                           <strong>
-                            {Number(raffle.pointsSpent || 0).toFixed(0)}
+                            {Number(
+                              raffle.pointsSpent || 0
+                            ).toFixed(0)}
                           </strong>
                         </div>
 
@@ -505,7 +861,9 @@ function Profile() {
                           <span>ШАНС ЗА ПЕЧАЛБА</span>
 
                           <strong>
-                            {Number(raffle.chance || 0).toFixed(2)}%
+                            {Number(
+                              raffle.chance || 0
+                            ).toFixed(2)}%
                           </strong>
                         </div>
 
@@ -542,7 +900,8 @@ function Profile() {
                             <strong>
                               Поздравления! Ти спечели тази награда!
                               <br />
-                              Печеливш билет: #{raffle.winningEntryNumber}
+                              Печеливш билет: #
+                              {raffle.winningEntryNumber}
                             </strong>
                           ) : (
                             <span>
@@ -648,7 +1007,9 @@ function Profile() {
                         </div>
 
                         <span
-                          className={`my-order-status ${getStatusClass(order.status)}`}
+                          className={`my-order-status ${getStatusClass(
+                            order.status
+                          )}`}
                         >
                           {getOrderStatus(order.status)}
                         </span>
