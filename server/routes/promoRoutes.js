@@ -14,6 +14,8 @@ const {
 
 const {
   getMyPartnerDashboard,
+  getAdminPartnerCommissions,
+  markPartnerCommissionAsPaid,
 } = require("../controllers/partnerController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -24,17 +26,26 @@ const router = express.Router();
 // Партньорът вижда само собствената си справка.
 router.get("/my-dashboard", authMiddleware, getMyPartnerDashboard);
 
-// Всички останали маршрути изискват администраторски права.
+// Всички маршрути след тази точка изискват администраторски права.
 router.use(authMiddleware, adminMiddleware);
 
-// Промокодове
+// Администраторска справка за комисионните.
+router.get("/admin/commissions", getAdminPartnerCommissions);
+
+// Маркиране на комисионна като изплатена.
+router.patch(
+  "/admin/commissions/:id/paid",
+  markPartnerCommissionAsPaid
+);
+
+// Промокодове.
 router.get("/", getPromoCodes);
 router.post("/", createPromoCode);
 router.put("/:id", updatePromoCode);
 router.patch("/:id/toggle", togglePromoCode);
 router.delete("/:id", deletePromoCode);
 
-// Партньори
+// Партньори.
 router.get("/partners", getPartners);
 router.post("/partners/activate", activatePartner);
 router.patch("/partners/:id/deactivate", deactivatePartner);
