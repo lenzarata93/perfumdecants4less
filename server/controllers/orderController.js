@@ -1,3 +1,4 @@
+
 const Order = require("../models/Order");
 const Product = require("../models/Product");
 const Counter = require("../models/Counter");
@@ -212,6 +213,9 @@ const processOrderItem = async (item) => {
 
 /**
  * Проверява промокод.
+ *
+ * Минималната стойност се проверява върху
+ * subtotal преди отстъпката и без доставката.
  */
 const validatePromoCode = async (code, subtotal) => {
   if (!code) {
@@ -244,7 +248,9 @@ const validatePromoCode = async (code, subtotal) => {
   }
 
   if (promo.endDate && now > new Date(promo.endDate)) {
-    throw new Error("Срокът на промокода е изтекъл.");
+    throw new Error(
+      "Срокът на промокода е изтекъл."
+    );
   }
 
   if (
@@ -270,6 +276,17 @@ const validatePromoCode = async (code, subtotal) => {
         "Партньорският код вече не е активен."
       );
     }
+  }
+
+  // ПРОВЕРКА ЗА МИНИМАЛНА СТОЙНОСТ НА ПОРЪЧКАТА
+  const minimumOrderAmount = Number(
+    promo.minimumOrderAmount || 0
+  );
+
+  if (subtotal < minimumOrderAmount) {
+    throw new Error(
+      `Минималната стойност на продуктите за този промокод е ${minimumOrderAmount.toFixed(2)} €.`
+    );
   }
 
   let discountAmount = 0;
@@ -867,17 +884,11 @@ const updateOrderStatus = async (req, res) => {
       }
 
       /*
-       * -------------------------
        * ВЪЗСТАНОВЯВАНЕ НА НАЛИЧНОСТ
-       * -------------------------
        *
        * При отказана поръчка връщаме милилитрите
        * в оригиналните бутилки.
-       *
-       * inventoryRestored предпазва от повторно
-       * възстановяване.
        */
-
       if (
         status === "cancelled" &&
         !order.inventoryRestored
@@ -891,14 +902,11 @@ const updateOrderStatus = async (req, res) => {
       order.status = status;
 
       /*
-       * -------------------------
        * ОБЩО ПОХАРЧЕНО
-       * -------------------------
        *
        * Използваме сумата след отстъпката.
        * Доставката не участва.
        */
-
       const eligibleAmount = Number(
         order.discountAmount > 0
           ? order.discountedSubtotal
@@ -927,13 +935,10 @@ const updateOrderStatus = async (req, res) => {
       }
 
       /*
-       * -------------------------
        * БОНУС ТОЧКИ
-       * -------------------------
        *
        * 1 точка за всеки 10 € след отстъпката.
        */
-
       if (
         status === "completed" &&
         order.userId &&
@@ -991,13 +996,10 @@ const updateOrderStatus = async (req, res) => {
       }
 
       /*
-       * -------------------------
        * ПАРТНЬОРСКА КОМИСИОННА
-       * -------------------------
        *
        * Начислява се само при completed.
        */
-
       if (
         status === "completed" &&
         order.promoCode?.type === "partner" &&
