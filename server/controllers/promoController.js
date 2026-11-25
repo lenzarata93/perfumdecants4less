@@ -10,10 +10,11 @@ const getPromoCodes = async (req, res) => {
       .populate("partnerId", "firstName lastName email")
       .sort({ createdAt: -1 });
 
-    res.status(200).json({ promoCodes });
+    return res.status(200).json({ promoCodes });
   } catch (error) {
     console.error("Get promo codes error:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       message: "Грешка при зареждане на промокодовете.",
     });
   }
@@ -37,17 +38,24 @@ const createPromoCode = async (req, res) => {
       active,
     } = req.body;
 
-    if (!code || discountValue === undefined || discountValue === "") {
+    if (
+      !code ||
+      discountValue === undefined ||
+      discountValue === ""
+    ) {
       return res.status(400).json({
         message: "Въведете код и размер на отстъпката.",
       });
     }
 
-    const normalizedCode = String(code).trim().toUpperCase();
+    const normalizedCode = String(code)
+      .trim()
+      .toUpperCase();
 
     if (!/^[A-Z0-9_-]+$/.test(normalizedCode)) {
       return res.status(400).json({
-        message: "Кодът може да съдържа само латински букви, цифри, тире и долна черта.",
+        message:
+          "Кодът може да съдържа само латински букви, цифри, тире и долна черта.",
       });
     }
 
@@ -99,7 +107,9 @@ const createPromoCode = async (req, res) => {
           : 0,
       minimumOrderAmount: Number(minimumOrderAmount || 0),
       usageLimit:
-        usageLimit === "" || usageLimit === null || usageLimit === undefined
+        usageLimit === "" ||
+        usageLimit === null ||
+        usageLimit === undefined
           ? null
           : Number(usageLimit),
       startDate: startDate || new Date(),
@@ -112,15 +122,16 @@ const createPromoCode = async (req, res) => {
       "firstName lastName email"
     );
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Промокодът е създаден успешно.",
       promoCode,
     });
   } catch (error) {
     console.error("Create promo code error:", error);
 
-    res.status(400).json({
-      message: error.message || "Грешка при създаване на промокода.",
+    return res.status(400).json({
+      message:
+        error.message || "Грешка при създаване на промокода.",
     });
   }
 };
@@ -152,7 +163,9 @@ const updatePromoCode = async (req, res) => {
     } = req.body;
 
     if (code !== undefined) {
-      const normalizedCode = String(code).trim().toUpperCase();
+      const normalizedCode = String(code)
+        .trim()
+        .toUpperCase();
 
       if (!/^[A-Z0-9_-]+$/.test(normalizedCode)) {
         return res.status(400).json({
@@ -174,10 +187,22 @@ const updatePromoCode = async (req, res) => {
       promoCode.code = normalizedCode;
     }
 
-    if (description !== undefined) promoCode.description = description;
-    if (discountType !== undefined) promoCode.discountType = discountType;
-    if (discountValue !== undefined) promoCode.discountValue = Number(discountValue);
-    if (commissionRate !== undefined) promoCode.commissionRate = Number(commissionRate);
+    if (description !== undefined) {
+      promoCode.description = description;
+    }
+
+    if (discountType !== undefined) {
+      promoCode.discountType = discountType;
+    }
+
+    if (discountValue !== undefined) {
+      promoCode.discountValue = Number(discountValue);
+    }
+
+    if (commissionRate !== undefined) {
+      promoCode.commissionRate = Number(commissionRate);
+    }
+
     if (minimumOrderAmount !== undefined) {
       promoCode.minimumOrderAmount = Number(minimumOrderAmount);
     }
@@ -189,9 +214,17 @@ const updatePromoCode = async (req, res) => {
           : Number(usageLimit);
     }
 
-    if (startDate !== undefined) promoCode.startDate = startDate;
-    if (endDate !== undefined) promoCode.endDate = endDate || null;
-    if (active !== undefined) promoCode.active = Boolean(active);
+    if (startDate !== undefined) {
+      promoCode.startDate = startDate;
+    }
+
+    if (endDate !== undefined) {
+      promoCode.endDate = endDate || null;
+    }
+
+    if (active !== undefined) {
+      promoCode.active = Boolean(active);
+    }
 
     await promoCode.save();
 
@@ -200,20 +233,21 @@ const updatePromoCode = async (req, res) => {
       "firstName lastName email"
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Промокодът е актуализиран.",
       promoCode,
     });
   } catch (error) {
     console.error("Update promo code error:", error);
 
-    res.status(400).json({
-      message: error.message || "Грешка при редактиране на промокода.",
+    return res.status(400).json({
+      message:
+        error.message || "Грешка при редактиране на промокода.",
     });
   }
 };
 
-// Активиране / деактивиране
+// Активиране / деактивиране на промокод
 const togglePromoCode = async (req, res) => {
   try {
     const promoCode = await PromoCode.findById(req.params.id);
@@ -227,7 +261,7 @@ const togglePromoCode = async (req, res) => {
     promoCode.active = !promoCode.active;
     await promoCode.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: promoCode.active
         ? "Промокодът е активиран."
         : "Промокодът е деактивиран.",
@@ -235,7 +269,8 @@ const togglePromoCode = async (req, res) => {
     });
   } catch (error) {
     console.error("Toggle promo code error:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       message: "Грешка при промяна на статуса.",
     });
   }
@@ -258,18 +293,20 @@ const deletePromoCode = async (req, res) => {
 
     if (promoCode.usageCount > 0 || hasCommissions) {
       return res.status(400).json({
-        message: "Този промокод вече е използван. Деактивирайте го вместо да го изтривате.",
+        message:
+          "Този промокод вече е използван. Деактивирайте го вместо да го изтривате.",
       });
     }
 
     await promoCode.deleteOne();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Промокодът е изтрит.",
     });
   } catch (error) {
     console.error("Delete promo code error:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       message: "Грешка при изтриване на промокода.",
     });
   }
@@ -286,21 +323,35 @@ const getPartners = async (req, res) => {
       .select("firstName lastName email phone createdAt")
       .sort({ createdAt: -1 });
 
-    res.status(200).json({ partners });
+    return res.status(200).json({ partners });
   } catch (error) {
     console.error("Get partners error:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       message: "Грешка при зареждане на партньорите.",
     });
   }
 };
 
-// Активиране на съществуващ клиент като партньор по имейл
+// Активиране на съществуващ клиент като партньор
+// и създаване на неговия индивидуален промокод
 const activatePartner = async (req, res) => {
+  let createdPromo = null;
+
   try {
     const email = String(req.body.email || "")
       .trim()
       .toLowerCase();
+
+    const code = String(req.body.code || "")
+      .trim()
+      .toUpperCase();
+
+    const discountValue = Number(req.body.discountValue);
+    const commissionRate = Number(req.body.commissionRate);
+    const minimumOrderAmount = Number(
+      req.body.minimumOrderAmount
+    );
 
     if (!email) {
       return res.status(400).json({
@@ -308,11 +359,62 @@ const activatePartner = async (req, res) => {
       });
     }
 
+    if (!code) {
+      return res.status(400).json({
+        message: "Въведете промокод за партньора.",
+      });
+    }
+
+    if (!/^[A-Z0-9_-]+$/.test(code)) {
+      return res.status(400).json({
+        message:
+          "Промокодът може да съдържа само латински букви, цифри, тире и долна черта.",
+      });
+    }
+
+    if (
+      !Number.isFinite(discountValue) ||
+      discountValue <= 0 ||
+      discountValue > 100
+    ) {
+      return res.status(400).json({
+        message: "Отстъпката трябва да бъде между 0 и 100%.",
+      });
+    }
+
+    if (
+      !Number.isFinite(commissionRate) ||
+      commissionRate < 0 ||
+      commissionRate > 100
+    ) {
+      return res.status(400).json({
+        message: "Комисионната трябва да бъде между 0 и 100%.",
+      });
+    }
+
+    if (
+      !Number.isFinite(minimumOrderAmount) ||
+      minimumOrderAmount < 0
+    ) {
+      return res.status(400).json({
+        message: "Минималната стойност на поръчката е невалидна.",
+      });
+    }
+
+    const existingCode = await PromoCode.findOne({ code });
+
+    if (existingCode) {
+      return res.status(409).json({
+        message: "Този промокод вече съществува.",
+      });
+    }
+
     const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
-        message: "Не е намерен регистриран потребител с този имейл.",
+        message:
+          "Не е намерен регистриран потребител с този имейл.",
       });
     }
 
@@ -324,7 +426,8 @@ const activatePartner = async (req, res) => {
 
     if (user.isAdmin) {
       return res.status(400).json({
-        message: "Администраторски акаунт не може да бъде добавен като партньор.",
+        message:
+          "Администраторски акаунт не може да бъде добавен като партньор.",
       });
     }
 
@@ -334,13 +437,51 @@ const activatePartner = async (req, res) => {
       });
     }
 
-    user.isPartner = true;
-    user.partnerActive = true;
+    // Запазваме предишните стойности за възстановяване при грешка.
+    const previousIsPartner = user.isPartner;
+    const previousPartnerActive = user.partnerActive;
 
-    await user.save();
+    // Създаваме индивидуалния партньорски промокод.
+    createdPromo = await PromoCode.create({
+      code,
+      description: `Партньорски промокод на ${user.firstName} ${user.lastName}`,
+      type: "partner",
+      partnerId: user._id,
+      discountType: "percent",
+      discountValue,
+      commissionRate,
+      minimumOrderAmount,
+      usageLimit: null,
+      usageCount: 0,
+      startDate: new Date(),
+      endDate: null,
+      active: true,
+    });
 
-    res.status(200).json({
-      message: "Потребителят е активиран като партньор.",
+    try {
+      user.isPartner = true;
+      user.partnerActive = true;
+
+      await user.save();
+    } catch (userSaveError) {
+      // Ако потребителят не може да бъде записан,
+      // премахваме току-що създадения промокод.
+      await PromoCode.findByIdAndDelete(createdPromo._id);
+
+      user.isPartner = previousIsPartner;
+      user.partnerActive = previousPartnerActive;
+
+      throw userSaveError;
+    }
+
+    await createdPromo.populate(
+      "partnerId",
+      "firstName lastName email"
+    );
+
+    return res.status(200).json({
+      message:
+        `Партньорът е активиран успешно. Създаден е промокод ${createdPromo.code}.`,
       partner: {
         id: user._id,
         firstName: user.firstName,
@@ -348,11 +489,26 @@ const activatePartner = async (req, res) => {
         email: user.email,
         phone: user.phone,
       },
+      promoCode: createdPromo,
     });
   } catch (error) {
     console.error("Activate partner error:", error);
-    res.status(500).json({
-      message: "Грешка при активиране на партньора.",
+
+    // Допълнителна защита при грешка след създаването на кода.
+    if (createdPromo) {
+      try {
+        await PromoCode.findByIdAndDelete(createdPromo._id);
+      } catch (deleteError) {
+        console.error(
+          "Rollback partner promo error:",
+          deleteError
+        );
+      }
+    }
+
+    return res.status(500).json({
+      message:
+        error.message || "Грешка при активиране на партньора.",
     });
   }
 };
@@ -374,12 +530,26 @@ const deactivatePartner = async (req, res) => {
     user.partnerActive = false;
     await user.save();
 
-    res.status(200).json({
-      message: "Партньорът е деактивиран.",
+    // Деактивираме и всички активни кодове на партньора.
+    await PromoCode.updateMany(
+      {
+        partnerId: user._id,
+        type: "partner",
+        active: true,
+      },
+      {
+        $set: { active: false },
+      }
+    );
+
+    return res.status(200).json({
+      message:
+        "Партньорът и неговите активни промокодове са деактивирани.",
     });
   } catch (error) {
     console.error("Deactivate partner error:", error);
-    res.status(500).json({
+
+    return res.status(500).json({
       message: "Грешка при деактивиране на партньора.",
     });
   }
