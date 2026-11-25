@@ -393,6 +393,8 @@
   overflow-wrap: anywhere;
 }
 
+/* PARTNER PROMO INFO */
+
 .promo-partner-info {
   display: flex;
   flex-direction: column;
@@ -464,15 +466,52 @@
   line-height: 1.5;
 }
 
+/* PARTNER ACTIVATION AND PROMO FORM */
+
 .partner-activate-box form {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.partner-activate-box form label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+}
+
+.partner-activate-box form label > span {
+  color: #d7c7a7;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .partner-activate-box input {
   flex: 1;
   min-width: 0;
 }
+
+.partner-activate-box form small {
+  display: block;
+  color: rgba(245, 241, 232, 0.5);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.partner-promo-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.partner-activate-box form .promo-primary-button {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 4px;
+}
+
+/* PARTNER LIST */
 
 .partner-list-heading {
   display: flex;
@@ -593,12 +632,32 @@
     padding: 17px;
   }
 
-  .partner-activate-box form {
-    flex-direction: column;
-  }
-
   .partner-activate-box button {
     width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .partner-promo-fields {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .partner-activate-box {
+    padding: 18px;
+  }
+
+  .partner-activate-box h3 {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  .partner-activate-box form {
+    gap: 15px;
+  }
+
+  .partner-activate-box form .promo-primary-button {
+    min-height: 52px;
   }
 }
 
