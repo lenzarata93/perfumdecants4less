@@ -21,6 +21,14 @@ const initialForm = {
   endDate: "",
 };
 
+const initialPartnerForm = {
+  email: "",
+  code: "",
+  discountValue: "",
+  commissionRate: "10",
+  minimumOrderAmount: "40",
+};
+
 function AdminPromos() {
   const { token } = useUser();
 
@@ -35,7 +43,8 @@ function AdminPromos() {
 
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
-  const [partnerEmail, setPartnerEmail] = useState("");
+
+  const [partnerForm, setPartnerForm] = useState(initialPartnerForm);
 
   const authHeaders = {
     "Content-Type": "application/json",
@@ -109,9 +118,22 @@ function AdminPromos() {
     }));
   };
 
+  const handlePartnerChange = (event) => {
+    const { name, value } = event.target;
+
+    setPartnerForm((current) => ({
+      ...current,
+      [name]: value,
+    }));
+  };
+
   const resetForm = () => {
     setForm(initialForm);
     setEditingId(null);
+  };
+
+  const resetPartnerForm = () => {
+    setPartnerForm(initialPartnerForm);
   };
 
   const handleSubmit = async (event) => {
@@ -336,18 +358,66 @@ function AdminPromos() {
     }
   };
 
+  // Активиране на партньор и създаване на неговия промокод
   const handleActivatePartner = async (event) => {
     event.preventDefault();
 
-    if (!partnerEmail.trim()) {
+    setError("");
+    setSuccessMessage("");
+
+    const email = partnerForm.email.trim().toLowerCase();
+    const code = partnerForm.code.trim().toUpperCase();
+    const discountValue = Number(partnerForm.discountValue);
+    const commissionRate = Number(partnerForm.commissionRate);
+    const minimumOrderAmount = Number(
+      partnerForm.minimumOrderAmount
+    );
+
+    if (!email) {
       setError("Въведи имейл на регистриран клиент.");
+      return;
+    }
+
+    if (!code) {
+      setError("Въведи промокод за партньора.");
+      return;
+    }
+
+    if (!/^[A-Z0-9_-]+$/.test(code)) {
+      setError(
+        "Промокодът може да съдържа само латински букви, цифри, тире и долна черта."
+      );
+      return;
+    }
+
+    if (
+      !Number.isFinite(discountValue) ||
+      discountValue <= 0 ||
+      discountValue > 100
+    ) {
+      setError("Отстъпката трябва да бъде между 0 и 100%.");
+      return;
+    }
+
+    if (
+      !Number.isFinite(commissionRate) ||
+      commissionRate < 0 ||
+      commissionRate > 100
+    ) {
+      setError("Комисионната трябва да бъде между 0 и 100%.");
+      return;
+    }
+
+    if (
+      !Number.isFinite(minimumOrderAmount) ||
+      minimumOrderAmount < 0
+    ) {
+      setError("Минималната стойност на поръчката е невалидна.");
       return;
     }
 
     try {
       setActivatingPartner(true);
-      setError("");
-      setSuccessMessage("");
 
       const response = await fetch(
         `${PROMOS_API_URL}/partners/activate`,
@@ -355,7 +425,11 @@ function AdminPromos() {
           method: "POST",
           headers: authHeaders,
           body: JSON.stringify({
-            email: partnerEmail.trim(),
+            email,
+            code,
+            discountValue,
+            commissionRate,
+            minimumOrderAmount,
           }),
         }
       );
@@ -368,8 +442,12 @@ function AdminPromos() {
         );
       }
 
-      setPartnerEmail("");
-      setSuccessMessage(data.message);
+      resetPartnerForm();
+
+      setSuccessMessage(
+        data.message ||
+          "Партньорът и неговият промокод са създадени успешно."
+      );
 
       await fetchData();
     } catch (error) {
@@ -435,7 +513,21 @@ function AdminPromos() {
     }`.trim();
   };
 
-  const activePromos = promoCodes.filter((promo) => promo.active).length;
+  const getPartnerPromo = (partnerId) => {
+    return promoCodes.find(
+      (promo) =>
+        promo.type === "partner" &&
+        String(
+          typeof promo.partnerId === "object"
+            ? promo.partnerId?._id
+            : promo.partnerId
+        ) === String(partnerId)
+    );
+  };
+
+  const activePromos = promoCodes.filter(
+    (promo) => promo.active
+  ).length;
 
   return (
     <>
@@ -474,9 +566,13 @@ function AdminPromos() {
 
           <section className="promo-create-section">
             <div className="promo-section-heading">
-              <span>{editingId ? "РЕДАКТИРАНЕ" : "НОВ ПРОМОКОД"}</span>
+              <span>
+                {editingId ? "РЕДАКТИРАНЕ" : "НОВ ПРОМОКОД"}
+              </span>
               <h2>
-                {editingId ? "Редактирай промокод" : "Създай промокод"}
+                {editingId
+                  ? "Редактирай промокод"
+                  : "Създай промокод"}
               </h2>
             </div>
 
@@ -501,8 +597,12 @@ function AdminPromos() {
                     value={form.type}
                     onChange={handleChange}
                   >
-                    <option value="discount">Обикновен промокод</option>
-                    <option value="partner">Партньорски промокод</option>
+                    <option value="discount">
+                      Обикновен промокод
+                    </option>
+                    <option value="partner">
+                      Партньорски промокод
+                    </option>
                   </select>
                 </label>
               )}
@@ -518,13 +618,19 @@ function AdminPromos() {
                   >
                     <option value="">Избери партньор</option>
                     {partners.map((partner) => (
-                      <option key={partner._id} value={partner._id}>
-                        {partner.firstName} {partner.lastName} – {partner.email}
+                      <option
+                        key={partner._id}
+                        value={partner._id}
+                      >
+                        {partner.firstName} {partner.lastName} –{" "}
+                        {partner.email}
                       </option>
                     ))}
                   </select>
                   {partners.length === 0 && (
-                    <small>Първо активирай поне един партньор.</small>
+                    <small>
+                      Първо активирай поне един партньор.
+                    </small>
                   )}
                 </label>
               )}
@@ -537,7 +643,9 @@ function AdminPromos() {
                   onChange={handleChange}
                 >
                   <option value="percent">Процент (%)</option>
-                  <option value="fixed">Фиксирана сума (€)</option>
+                  <option value="fixed">
+                    Фиксирана сума (€)
+                  </option>
                 </select>
               </label>
 
@@ -547,7 +655,11 @@ function AdminPromos() {
                   type="number"
                   name="discountValue"
                   min="0"
-                  max={form.discountType === "percent" ? "100" : undefined}
+                  max={
+                    form.discountType === "percent"
+                      ? "100"
+                      : undefined
+                  }
                   step="0.01"
                   value={form.discountValue}
                   onChange={handleChange}
@@ -570,14 +682,16 @@ function AdminPromos() {
                     required
                   />
                   <small>
-                    Изчислява се върху стойността на продуктите след
-                    отстъпката, без доставката.
+                    Изчислява се върху стойността на продуктите
+                    след отстъпката, без доставката.
                   </small>
                 </label>
               )}
 
               <label>
-                <span>Минимална стойност на продуктите (€)</span>
+                <span>
+                  Минимална стойност на продуктите (€)
+                </span>
                 <input
                   type="number"
                   name="minimumOrderAmount"
@@ -666,16 +780,23 @@ function AdminPromos() {
             </div>
 
             {loading ? (
-              <div className="promo-empty">Зареждаме данните...</div>
+              <div className="promo-empty">
+                Зареждаме данните...
+              </div>
             ) : promoCodes.length === 0 ? (
               <div className="promo-empty">
                 <h3>Все още няма промокодове.</h3>
-                <p>Създай първия промокод от формата по-горе.</p>
+                <p>
+                  Създай първия промокод от формата по-горе.
+                </p>
               </div>
             ) : (
               <div className="promo-admin-list">
                 {promoCodes.map((promo) => (
-                  <article className="promo-admin-card" key={promo._id}>
+                  <article
+                    className="promo-admin-card"
+                    key={promo._id}
+                  >
                     <div className="promo-card-top">
                       <div>
                         <span
@@ -714,13 +835,18 @@ function AdminPromos() {
                       <div>
                         <span>Минимална поръчка</span>
                         <strong>
-                          {Number(promo.minimumOrderAmount || 0).toFixed(2)} €
+                          {Number(
+                            promo.minimumOrderAmount || 0
+                          ).toFixed(2)}{" "}
+                          €
                         </strong>
                       </div>
 
                       <div>
                         <span>Валиден до</span>
-                        <strong>{formatDate(promo.endDate)}</strong>
+                        <strong>
+                          {formatDate(promo.endDate)}
+                        </strong>
                       </div>
                     </div>
 
@@ -728,9 +854,12 @@ function AdminPromos() {
                       <div className="promo-partner-info">
                         <span>Партньор</span>
                         <strong>{getPartnerName(promo)}</strong>
-                        <small>{promo.partnerId?.email || ""}</small>
+                        <small>
+                          {promo.partnerId?.email || ""}
+                        </small>
                         <span>
-                          Комисионна: {promo.commissionRate ?? 10}%
+                          Комисионна:{" "}
+                          {promo.commissionRate ?? 10}%
                         </span>
                       </div>
                     )}
@@ -755,7 +884,9 @@ function AdminPromos() {
                         className="promo-toggle-button"
                         onClick={() => handleToggle(promo._id)}
                       >
-                        {promo.active ? "Деактивирай" : "Активирай"}
+                        {promo.active
+                          ? "Деактивирай"
+                          : "Активирай"}
                       </button>
 
                       <button
@@ -781,17 +912,84 @@ function AdminPromos() {
             <div className="partner-activate-box">
               <h3>Добави съществуващ клиент като партньор</h3>
               <p>
-                Въведи имейла, с който клиентът вече има регистриран акаунт.
+                Въведи имейла, с който клиентът вече има
+                регистриран акаунт, и настрой неговия промокод.
               </p>
 
               <form onSubmit={handleActivatePartner}>
-                <input
-                  type="email"
-                  value={partnerEmail}
-                  onChange={(event) => setPartnerEmail(event.target.value)}
-                  placeholder="client@email.com"
-                  required
-                />
+                <label>
+                  <span>Имейл на клиента</span>
+                  <input
+                    type="email"
+                    name="email"
+                    value={partnerForm.email}
+                    onChange={handlePartnerChange}
+                    placeholder="client@email.com"
+                    required
+                  />
+                </label>
+
+                <label>
+                  <span>Промокод</span>
+                  <input
+                    type="text"
+                    name="code"
+                    value={partnerForm.code}
+                    onChange={handlePartnerChange}
+                    placeholder="Например: TIKTOK10"
+                    required
+                  />
+                </label>
+
+                <div className="partner-promo-fields">
+                  <label>
+                    <span>Отстъпка за клиента (%)</span>
+                    <input
+                      type="number"
+                      name="discountValue"
+                      min="0.01"
+                      max="100"
+                      step="0.01"
+                      value={partnerForm.discountValue}
+                      onChange={handlePartnerChange}
+                      placeholder="Например: 10"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    <span>Комисионна за партньора (%)</span>
+                    <input
+                      type="number"
+                      name="commissionRate"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={partnerForm.commissionRate}
+                      onChange={handlePartnerChange}
+                      required
+                    />
+                  </label>
+                </div>
+
+                <label>
+                  <span>Минимална стойност на продуктите (€)</span>
+                  <input
+                    type="number"
+                    name="minimumOrderAmount"
+                    min="0"
+                    step="0.01"
+                    value={partnerForm.minimumOrderAmount}
+                    onChange={handlePartnerChange}
+                    required
+                  />
+                </label>
+
+                <small>
+                  Комисионната се изчислява върху стойността на
+                  продуктите след отстъпката, без доставката, и
+                  се начислява при завършена поръчка.
+                </small>
 
                 <button
                   type="submit"
@@ -816,25 +1014,73 @@ function AdminPromos() {
               </div>
             ) : (
               <div className="partner-admin-list">
-                {partners.map((partner) => (
-                  <article className="partner-admin-card" key={partner._id}>
-                    <div>
-                      <strong>
-                        {partner.firstName} {partner.lastName}
-                      </strong>
-                      <span>{partner.email}</span>
-                      <small>{partner.phone || "Няма телефон"}</small>
-                    </div>
+                {partners.map((partner) => {
+                  const partnerPromo = getPartnerPromo(
+                    partner._id
+                  );
 
-                    <button
-                      type="button"
-                      className="promo-delete-button"
-                      onClick={() => handleDeactivatePartner(partner)}
+                  return (
+                    <article
+                      className="partner-admin-card"
+                      key={partner._id}
                     >
-                      Деактивирай
-                    </button>
-                  </article>
-                ))}
+                      <div>
+                        <strong>
+                          {partner.firstName} {partner.lastName}
+                        </strong>
+
+                        <span>{partner.email}</span>
+
+                        <small>
+                          {partner.phone || "Няма телефон"}
+                        </small>
+
+                        {partnerPromo ? (
+                          <div className="promo-partner-info">
+                            <strong>
+                              Код: {partnerPromo.code}
+                            </strong>
+                            <span>
+                              Отстъпка:{" "}
+                              {formatDiscount(partnerPromo)}
+                            </span>
+                            <span>
+                              Комисионна:{" "}
+                              {partnerPromo.commissionRate}%
+                            </span>
+                            <span>
+                              Минимум:{" "}
+                              {Number(
+                                partnerPromo.minimumOrderAmount || 0
+                              ).toFixed(2)}{" "}
+                              €
+                            </span>
+                            <span>
+                              Статус на кода:{" "}
+                              {partnerPromo.active
+                                ? "Активен"
+                                : "Неактивен"}
+                            </span>
+                          </div>
+                        ) : (
+                          <small>
+                            Няма свързан партньорски промокод.
+                          </small>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        className="promo-delete-button"
+                        onClick={() =>
+                          handleDeactivatePartner(partner)
+                        }
+                      >
+                        Деактивирай
+                      </button>
+                    </article>
+                  );
+                })}
               </div>
             )}
           </section>
