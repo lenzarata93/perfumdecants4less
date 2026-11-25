@@ -1,5 +1,5 @@
 
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
 import { useUser } from "../context/UserContext";
@@ -10,6 +10,7 @@ import "./Checkout.css";
 
 function Checkout() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     cartItems,
@@ -20,12 +21,20 @@ function Checkout() {
 
   const { token } = useUser();
 
+  // Вземаме промокода, приложен в количката.
+  const initialPromo = location.state?.appliedPromo || null;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingPromo, setIsCheckingPromo] = useState(false);
 
-  const [promoCodeInput, setPromoCodeInput] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState(null);
-  const [promoMessage, setPromoMessage] = useState("");
+  const [promoCodeInput, setPromoCodeInput] = useState(
+    initialPromo?.code || ""
+  );
+
+  const [appliedPromo, setAppliedPromo] = useState(initialPromo);
+  const [promoMessage, setPromoMessage] = useState(
+    initialPromo ? `Промокодът ${initialPromo.code} е приложен успешно!` : ""
+  );
   const [promoError, setPromoError] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -62,7 +71,7 @@ function Checkout() {
 
   const discountedSubtotal = appliedPromo
     ? Number(appliedPromo.discountedSubtotal)
-    : cartTotal;
+    : Number(cartTotal);
 
   const orderTotal =
     discountedSubtotal + deliveryPrice;
@@ -76,11 +85,7 @@ function Checkout() {
     }));
   };
 
-  /**
-   * Промяна на текста на промокода.
-   * При редактиране премахваме предишната отстъпка,
-   * за да не се използва стар код по погрешка.
-   */
+  // Промяна на текста на промокода.
   const handlePromoInputChange = (event) => {
     setPromoCodeInput(event.target.value);
 
@@ -89,9 +94,7 @@ function Checkout() {
     setPromoError(false);
   };
 
-  /**
-   * Проверява промокода чрез backend.
-   */
+  // Проверка на промокода чрез backend.
   const handleApplyPromo = async () => {
     if (isCheckingPromo || isSubmitting) return;
 
@@ -161,9 +164,7 @@ function Checkout() {
     }
   };
 
-  /**
-   * Премахва приложен промокод.
-   */
+  // Премахване на промокода.
   const handleRemovePromo = () => {
     setAppliedPromo(null);
     setPromoCodeInput("");
@@ -171,9 +172,7 @@ function Checkout() {
     setPromoError(false);
   };
 
-  /**
-   * Създава поръчка.
-   */
+  // Създаване на поръчка.
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -207,7 +206,7 @@ function Checkout() {
           quantity: item.quantity,
         })),
 
-        // Изпращаме само успешно проверения промокод.
+        // Изпращаме само успешно проверения код.
         promoCode: appliedPromo?.code || "",
       };
 
@@ -215,7 +214,6 @@ function Checkout() {
         "Content-Type": "application/json",
       };
 
-      // JWT токен, ако потребителят е логнат.
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }
@@ -240,7 +238,6 @@ function Checkout() {
 
       console.log("Created order:", data.order);
 
-      // Изчистваме количката само след успешна поръчка.
       clearCart();
 
       alert(
@@ -331,9 +328,7 @@ function Checkout() {
                   <span>01</span>
 
                   <div>
-                    <h2>
-                      Лични данни
-                    </h2>
+                    <h2>Лични данни</h2>
 
                     <p>
                       Данните, с които ще
@@ -345,9 +340,7 @@ function Checkout() {
                 <div className="checkout-fields checkout-fields-two">
 
                   <div className="checkout-field">
-                    <label htmlFor="firstName">
-                      Име
-                    </label>
+                    <label htmlFor="firstName">Име</label>
 
                     <input
                       id="firstName"
@@ -362,9 +355,7 @@ function Checkout() {
                   </div>
 
                   <div className="checkout-field">
-                    <label htmlFor="lastName">
-                      Фамилия
-                    </label>
+                    <label htmlFor="lastName">Фамилия</label>
 
                     <input
                       id="lastName"
@@ -383,9 +374,7 @@ function Checkout() {
                 <div className="checkout-fields checkout-fields-two">
 
                   <div className="checkout-field">
-                    <label htmlFor="phone">
-                      Телефон
-                    </label>
+                    <label htmlFor="phone">Телефон</label>
 
                     <input
                       id="phone"
@@ -400,9 +389,7 @@ function Checkout() {
                   </div>
 
                   <div className="checkout-field">
-                    <label htmlFor="email">
-                      Имейл
-                    </label>
+                    <label htmlFor="email">Имейл</label>
 
                     <input
                       id="email"
@@ -428,9 +415,7 @@ function Checkout() {
                   <span>02</span>
 
                   <div>
-                    <h2>
-                      Доставка
-                    </h2>
+                    <h2>Доставка</h2>
 
                     <p>
                       Избери куриер и начин на доставка.
@@ -439,9 +424,7 @@ function Checkout() {
                 </div>
 
                 <div className="checkout-field">
-                  <label htmlFor="city">
-                    Град
-                  </label>
+                  <label htmlFor="city">Град</label>
 
                   <input
                     id="city"
@@ -536,9 +519,7 @@ function Checkout() {
                   <span>03</span>
 
                   <div>
-                    <h2>
-                      Промокод
-                    </h2>
+                    <h2>Промокод</h2>
 
                     <p>
                       Имаш код за отстъпка? Използвай го тук.
@@ -555,7 +536,11 @@ function Checkout() {
                       value={promoCodeInput}
                       onChange={handlePromoInputChange}
                       placeholder="Въведи промокод"
-                      disabled={isSubmitting || isCheckingPromo || Boolean(appliedPromo)}
+                      disabled={
+                        isSubmitting ||
+                        isCheckingPromo ||
+                        Boolean(appliedPromo)
+                      }
                       autoComplete="off"
                     />
 
@@ -600,10 +585,9 @@ function Checkout() {
                   {appliedPromo && (
                     <div className="checkout-promo-applied">
                       <span>✓</span>
+
                       <div>
-                        <strong>
-                          {appliedPromo.code}
-                        </strong>
+                        <strong>{appliedPromo.code}</strong>
 
                         <p>
                           Спестяваш €{discountAmount.toFixed(2)}
@@ -624,9 +608,7 @@ function Checkout() {
                   <span>04</span>
 
                   <div>
-                    <h2>
-                      Плащане
-                    </h2>
+                    <h2>Плащане</h2>
 
                     <p>
                       Засега приемаме плащане
@@ -642,9 +624,7 @@ function Checkout() {
                   </div>
 
                   <div>
-                    <strong>
-                      Наложен платеж
-                    </strong>
+                    <strong>Наложен платеж</strong>
 
                     <p>
                       Плащане при получаване
@@ -701,9 +681,7 @@ function Checkout() {
                   ОБОБЩЕНИЕ
                 </p>
 
-                <h2>
-                  Твоята поръчка
-                </h2>
+                <h2>Твоята поръчка</h2>
 
                 <div className="checkout-products">
 
@@ -714,40 +692,30 @@ function Checkout() {
                     >
 
                       <div className="checkout-product-image">
-
                         {item.image ? (
                           <img
                             src={item.image}
                             alt={item.name}
                           />
                         ) : (
-                          <span>
-                            PD4L
-                          </span>
+                          <span>PD4L</span>
                         )}
-
                       </div>
 
                       <div className="checkout-product-info">
 
-                        <span>
-                          {item.brand}
-                        </span>
+                        <span>{item.brand}</span>
 
-                        <h3>
-                          {item.name}
-                        </h3>
+                        <h3>{item.name}</h3>
 
                         <p>
-                          {item.size} ml ×{" "}
-                          {item.quantity}
+                          {item.size} ml × {item.quantity}
                         </p>
 
                       </div>
 
                       <strong>
-                        €
-                        {(
+                        €{(
                           Number(item.price) *
                           item.quantity
                         ).toFixed(2)}
@@ -761,20 +729,15 @@ function Checkout() {
                 <div className="checkout-summary-divider"></div>
 
                 <div className="checkout-summary-row">
-
-                  <span>
-                    Продукти
-                  </span>
+                  <span>Продукти</span>
 
                   <strong>
-                    €{cartTotal.toFixed(2)}
+                    €{Number(cartTotal).toFixed(2)}
                   </strong>
-
                 </div>
 
                 {appliedPromo && (
                   <div className="checkout-summary-row checkout-discount-row">
-
                     <span>
                       Отстъпка ({appliedPromo.code})
                     </span>
@@ -782,12 +745,10 @@ function Checkout() {
                     <strong>
                       -€{discountAmount.toFixed(2)}
                     </strong>
-
                   </div>
                 )}
 
                 <div className="checkout-summary-row">
-
                   <span>
                     Доставка ({deliveryLabels[formData.deliveryMethod]})
                   </span>
@@ -795,21 +756,16 @@ function Checkout() {
                   <strong>
                     €{deliveryPrice.toFixed(2)}
                   </strong>
-
                 </div>
 
                 <div className="checkout-summary-divider"></div>
 
                 <div className="checkout-summary-total">
-
-                  <span>
-                    Общо
-                  </span>
+                  <span>Общо</span>
 
                   <strong>
                     €{orderTotal.toFixed(2)}
                   </strong>
-
                 </div>
 
               </div>
@@ -818,26 +774,17 @@ function Checkout() {
 
                 <div>
                   <strong>✓</strong>
-
-                  <span>
-                    Оригинални парфюми
-                  </span>
+                  <span>Оригинални парфюми</span>
                 </div>
 
                 <div>
                   <strong>✓</strong>
-
-                  <span>
-                    Точен избран размер
-                  </span>
+                  <span>Точен избран размер</span>
                 </div>
 
                 <div>
                   <strong>✓</strong>
-
-                  <span>
-                    Сигурна обработка на поръчката
-                  </span>
+                  <span>Сигурна обработка на поръчката</span>
                 </div>
 
               </div>
