@@ -1,0 +1,480 @@
+
+.admin-commissions-section {
+  margin-top: 50px;
+  padding: 30px;
+  border: 1px solid rgba(198, 161, 91, 0.22);
+  border-radius: 18px;
+  background: #151515;
+  color: #f5f1e8;
+}
+
+.admin-commissions-heading,
+.commissions-table-heading,
+.commissions-table-heading > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+
+.admin-commissions-heading > div:first-child {
+  min-width: 0;
+}
+
+.admin-commissions-heading > div > span {
+  color: #c6a15b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.admin-commissions-heading h2 {
+  margin: 8px 0;
+  color: #f5f1e8;
+  font-size: 25px;
+}
+
+.admin-commissions-heading p {
+  margin: 0;
+  color: rgba(245, 241, 232, 0.55);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.commissions-refresh-button {
+  flex-shrink: 0;
+  min-height: 42px;
+  padding: 10px 17px;
+  border: 1px solid rgba(198, 161, 91, 0.4);
+  border-radius: 8px;
+  background: rgba(198, 161, 91, 0.1);
+  color: #d5b477;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.commissions-refresh-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.commissions-message {
+  margin-top: 20px;
+  padding: 13px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.commissions-error {
+  border: 1px solid rgba(220, 80, 80, 0.3);
+  background: rgba(180, 55, 55, 0.12);
+  color: #ffaaaa;
+}
+
+.commissions-success {
+  border: 1px solid rgba(90, 180, 120, 0.3);
+  background: rgba(70, 150, 100, 0.12);
+  color: #a8e0b8;
+}
+
+.commissions-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+  margin: 28px 0 38px;
+}
+
+.commissions-stat {
+  min-width: 0;
+  padding: 19px 16px;
+  border: 1px solid rgba(198, 161, 91, 0.17);
+  border-radius: 11px;
+  background: rgba(198, 161, 91, 0.045);
+}
+
+.commissions-stat span,
+.commissions-stat strong,
+.commissions-stat small {
+  display: block;
+}
+
+.commissions-stat span {
+  min-height: 30px;
+  color: rgba(245, 241, 232, 0.55);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.commissions-stat strong {
+  margin: 10px 0 7px;
+  color: #e2c58e;
+  font-size: clamp(19px, 2vw, 25px);
+  overflow-wrap: anywhere;
+}
+
+.commissions-stat small {
+  color: rgba(245, 241, 232, 0.4);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.commissions-stat.pending {
+  border-color: rgba(220, 165, 75, 0.3);
+}
+
+.commissions-stat.pending strong {
+  color: #e7b969;
+}
+
+.commissions-stat.paid {
+  border-color: rgba(90, 170, 120, 0.25);
+}
+
+.commissions-stat.paid strong {
+  color: #a8d9b1;
+}
+
+.commissions-table-heading {
+  margin-bottom: 18px;
+}
+
+.commissions-table-heading h3 {
+  margin: 0;
+  color: #f5f1e8;
+  font-size: 18px;
+}
+
+.commissions-table-heading > div:first-child > span {
+  color: #d5b477;
+  font-size: 11px;
+}
+
+.commissions-filters {
+  display: flex;
+  gap: 10px;
+}
+
+.commissions-filters select {
+  max-width: 210px;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 1px solid rgba(198, 161, 91, 0.22);
+  border-radius: 8px;
+  background: #0e0e0e;
+  color: #f5f1e8;
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+}
+
+.commissions-filters select:focus {
+  border-color: #c6a15b;
+}
+
+.commissions-empty {
+  padding: 38px 20px;
+  border: 1px dashed rgba(198, 161, 91, 0.25);
+  border-radius: 12px;
+  background: rgba(198, 161, 91, 0.025);
+  text-align: center;
+  color: rgba(245, 241, 232, 0.55);
+  font-size: 13px;
+}
+
+.commissions-empty h3 {
+  margin: 0 0 8px;
+  color: #e4d5b9;
+  font-size: 16px;
+}
+
+.commissions-empty p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.commissions-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.commissions-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+
+.commissions-table th {
+  padding: 13px 11px;
+  border-bottom: 1px solid rgba(198, 161, 91, 0.25);
+  color: #c6a15b;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.commissions-table td {
+  padding: 15px 11px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(245, 241, 232, 0.7);
+  vertical-align: middle;
+}
+
+.commissions-table td strong,
+.commissions-table td small {
+  display: block;
+}
+
+.commissions-table td strong {
+  color: #f5f1e8;
+  font-size: 12px;
+}
+
+.commissions-table td small {
+  margin-top: 5px;
+  color: rgba(245, 241, 232, 0.4);
+  font-size: 10px;
+}
+
+.commission-code {
+  color: #e2c58e;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.commission-order-id {
+  color: rgba(245, 241, 232, 0.65);
+  font-family: monospace;
+}
+
+.commissions-table .commission-amount {
+  color: #e2c58e;
+  white-space: nowrap;
+}
+
+.commission-status {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.commission-status.pending {
+  background: rgba(210, 155, 65, 0.13);
+  color: #e7b969;
+}
+
+.commission-status.paid {
+  background: rgba(80, 160, 110, 0.13);
+  color: #9ed7ad;
+}
+
+.commission-status.cancelled {
+  background: rgba(180, 55, 55, 0.13);
+  color: #e99a9a;
+}
+
+.commission-paid-date {
+  display: block;
+  margin-top: 6px;
+  color: rgba(245, 241, 232, 0.4);
+  font-size: 10px;
+}
+
+.commission-pay-button {
+  min-height: 36px;
+  padding: 8px 11px;
+  border: 1px solid rgba(90, 180, 120, 0.35);
+  border-radius: 7px;
+  background: rgba(70, 150, 100, 0.12);
+  color: #a8e0b8;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.commission-pay-button:hover {
+  filter: brightness(1.2);
+}
+
+.commission-pay-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.commission-action-done {
+  color: #9ed7ad;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.commission-action-muted {
+  color: rgba(245, 241, 232, 0.3);
+}
+
+.commissions-mobile-list {
+  display: none;
+}
+
+@media (max-width: 1050px) {
+  .commissions-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 750px) {
+  .admin-commissions-section {
+    padding: 22px 16px;
+  }
+
+  .admin-commissions-heading {
+    align-items: flex-start;
+  }
+
+  .commissions-table-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .commissions-filters {
+    width: 100%;
+  }
+
+  .commissions-filters select {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .commissions-table {
+    min-width: 950px;
+  }
+}
+
+@media (max-width: 560px) {
+  .admin-commissions-heading {
+    flex-direction: column;
+  }
+
+  .commissions-refresh-button {
+    width: 100%;
+  }
+
+  .commissions-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin: 22px 0 30px;
+  }
+
+  .commissions-stat {
+    padding: 14px 12px;
+  }
+
+  .commissions-stat strong {
+    font-size: 18px;
+  }
+
+  .commissions-table-wrapper {
+    overflow: visible;
+  }
+
+  .commissions-table {
+    display: none;
+  }
+
+  .commissions-mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .commission-mobile-card {
+    padding: 16px;
+    border: 1px solid rgba(198, 161, 91, 0.17);
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .commission-mobile-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .commission-mobile-top > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .commission-mobile-top strong {
+    color: #f5f1e8;
+    font-size: 13px;
+  }
+
+  .commission-mobile-top small {
+    color: rgba(245, 241, 232, 0.45);
+    font-size: 10px;
+    overflow-wrap: anywhere;
+  }
+
+  .commission-mobile-code {
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 7px;
+    background: rgba(198, 161, 91, 0.06);
+    color: rgba(245, 241, 232, 0.55);
+    font-size: 11px;
+  }
+
+  .commission-mobile-code strong {
+    color: #e2c58e;
+  }
+
+  .commission-mobile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+  }
+
+  .commission-mobile-details > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .commission-mobile-details span {
+    color: rgba(245, 241, 232, 0.4);
+    font-size: 10px;
+  }
+
+  .commission-mobile-details strong {
+    color: #e5d8c0;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .commission-mobile-details .commission-amount {
+    color: #e2c58e;
+  }
+
+  .commission-mobile-paid-date {
+    color: rgba(245, 241, 232, 0.45);
+    font-size: 10px;
+  }
+
+  .commission-mobile-card .commission-pay-button {
+    width: 100%;
+    min-height: 43px;
+    margin-top: 15px;
+  }
+}
