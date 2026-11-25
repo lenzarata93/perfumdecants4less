@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { useUser } from "../context/UserContext";
 import { API_URL } from "../config";
+import AdminPartnerCommissions from "./AdminPartnerCommissions";
 import "./AdminPromos.css";
 
 const PROMOS_API_URL = `${API_URL}/api/promos`;
@@ -358,7 +359,7 @@ function AdminPromos() {
     }
   };
 
-  // Активиране на партньор и създаване на неговия промокод
+  // Активиране на партньор и създаване на неговия промокод.
   const handleActivatePartner = async (event) => {
     event.preventDefault();
 
@@ -1084,6 +1085,9 @@ function AdminPromos() {
               </div>
             )}
           </section>
+
+          {/* ФИНАНСОВА СПРАВКА ЗА ПАРТНЬОРИТЕ */}
+          <AdminPartnerCommissions />
         </div>
       </main>
     </>
