@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 
 const inventoryUsageSchema = new mongoose.Schema(
@@ -79,9 +78,7 @@ const orderItemSchema = new mongoose.Schema(
       trim: true,
     },
 
-    /*
-     * Бутилката, която е определила продажната цена.
-     */
+    // Бутилката, която е определила продажната цена.
     pricingBottleId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -93,17 +90,13 @@ const orderItemSchema = new mongoose.Schema(
       min: 0,
     },
 
-    /*
-     * Реално използваните количества от всяка бутилка.
-     */
+    // Реално използваните количества от всяка бутилка.
     inventoryUsage: {
       type: [inventoryUsageSchema],
       default: [],
     },
 
-    /*
-     * Общата реална себестойност на тази позиция.
-     */
+    // Общата реална себестойност на тази позиция.
     costTotal: {
       type: Number,
       required: true,
@@ -122,14 +115,8 @@ const orderSchema = new mongoose.Schema(
       index: true,
     },
 
-    /*
-     * Регистрираният клиент, направил поръчката.
-     *
-     * null = поръчка като гост.
-     *
-     * Това ни позволява да запазим възможността
-     * за guest checkout.
-     */
+    // Регистрираният клиент, направил поръчката.
+    // null = поръчка като гост.
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -217,33 +204,23 @@ const orderSchema = new mongoose.Schema(
 
     items: {
       type: [orderItemSchema],
-
       required: true,
 
       validate: {
         validator: (items) => items.length > 0,
-
         message:
           "Поръчката трябва да съдържа поне един продукт.",
       },
     },
 
-    /*
-     * Първоначална стойност на продуктите
-     * преди промокод.
-     */
+    // Първоначална стойност на продуктите преди промокод.
     subtotal: {
       type: Number,
       required: true,
       min: 0,
     },
 
-    /*
-     * Информация за използвания промокод.
-     *
-     * Всички стойности се запазват към момента
-     * на създаване на поръчката.
-     */
+    // Информация за използвания промокод.
     promoCode: {
       code: {
         type: String,
@@ -302,19 +279,14 @@ const orderSchema = new mongoose.Schema(
       },
     },
 
-    /*
-     * Крайна стойност на продуктите
-     * след отстъпката.
-     */
+    // Крайна стойност на продуктите след отстъпката.
     discountedSubtotal: {
       type: Number,
       default: 0,
       min: 0,
     },
 
-    /*
-     * Реално приспадната отстъпка.
-     */
+    // Реално приспадната отстъпка.
     discountAmount: {
       type: Number,
       default: 0,
@@ -333,10 +305,7 @@ const orderSchema = new mongoose.Schema(
       min: 0,
     },
 
-    /*
-     * Обща себестойност на всички продукти
-     * в поръчката.
-     */
+    // Обща себестойност на всички продукти.
     totalCost: {
       type: Number,
       required: true,
@@ -344,30 +313,21 @@ const orderSchema = new mongoose.Schema(
       default: 0,
     },
 
-    /*
-     * Брутна печалба преди други разходи.
-     *
-     * discountedSubtotal - totalCost
-     */
+    // Брутна печалба: discountedSubtotal - totalCost.
     grossProfit: {
       type: Number,
       required: true,
       default: 0,
     },
 
-    /*
-     * Бонус точки, начислени от тази поръчка.
-     */
+    // Бонус точки, начислени от тази поръчка.
     pointsEarned: {
       type: Number,
       default: 0,
       min: 0,
     },
 
-    /*
-     * Дали точките вече са начислени.
-     * Предпазва от повторно начисляване.
-     */
+    // Дали точките вече са начислени.
     pointsAwarded: {
       type: Boolean,
       default: false,
@@ -380,7 +340,6 @@ const orderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-
       enum: [
         "pending",
         "confirmed",
@@ -389,8 +348,13 @@ const orderSchema = new mongoose.Schema(
         "completed",
         "cancelled",
       ],
-
       default: "pending",
+    },
+
+    // Предпазва от повторно възстановяване на наличността.
+    inventoryRestored: {
+      type: Boolean,
+      default: false,
     },
 
     notes: {
@@ -404,7 +368,4 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model(
-  "Order",
-  orderSchema
-);
+module.exports = mongoose.model("Order", orderSchema);
